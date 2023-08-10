@@ -28,7 +28,8 @@ require('lazy').setup({
   -- Git related plugins
   'tpope/vim-fugitive',
   'tpope/vim-rhubarb',
-
+  'pocco81/auto-save.nvim',
+  'easymotion/vim-easymotion',
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
 
@@ -526,6 +527,14 @@ vim.api.nvim_set_keymap('v', '<C-j>', '}', { noremap = true })
 
 vim.api.nvim_set_keymap('n', '<C-k>', '{', { silent = true })
 vim.api.nvim_set_keymap('v', '<C-k>', '{', { silent = true })
+
+vim.api.nvim_set_keymap('n', '<A-j>', 'yyp', { noremap = true })
+vim.api.nvim_set_keymap('n', '<A-k>', 'yykp', { noremap = true })
+
+vim.api.nvim_set_keymap('i', '<C-H>', '<C-W>', { noremap = true })
+
+vim.opt.list = true
+vim.opt.listchars = vim.opt.listchars + "space:·"
 
 -- Exit terminal mode with Esc
 vim.api.nvim_set_keymap('t', '<Esc>', '<C-\\><C-n>', { nowait = true })
