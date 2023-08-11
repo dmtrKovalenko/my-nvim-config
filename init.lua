@@ -1,5 +1,6 @@
 vim.g.mapleader = '='
 vim.g.maplocalleader = '='
+vim.g.kitty_fast_forwarded_modifiers = 'super'
 
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
@@ -25,15 +26,22 @@ local if_not_vscode = function() return not vim.g.vscode end
 require('lazy').setup({
   -- NOTE: First, some plugins that don't require any configuration
 
-  -- Git related plugins
-  'tpope/vim-fugitive',
-  'tpope/vim-rhubarb',
+  'github/copilot.vim',
+  'tpope/vim-fugitive', 'tpope/vim-rhubarb',
   'pocco81/auto-save.nvim',
+  'airblade/vim-rooter',
+  'mg979/vim-visual-multi',
+  {
+    "NvChad/nvterm",
+    config = function()
+      require("nvterm").setup()
+    end,
+  },
   'easymotion/vim-easymotion',
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
 
-  -- NOTE: This is where your plugins related to LSP can be installed.
+  -- NOTE: This is here your plugins related to LSP can be installed.
   --  The configuration is done below. Search for lspconfig to find it below.
   {
     -- LSP Configuration & Plugins
@@ -173,7 +181,7 @@ require('lazy').setup({
         }
       })
 
-      vim.keymap.set('n', '<leader>b', ':NvimTreeToggle<CR>', { noremap = true })
+      vim.keymap.set('n', '<D-b>', ':NvimTreeToggle<CR>', { noremap = true })
     end,
   },
   {
@@ -293,7 +301,10 @@ vim.keymap.set('n', '<leader>/', function()
 end, { desc = '[/] Fuzzily search in current buffer' })
 
 vim.keymap.set('n', '<leader>gf', require('telescope.builtin').git_files, { desc = 'Search [G]it [F]iles' })
+vim.keymap.set('n', '<D-p>', require('telescope.builtin').git_files, { desc = 'Search [G]it [F]iles' })
+
 vim.keymap.set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
+vim.keymap.set('n', '<D-k>', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
 vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
 vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
 vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
@@ -389,9 +400,11 @@ local on_attach = function(_, bufnr)
   end
 
   nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
-  nmap('<leader>ca', vim.lsp.buf.code_action, '[C]ode [A]ction')
+  nmap('<D-r>', vim.lsp.buf.rename, '[R]e[n]ame')
+  nmap('<D-.>', vim.lsp.buf.code_action, '[C]ode [A]ction')
 
   nmap('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
+  nmap('<D-g>', vim.lsp.buf.definition, '[G]oto [D]efinition')
   nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
   nmap('gI', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
   nmap('<leader>D', vim.lsp.buf.type_definition, 'Type [D]efinition')
@@ -399,10 +412,9 @@ local on_attach = function(_, bufnr)
   nmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
 
   -- See `:help K` for why this keymap
-  nmap('<C-i>', vim.lsp.buf.hover, 'Hover Documentation')
-  nmap('<C-u>', vim.lsp.buf.signature_help, 'Signature Documentation')
-  nmap('<C-f>', vim.lsp.buf.format, 'Format')
-
+  nmap('<D-i>', vim.lsp.buf.hover, 'Hover Documentation')
+  nmap('<D-u>', vim.lsp.buf.signature_help, 'Signature Documentation')
+  nmap('<A-F>', vim.lsp.buf.format, 'Format')
 
   -- Lesser used LSP functionality
   nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
@@ -490,7 +502,7 @@ cmp.setup {
       behavior = cmp.ConfirmBehavior.Replace,
       select = true,
     },
-    ['<Tab>'] = cmp.mapping(function(fallback)
+    ['<D-i>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_next_item()
       elseif luasnip.expand_or_locally_jumpable() then
@@ -528,13 +540,25 @@ vim.api.nvim_set_keymap('v', '<C-j>', '}', { noremap = true })
 vim.api.nvim_set_keymap('n', '<C-k>', '{', { silent = true })
 vim.api.nvim_set_keymap('v', '<C-k>', '{', { silent = true })
 
-vim.api.nvim_set_keymap('n', '<A-j>', 'yyp', { noremap = true })
-vim.api.nvim_set_keymap('n', '<A-k>', 'yykp', { noremap = true })
+vim.api.nvim_set_keymap('n', '<A-k>', 'dd2kp', { noremap = true })
+vim.api.nvim_set_keymap('n', '<A-j>', 'ddp', { noremap = true })
 
-vim.api.nvim_set_keymap('i', '<C-H>', '<C-W>', { noremap = true })
+-- Bound command key to the various of actions
+vim.api.nvim_set_keymap('n', '<D-f>', '/', { noremap = true })
+vim.api.nvim_set_keymap('n', '<D-v>', 'p', { noremap = true })
+vim.api.nvim_set_keymap('i', '<D-v>', '<C-r>+', { noremap = true })
+vim.api.nvim_set_keymap('n', '<D-s>', ':w<CR>', { noremap = true })
+vim.api.nvim_set_keymap('n', '<D-d>', '<C-n>', { silent = true })
+vim.api.nvim_set_keymap('n', '<A-g>', ':Git<CR>', { silent = true })
 
+-- Renders spaces as dots
 vim.opt.list = true
 vim.opt.listchars = vim.opt.listchars + "space:·"
 
 -- Exit terminal mode with Esc
 vim.api.nvim_set_keymap('t', '<Esc>', '<C-\\><C-n>', { nowait = true })
+function ToggleTerminal()
+  require("nvterm.terminal").toggle("horizontal")
+end
+
+vim.api.nvim_set_keymap('n', '<leader>c', ':lua require("nvterm.terminal").toggle("horizontal")<CR>', {});

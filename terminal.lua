@@ -87,14 +87,14 @@ vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = tr
 
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
-local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true })
-vim.api.nvim_create_autocmd('TextYankPost', {
-  callback = function()
-    vim.highlight.on_yank()
-  end,
-  group = highlight_group,
-  pattern = '*',
-})
+-- local highlight_group = vim.api.nvim_create_augroup('YankHighlight', { clear = true })
+-- vim.api.nvim_create_autocmd('TextYankPost', {
+--   callback = function()
+--     vim.highlight.on_yank()
+--   end,
+--   group = highlight_group,
+--   pattern = '*',
+-- })
 
 vim.opt.termguicolors = true
 
@@ -110,11 +110,13 @@ vim.api.nvim_set_keymap('t', '<Esc>', '<C-\\><C-n>', { nowait = true })
 local shell = 'fish'
 
 -- Rebinds the splits to immediately open the the new terminal on the right/bottom.
-vim.api.nvim_set_keymap('n', '<C-w>v', string.format(':vsplit term://%s<CR><C-w>L', shell), { noremap = true, silent = true})
-vim.api.nvim_set_keymap('n', '<C-w>s', string.format(':split term://%s<CR><C-w>J', shell), { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<C-w>v', string.format(':vsplit term://%s<CR><C-w>L', shell),
+  { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<C-w>s', string.format(':split term://%s<CR><C-w>J', shell),
+  { noremap = true, silent = true })
 
 -- The most embarassing part of this config. Yes, I can open the file path under cursor with one command.
--- And yes, I'm running neovim terminals inside vscode. 
+-- And yes, I'm running neovim terminals inside vscode.
 function OpenInVscode()
   local clipboard_content = vim.fn.getreg('+')
   local command = 'code -r -g ' .. clipboard_content
