@@ -18,14 +18,7 @@ vim.opt.rtp:prepend(lazypath)
 -- Specific configuration for vscode-nvim
 local if_not_vscode = function() return not vim.g.vscode end
 
--- NOTE: Here is where you install your plugins.
---  You can configure plugins using the `config` key.
---
---  You can also configure plugins after the setup call,
---    as they will be available in your neovim runtime.
 require('lazy').setup({
-  -- NOTE: First, some plugins that don't require any configuration
-
   'github/copilot.vim',
   'tpope/vim-fugitive', 'tpope/vim-rhubarb',
   'pocco81/auto-save.nvim',
