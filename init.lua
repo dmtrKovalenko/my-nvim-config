@@ -20,10 +20,16 @@ local if_not_vscode = function() return not vim.g.vscode end
 
 require('lazy').setup({
   'github/copilot.vim',
-  'tpope/vim-fugitive', 'tpope/vim-rhubarb',
+  -- Git plugins
+  'tpope/vim-fugitive',
+  'tpope/vim-rhubarb',
+  -- Autosave, not sure why I have it
   'pocco81/auto-save.nvim',
-  'airblade/vim-rooter',
+  -- Multi cursor suppor]
   'mg979/vim-visual-multi',
+  -- Camel case motion plugin
+  { "chrisgrieser/nvim-spider", lazy = true },
+  -- Toggle terminal function
   {
     "NvChad/nvterm",
     config = function()
@@ -70,7 +76,7 @@ require('lazy').setup({
   },
 
   -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim',          opts = {} },
+  { 'folke/which-key.nvim',     opts = {} },
   {
     -- Adds git releated signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
@@ -148,14 +154,10 @@ require('lazy').setup({
     version = "*",
     lazy = false,
     cond = if_not_vscode,
+    dependencies = {
+      { 'nvim-tree/nvim-web-devicons', config = function() require("nvim-web-devicons").setup() end }
+    },
     config = function()
-      vim.g.nvim_tree_show_icons = {
-        git = 0,
-        folders = 0,
-        files = 0,
-        folder_arrows = 0,
-      }
-
       require("nvim-tree").setup({
         sort_by = "case_sensitive",
         view = {
@@ -188,20 +190,17 @@ require('lazy').setup({
       end
     end,
   },
-
-  -- NOTE: Next Step on Your Neovim Journey: Add/Configure additional "plugins" for kickstart
-  --       These are some example plugins that I've included in the kickstart repository.
-  --       Uncomment any of the lines below to enable them.
-  -- require 'kickstart.plugins.autoformat',
-  -- require 'kickstart.plugins.debug',
-
-  -- NOTE: The import below can automatically add your own plugins, configuration, etc from `lua/custom/plugins/*.lua`
-  --    You can use this folder to prevent any conflicts with this init.lua if you're interested in keeping
-  --    up-to-date with whatever is in the kickstart repo.
-  --    Uncomment the following line and add your plugins to `lua/custom/plugins/*.lua` to get going.
-  --
-  --    For additional information see: https://github.com/folke/lazy.nvim#-structuring-your-plugins
-  -- { import = 'custom.plugins' },
+  -- Make code actions looks awesom
+  {
+    'kosayoda/nvim-lightbulb',
+    lazy = true,
+    config = function()
+      require("nvim-lightbulb").setup({
+        autocmd = { enabled = true }
+      })
+    end
+  },
+  'weilbith/nvim-code-action-menu',
 }, {})
 
 -- [[ Setting options ]]
@@ -285,13 +284,12 @@ pcall(require('telescope').load_extension, 'fzf')
 -- See `:help telescope.builtin`
 vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
 vim.keymap.set('n', '<leader><space>', require('telescope.builtin').buffers, { desc = '[ ] Find existing buffers' })
-vim.keymap.set('n', '<leader>/', function()
+vim.keymap.set('n', '<D-f>', function()
   -- You can pass additional configuration to telescope to change theme, layout, etc.
   require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
-    winblend = 10,
-    previewer = false,
+    previewer = true,
   })
-end, { desc = '[/] Fuzzily search in current buffer' })
+end, { desc = '] Fuzzily search in current buffer' })
 
 vim.keymap.set('n', '<leader>gf', require('telescope.builtin').git_files, { desc = 'Search [G]it [F]iles' })
 vim.keymap.set('n', '<D-p>', require('telescope.builtin').git_files, { desc = 'Search [G]it [F]iles' })
@@ -377,7 +375,7 @@ vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagn
 
 -- [[ Configure LSP ]]
 --  This function gets run when an LSP connects to a particular buffer.
-local on_attach = function(_, bufnr)
+local on_lsp_attach = function(_, bufnr)
   -- NOTE: Remember that lua is a real programming language, and as such it is possible
   -- to define small helper and utility functions so you don't have to repeat yourself
   -- many times.
@@ -394,7 +392,7 @@ local on_attach = function(_, bufnr)
 
   nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
   nmap('<D-r>', vim.lsp.buf.rename, '[R]e[n]ame')
-  nmap('<D-.>', vim.lsp.buf.code_action, '[C]ode [A]ction')
+  nmap('<D-.>', ':CodeActionMenu<CR>', '[C]ode [A]ction')
 
   nmap('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
   nmap('<D-g>', vim.lsp.buf.definition, '[G]oto [D]efinition')
@@ -465,7 +463,7 @@ mason_lspconfig.setup_handlers {
   function(server_name)
     require('lspconfig')[server_name].setup {
       capabilities = capabilities,
-      on_attach = on_attach,
+      on_attach = on_lsp_attach,
       settings = servers[server_name],
       filetypes = (servers[server_name] or {}).filetypes,
     }
@@ -534,24 +532,34 @@ vim.api.nvim_set_keymap('n', '<C-k>', '{', { silent = true })
 vim.api.nvim_set_keymap('v', '<C-k>', '{', { silent = true })
 
 vim.api.nvim_set_keymap('n', '<A-k>', 'dd2kp', { noremap = true })
+vim.api.nvim_set_keymap('v', '<A-k>', 'd2kp', { noremap = true })
+
 vim.api.nvim_set_keymap('n', '<A-j>', 'ddp', { noremap = true })
+vim.api.nvim_set_keymap('v', '<A-j>', 'dp', { noremap = true })
 
 -- Bound command key to the various of actions
-vim.api.nvim_set_keymap('n', '<D-f>', '/', { noremap = true })
 vim.api.nvim_set_keymap('n', '<D-v>', 'p', { noremap = true })
-vim.api.nvim_set_keymap('i', '<D-v>', '<C-r>+', { noremap = true })
+
 vim.api.nvim_set_keymap('n', '<D-s>', ':w<CR>', { noremap = true })
 vim.api.nvim_set_keymap('n', '<D-d>', '<C-n>', { silent = true })
 vim.api.nvim_set_keymap('n', '<A-g>', ':Git<CR>', { silent = true })
 
--- Renders spaces as dots
+-- Bind additional command key to the insert mode actions
+vim.api.nvim_set_keymap('i', '<D-v>', '<C-r>+', { noremap = true })
+vim.api.nvim_set_keymap('i', '<A-BS>', '<C-w>', { noremap = true })
+
+vim.api.nvim_set_keymap('n', '<D-/>', 'gc_', { nowait = true })
+vim.api.nvim_set_keymap('v', '<D-/>', 'gc', { nowait = true })
+
+-- Duplicate lines
+vim.api.nvim_set_keymap('v', '<D-j>', 'y`>p', { noremap = false })
+vim.api.nvim_set_keymap('v', '<D-k>', 'y`<p', { noremap = false })
+
+-- Renders spaces as d
 vim.opt.list = true
 vim.opt.listchars = vim.opt.listchars + "space:·"
 
 -- Exit terminal mode with Esc
 vim.api.nvim_set_keymap('t', '<Esc>', '<C-\\><C-n>', { nowait = true })
-function ToggleTerminal()
-  require("nvterm.terminal").toggle("horizontal")
-end
 
-vim.api.nvim_set_keymap('n', '<leader>c', ':lua require("nvterm.terminal").toggle("horizontal")<CR>', {});
+vim.keymap.set('n', '<A-C>', function() require("nvterm.terminal").toggle("horizontal") end, {});
