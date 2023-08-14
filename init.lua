@@ -2,7 +2,55 @@ vim.g.mapleader = '='
 vim.g.maplocalleader = '='
 vim.g.kitty_fast_forwarded_modifiers = 'super'
 
+-- disable netrw at the very start of your init.lua
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
+
+
+-- [[ Setting options ]]
+-- See `:help vim.o`
+
+-- Make line numbers default
+vim.wo.number = true
+vim.wo.relativenumber = true
+
+-- Enable mouse mode
+vim.o.mouse = 'a'
+
+-- Sync clipboard between OS and Neovim.
+--  Remove this option if you want your OS clipboard to remain independent.
+--  See `:help 'clipboard'`
+vim.o.clipboard = 'unnamedplus'
+
+-- Enable break indent
+vim.o.breakindent = true
+
+-- Save undo history
+vim.o.undofile = true
+
+-- Case-insensitive searching UNLESS \C or capital in search
+vim.o.ignorecase = true
+vim.o.smartcase = true
+
+-- Keep signcolumn on by default
+vim.wo.signcolumn = 'yes'
+
+-- Decrease update time
+vim.o.updatetime = 250
+vim.o.timeoutlen = 300
+
+-- Set completeopt to have a better completion experience
+vim.o.completeopt = 'menuone,noselect'
+
+-- set termguicolors to enable highlight groups
+vim.o.termguicolors = true;
+
+-- Renders spaces as "·"
+vim.opt.list = true
+vim.opt.listchars = vim.opt.listchars + "space:·"
+
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
+
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system {
     'git',
@@ -23,17 +71,21 @@ require('lazy').setup({
   -- Git plugins
   'tpope/vim-fugitive',
   'tpope/vim-rhubarb',
+  'lewis6991/fileline.nvim',
   -- Autosave, not sure why I have it
   'pocco81/auto-save.nvim',
   -- Multi cursor suppor]
   'mg979/vim-visual-multi',
   -- Camel case motion plugin
   { "chrisgrieser/nvim-spider", lazy = true },
-  -- Toggle terminal function
+  -- Toggle terminal plugin
   {
     "NvChad/nvterm",
     config = function()
       require("nvterm").setup()
+      local toggleTerm = function() require("nvterm.terminal").toggle("horizontal") end;
+      vim.keymap.set('n', '<A-C>', toggleTerm, {});
+      vim.keymap.set({ 'n', 't' }, '<D-S-c>', toggleTerm, {});
     end,
   },
   'easymotion/vim-easymotion',
@@ -190,10 +242,9 @@ require('lazy').setup({
       end
     end,
   },
-  -- Make code actions looks awesom
   {
     'kosayoda/nvim-lightbulb',
-    lazy = true,
+    lazy = false,
     config = function()
       require("nvim-lightbulb").setup({
         autocmd = { enabled = true }
@@ -201,58 +252,14 @@ require('lazy').setup({
     end
   },
   'weilbith/nvim-code-action-menu',
+  'nkrkv/nvim-treesitter-rescript'
 }, {})
 
--- [[ Setting options ]]
--- See `:help vim.o`
--- NOTE: You can change hese options as you wish!
-
--- Set highlight on search
-
--- Make line numbers default
-vim.wo.number = true
-vim.wo.relativenumber = true
-
--- Enable mouse mode
-vim.o.mouse = 'a'
-
--- Sync clipboard between OS and Neovim.
---  Remove this option if you want your OS clipboard to remain independent.
---  See `:help 'clipboard'`
-vim.o.clipboard = 'unnamedplus'
-
--- Enable break indent
-vim.o.breakindent = true
-
--- Save undo history
-vim.o.undofile = true
-
--- Case-insensitive searching UNLESS \C or capital in search
-vim.o.ignorecase = true
-vim.o.smartcase = true
-
--- Keep signcolumn on by default
-vim.wo.signcolumn = 'yes'
-
--- Decrease update time
-vim.o.updatetime = 250
-vim.o.timeoutlen = 300
-
--- Set completeopt to have a better completion experience
-vim.o.completeopt = 'menuone,noselect'
-
--- NOTE: You should make sure your terminal supports this
-vim.o.termguicolors = true;
 
 -- [[ Basic Keymaps ]]
 
 -- Keymaps for better default experience
 -- See `:help vim.keymap.set()`
-vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
-
--- Remap for dealing with word wrap
-vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
-vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
@@ -281,7 +288,7 @@ require('telescope').setup {
 -- Enable telescope fzf native, if installed
 pcall(require('telescope').load_extension, 'fzf')
 
--- See `:help telescope.builtin`
+-- Set telescope keymaps
 vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
 vim.keymap.set('n', '<leader><space>', require('telescope.builtin').buffers, { desc = '[ ] Find existing buffers' })
 vim.keymap.set('n', '<D-f>', function()
@@ -305,7 +312,7 @@ vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { de
 -- See `:help nvim-treesitter`
 require('nvim-treesitter.configs').setup {
   -- Add languages to be installed here that you want installed for treesitter
-  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'typescript', 'vimdoc', 'vim' },
+  ensure_installed = { 'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'typescript', 'vimdoc', 'vim', 'rescript' },
 
   -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
   auto_install = false,
@@ -518,48 +525,51 @@ cmp.setup {
   },
 }
 
--- disable netrw at the very start of your init.lua
-vim.g.loaded_netrw = 1
-vim.g.loaded_netrwPlugin = 1
+-- Set all the overrides and the extensions for the things that are available in native vim
+vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
+-- Remap for dealing with word wrap
+vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
+vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
--- set termguicolors to enable highlight groups
-vim.opt.termguicolors = true
+-- My lovely vertical navigation speedups
+vim.keymap.set({ 'n', 'v' }, '<C-j>', '}', { noremap = true })
+vim.keymap.set({ 'n', 'v' }, '<C-k>', '{', { silent = true })
+vim.keymap.set({ 'n', 'v' }, 'J', '10j', { silent = true })
+vim.keymap.set({ 'n', 'v' }, 'K', '10k', { silent = true })
 
-vim.api.nvim_set_keymap('n', '<C-j>', '}', { noremap = true })
-vim.api.nvim_set_keymap('v', '<C-j>', '}', { noremap = true })
+-- Move lines up and down
+vim.api.nvim_set_keymap('n', '<A-j>', "V:move '>+1<CR>gv", { noremap = true, silent = true })
+vim.api.nvim_set_keymap('x', '<A-j>', ":move '>+1<CR>gv", { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<A-k>', "V:move '>-2<CR>gv", { noremap = true, silent = true })
+vim.api.nvim_set_keymap('x', '<A-k>', ":move '<-2<CR>gv", { noremap = true, silent = true })
 
-vim.api.nvim_set_keymap('n', '<C-k>', '{', { silent = true })
-vim.api.nvim_set_keymap('v', '<C-k>', '{', { silent = true })
-
-vim.api.nvim_set_keymap('n', '<A-k>', 'dd2kp', { noremap = true })
-vim.api.nvim_set_keymap('v', '<A-k>', 'd2kp', { noremap = true })
-
-vim.api.nvim_set_keymap('n', '<A-j>', 'ddp', { noremap = true })
-vim.api.nvim_set_keymap('v', '<A-j>', 'dp', { noremap = true })
-
--- Bound command key to the various of actions
+-- Paste line on cmd+v
 vim.api.nvim_set_keymap('n', '<D-v>', 'p', { noremap = true })
-
-vim.api.nvim_set_keymap('n', '<D-s>', ':w<CR>', { noremap = true })
-vim.api.nvim_set_keymap('n', '<D-d>', '<C-n>', { silent = true })
-vim.api.nvim_set_keymap('n', '<A-g>', ':Git<CR>', { silent = true })
-
--- Bind additional command key to the insert mode actions
 vim.api.nvim_set_keymap('i', '<D-v>', '<C-r>+', { noremap = true })
+
+-- Write file on cmd+s
+vim.api.nvim_set_keymap('n', '<D-s>', ':w<CR>', { noremap = true })
+-- Open git
+vim.api.nvim_set_keymap('n', '<A-g>', ':Git<CR>', { silent = true })
+vim.api.nvim_set_keymap('n', '<D-S-g>', ':Git<CR>', { silent = true })
+
+-- Map multi cursor view to the cmd
+vim.api.nvim_set_keymap('n', '<D-d>', '<C-n>', { silent = true })
+vim.api.nvim_set_keymap('v', '<D-d>', '<C-n>', { silent = true })
+
+-- Delete a word by alt+backspace
 vim.api.nvim_set_keymap('i', '<A-BS>', '<C-w>', { noremap = true })
 
+-- Comment out lines
 vim.api.nvim_set_keymap('n', '<D-/>', 'gc_', { nowait = true })
 vim.api.nvim_set_keymap('v', '<D-/>', 'gc', { nowait = true })
 
 -- Duplicate lines
-vim.api.nvim_set_keymap('v', '<D-j>', 'y`>p', { noremap = false })
-vim.api.nvim_set_keymap('v', '<D-k>', 'y`<p', { noremap = false })
-
--- Renders spaces as d
-vim.opt.list = true
-vim.opt.listchars = vim.opt.listchars + "space:·"
+vim.api.nvim_set_keymap('v', '<D-C-Up>', 'y`>p`<', { silent = true })
+vim.api.nvim_set_keymap('n', '<D-C-Up>', 'Vy`>p`<', { silent = true })
+vim.api.nvim_set_keymap('v', '<D-C-Down>', 'y`<kp`>', { silent = true })
+vim.api.nvim_set_keymap('n', '<D-C-Down>', 'Vy`<p`>', { silent = true })
 
 -- Exit terminal mode with Esc
 vim.api.nvim_set_keymap('t', '<Esc>', '<C-\\><C-n>', { nowait = true })
-
-vim.keymap.set('n', '<A-C>', function() require("nvterm.terminal").toggle("horizontal") end, {});
+vim.api.nvim_set_keymap('n', 'gf', 'yiW<C-w>k:e <C-r>"<CR>', { silent = true })
