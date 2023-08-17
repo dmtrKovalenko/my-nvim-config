@@ -6,7 +6,6 @@ vim.g.kitty_fast_forwarded_modifiers = 'super'
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 
-
 -- [[ Setting options ]]
 -- See `:help vim.o`
 
@@ -50,7 +49,6 @@ vim.opt.list = true
 vim.opt.listchars = vim.opt.listchars + "space:·"
 
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
-
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system {
     'git',
@@ -68,30 +66,54 @@ local if_not_vscode = function() return not vim.g.vscode end
 
 require('lazy').setup({
   'github/copilot.vim',
-  -- Git plugins
+  -- Git managmenet
   'tpope/vim-fugitive',
+  -- Allows openning git urls
   'tpope/vim-rhubarb',
   'lewis6991/fileline.nvim',
   -- Autosave, not sure why I have it
   'pocco81/auto-save.nvim',
   -- Multi cursor suppor]
   'mg979/vim-visual-multi',
+  'weilbith/nvim-code-action-menu',
+  'nkrkv/nvim-treesitter-rescript',
+  'jparise/vim-graphql',
+  'easymotion/vim-easymotion',
+  -- Detect tabstop and shiftwidth automatically
+  'tpope/vim-sleuth',
+
+  {
+    'ahmedkhalf/project.nvim',
+    config = function()
+      require("project_nvim").setup({
+        show_hidden = false,
+        silent_chdir = false,
+        detection_methods = { "patterns" },
+        patterns = { ".git" }
+      })
+    end
+  },
   -- Camel case motion plugin
-  { "chrisgrieser/nvim-spider", lazy = true },
+  {
+    "chrisgrieser/nvim-spider",
+    config = function()
+      vim.keymap.set({ "n", "o", "x" }, "<>w", "<cmd>lua require('spider').motion('w')<CR>", { desc = "Spider-w" })
+      vim.keymap.set({ "n", "o", "x" }, "<leader>e", "<cmd>lua require('spider').motion('e')<CR>", {})
+      vim.keymap.set({ "n", "o", "x" }, "<leader>b", "<cmd>lua require('spider').motion('b')<CR>", {})
+      vim.keymap.set({ "n", "o", "x" }, "<leader>ge", "<cmd>lua require('spider').motion('ge')<CR>", {})
+    end
+  },
   -- Toggle terminal plugin
   {
     "NvChad/nvterm",
     config = function()
       require("nvterm").setup()
       local toggleTerm = function() require("nvterm.terminal").toggle("horizontal") end;
+
       vim.keymap.set('n', '<A-C>', toggleTerm, {});
       vim.keymap.set({ 'n', 't' }, '<D-S-c>', toggleTerm, {});
     end,
   },
-  'easymotion/vim-easymotion',
-  -- Detect tabstop and shiftwidth automatically
-  'tpope/vim-sleuth',
-
   -- NOTE: This is here your plugins related to LSP can be installed.
   --  The configuration is done below. Search for lspconfig to find it below.
   {
@@ -128,7 +150,7 @@ require('lazy').setup({
   },
 
   -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim',     opts = {} },
+  { 'folke/which-key.nvim',  opts = {} },
   {
     -- Adds git releated signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
@@ -173,11 +195,78 @@ require('lazy').setup({
     },
   },
 
+  -- Surround text objects with quotes, brackets, etc
+  {
+    "kylechui/nvim-surround",
+    version = "*", -- Use for stability; omit to use `main` branch for the latest features
+    config = function()
+      require("nvim-surround").setup()
+    end
+  },
+
+  -- Automatically fill/change/remove xml-like tags
+  {
+    "https://github.com/windwp/nvim-ts-autotag",
+    config = function()
+      require('nvim-ts-autotag').setup()
+    end
+  },
+
   -- "gc" to comment visual regions/lines
-  { 'numToStr/Comment.nvim',         opts = {} },
+  { 'numToStr/Comment.nvim', opts = {} },
 
   -- Fuzzy Finder (files, lsp, etc)
-  { 'nvim-telescope/telescope.nvim', branch = '0.1.x', dependencies = { 'nvim-lua/plenary.nvim' } },
+  {
+    'nvim-telescope/telescope.nvim',
+    branch = '0.1.x',
+    dependencies = {
+      'nvim-lua/plenary.nvim' }
+  },
+
+  -- Project specific marks for most editable files
+  {
+    'ThePrimeagen/harpoon',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    config = function()
+      require("harpoon").setup({
+        global_settings = {
+          save_on_toggle = true,
+          save_on_change = true,
+        },
+        projects = {
+          ["~/dev/"] = {
+            term = {
+              cmds = {
+                "yarn dev",
+                "yarn test",
+                "yarn lint",
+                "yarn build",
+              },
+              size = 0.5,
+              pos = "bottom",
+            },
+            mark = {
+              marks = { "1", "2", "3", "4" },
+              sign = false,
+              hl = "String",
+              numhl = "Comment",
+              size = 1,
+              hidden = false,
+              stacked = false,
+            },
+          },
+        },
+      })
+
+      vim.keymap.set('n', '<A-h>', require("harpoon.ui").toggle_quick_menu, { noremap = true })
+      vim.keymap.set('n', '<A-a>', require("harpoon.mark").add_file, { noremap = true })
+
+      vim.keymap.set('n', '<F1>', function() require("harpoon.ui").nav_file(1) end, {})
+      vim.keymap.set('n', '<F2>', function() require("harpoon.ui").nav_file(2) end, {})
+      vim.keymap.set('n', '<F3>', function() require("harpoon.ui").nav_file(3) end, {})
+      vim.keymap.set('n', '<F4>', function() require("harpoon.ui").nav_file(4) end, {})
+    end
+  },
 
   -- Fuzzy Finder Algorithm which requires local dependencies to be built.
   -- Only load if `make` is available. Make sure you have the system
@@ -207,23 +296,31 @@ require('lazy').setup({
     lazy = false,
     cond = if_not_vscode,
     dependencies = {
-      { 'nvim-tree/nvim-web-devicons', config = function() require("nvim-web-devicons").setup() end }
+      {
+        'nvim-tree/nvim-web-devicons',
+        config = function()
+          require("nvim-web-devicons").setup()
+        end
+      }
     },
     config = function()
       require("nvim-tree").setup({
         sort_by = "case_sensitive",
+        respect_buf_cwd = true,
+        sync_root_with_cwd = true,
         view = {
           width = 30,
+          centralize_selection = true
         },
         renderer = {
           group_empty = true,
         },
         filters = {
-          dotfiles = true,
+          dotfiles = false,
         },
         update_focused_file = {
           enable = true,
-          update_root = true,
+          update_root = false,
           ignore_list = {}
         }
       })
@@ -237,9 +334,7 @@ require('lazy').setup({
     cond = if_not_vscode,
     priority = 1000,
     config = function()
-      if not vim.g.vscode then
-        vim.cmd.colorscheme 'catppuccin'
-      end
+      vim.cmd.colorscheme 'catppuccin'
     end,
   },
   {
@@ -251,8 +346,33 @@ require('lazy').setup({
       })
     end
   },
-  'weilbith/nvim-code-action-menu',
-  'nkrkv/nvim-treesitter-rescript'
+  {
+    "jose-elias-alvarez/null-ls.nvim",
+    event = { "BufReadPost", "BufNewFile" },
+    config = function()
+      local null_ls = require "null-ls"
+
+      -- https://github.com/jose-elias-alvarez/null-ls.nvim/tree/main/lua/null-ls/builtins/formatting
+      local formatting = null_ls.builtins.formatting
+      -- https://github.com/jose-elias-alvarez/null-ls.nvim/tree/main/lua/null-ls/builtins/diagnostics
+      -- local diagnostics = null_ls.builtins.diagnostics
+
+      null_ls.setup {
+        debug = false,
+        sources = {
+          formatting.prettierd.with {
+            extra_filetypes = { "toml", "solidity" },
+            extra_args = { "--no-semi", "--single-quote", "--jsx-single-quote" },
+          },
+          formatting.stylua,
+          formatting.ocamlformat,
+          formatting.clang_format.with {
+            filetypes = { "cpp", "c" },
+          },
+        },
+      }
+    end,
+  }
 }, {})
 
 
@@ -287,10 +407,9 @@ require('telescope').setup {
 
 -- Enable telescope fzf native, if installed
 pcall(require('telescope').load_extension, 'fzf')
+require('telescope').load_extension('projects')
 
 -- Set telescope keymaps
-vim.keymap.set('n', '<leader>?', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
-vim.keymap.set('n', '<leader><space>', require('telescope.builtin').buffers, { desc = '[ ] Find existing buffers' })
 vim.keymap.set('n', '<D-f>', function()
   -- You can pass additional configuration to telescope to change theme, layout, etc.
   require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
@@ -300,12 +419,15 @@ end, { desc = '] Fuzzily search in current buffer' })
 
 vim.keymap.set('n', '<leader>gf', require('telescope.builtin').git_files, { desc = 'Search [G]it [F]iles' })
 vim.keymap.set('n', '<D-p>', require('telescope.builtin').git_files, { desc = 'Search [G]it [F]iles' })
+vim.keymap.set('n', '<D-o>', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
 
 vim.keymap.set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
 vim.keymap.set('n', '<D-k>', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
-vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
+vim.keymap.set('n', '<D-S-f>', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
+vim.keymap.set('n', '<D-C-r>', ':Telescope projects<CR>', { desc = '[S]earch [P]projects' })
+
 vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
-vim.keymap.set('n', '<leader>sg', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
+vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
 vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
 
 -- [[ Configure Treesitter ]]
@@ -377,19 +499,13 @@ require('nvim-treesitter.configs').setup {
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous diagnostic message' })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next diagnostic message' })
-vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Open floating diagnostic message' })
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
+vim.keymap.set('n', '<D-e>', vim.diagnostic.open_float, { desc = 'Open floating diagnostic message' })
+vim.keymap.set('n', '<D-S-m>', vim.diagnostic.setloclist, { desc = 'Open diagnostics list' })
 
 -- [[ Configure LSP ]]
 --  This function gets run when an LSP connects to a particular buffer.
 local on_lsp_attach = function(_, bufnr)
-  -- NOTE: Remember that lua is a real programming language, and as such it is possible
-  -- to define small helper and utility functions so you don't have to repeat yourself
-  -- many times.
-  --
-  -- In this case, we create a function that lets us more easily define mappings specific
-  -- for LSP related items. It sets the mode, buffer and description for us each time.
-  local nmap = function(keys, func, desc)
+  local lsp_map = function(keys, func, desc)
     if desc then
       desc = 'LSP: ' .. desc
     end
@@ -397,30 +513,22 @@ local on_lsp_attach = function(_, bufnr)
     vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
   end
 
-  nmap('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
-  nmap('<D-r>', vim.lsp.buf.rename, '[R]e[n]ame')
-  nmap('<D-.>', ':CodeActionMenu<CR>', '[C]ode [A]ction')
+  lsp_map('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
+  lsp_map('<D-r>', vim.lsp.buf.rename, '[R]e[n]ame')
+  lsp_map('<D-.>', ':CodeActionMenu<CR>', '[C]ode [A]ction')
 
-  nmap('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
-  nmap('<D-g>', vim.lsp.buf.definition, '[G]oto [D]efinition')
-  nmap('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
-  nmap('gI', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
-  nmap('<leader>D', vim.lsp.buf.type_definition, 'Type [D]efinition')
-  nmap('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
-  nmap('<leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
+  lsp_map('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
+  lsp_map('<D-g>', vim.lsp.buf.definition, '[G]oto [D]efinition')
+  lsp_map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
+  lsp_map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+  lsp_map('gi', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
+  lsp_map('<D-A-g>', vim.lsp.buf.type_definition, 'Type [D]efinition')
 
-  -- See `:help K` for why this keymap
-  nmap('<D-i>', vim.lsp.buf.hover, 'Hover Documentation')
-  nmap('<D-u>', vim.lsp.buf.signature_help, 'Signature Documentation')
-  nmap('<A-F>', vim.lsp.buf.format, 'Format')
+  lsp_map('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
 
-  -- Lesser used LSP functionality
-  nmap('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
-  nmap('<leader>wa', vim.lsp.buf.add_workspace_folder, '[W]orkspace [A]dd Folder')
-  nmap('<leader>wr', vim.lsp.buf.remove_workspace_folder, '[W]orkspace [R]emove Folder')
-  nmap('<leader>wl', function()
-    print(vim.inspect(vim.lsp.buf.list_workspace_folders()))
-  end, '[W]orkspace [L]ist Folders')
+  lsp_map('<D-i>', vim.lsp.buf.hover, 'Hover Documentation')
+  lsp_map('<D-u>', vim.lsp.buf.signature_help, 'Signature Documentation')
+  lsp_map('<A-F>', vim.lsp.buf.format, 'Format')
 
   -- Create a command `:Format` local to the LSP buffer
   vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
@@ -440,6 +548,7 @@ local servers = {
   -- clangd = {},
   -- gopls = {},
   -- pyright = {},
+  eslint = { filetypes = { 'javascript', 'typescript', 'javascriptreact', 'typescriptreact' } },
   rust_analyzer = {},
   tsserver = {},
   html = { filetypes = { 'html', 'twig', 'hbs' } },
@@ -481,8 +590,15 @@ mason_lspconfig.setup_handlers {
 -- See `:help cmp`
 local cmp = require 'cmp'
 local luasnip = require 'luasnip'
+
 require('luasnip.loaders.from_vscode').lazy_load()
+require("luasnip.loaders.from_vscode").load({ paths = "~/.config/nvim/snippets" })
+
 luasnip.config.setup {}
+
+-- Make sure that we can work with luasnip and copilot at the same time
+vim.g.copilot_no_tab_map = true
+vim.g.copilot_assume_mapped = true
 
 cmp.setup {
   snippet = {
@@ -500,15 +616,19 @@ cmp.setup {
       behavior = cmp.ConfirmBehavior.Replace,
       select = true,
     },
-    ['<D-i>'] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_next_item()
-      elseif luasnip.expand_or_locally_jumpable() then
+    ["<Tab>"] = cmp.mapping(function(fallback)
+      -- provide a value for copilot to fallback if there is no suggestion to accept. If no suggestion accept mimic normal tab behavior.
+      local tab_shift_width = vim.opt.shiftwidth:get()
+      local copilot_keys = vim.fn['copilot#Accept'](string.rep(' ', tab_shift_width))
+
+      if luasnip.expand_or_jumpable() then
         luasnip.expand_or_jump()
+      elseif copilot_keys ~= '' and type(copilot_keys) == 'string' then
+        vim.api.nvim_feedkeys(copilot_keys, 'i', true)
       else
         fallback()
       end
-    end, { 'i', 's' }),
+    end, { "i", "s" }),
     ['<S-Tab>'] = cmp.mapping(function(fallback)
       if cmp.visible() then
         cmp.select_prev_item()
@@ -560,9 +680,16 @@ vim.api.nvim_set_keymap('v', '<D-d>', '<C-n>', { silent = true })
 -- Delete a word by alt+backspace
 vim.api.nvim_set_keymap('i', '<A-BS>', '<C-w>', { noremap = true })
 
+-- Select whole buffer
+vim.api.nvim_set_keymap('n', '<D-a>', 'ggVG', {})
+
 -- Comment out lines
-vim.api.nvim_set_keymap('n', '<D-/>', 'gc_', { nowait = true })
-vim.api.nvim_set_keymap('v', '<D-/>', 'gc', { nowait = true })
+vim.api.nvim_set_keymap('n', '<D-/>', 'gc_', {})
+vim.api.nvim_set_keymap('v', '<D-/>', 'gc', {})
+
+-- Switch between buffers
+vim.keymap.set('n', 'H', ':bprevious<CR>', { silent = true })
+vim.keymap.set('n', 'L', ':bnext<CR>', { silent = true })
 
 -- Duplicate lines
 vim.api.nvim_set_keymap('v', '<D-C-Up>', 'y`>p`<', { silent = true })
@@ -572,4 +699,6 @@ vim.api.nvim_set_keymap('n', '<D-C-Down>', 'Vy`<p`>', { silent = true })
 
 -- Exit terminal mode with Esc
 vim.api.nvim_set_keymap('t', '<Esc>', '<C-\\><C-n>', { nowait = true })
+
+
 vim.api.nvim_set_keymap('n', 'gf', 'yiW<C-w>k:e <C-r>"<CR>', { silent = true })
