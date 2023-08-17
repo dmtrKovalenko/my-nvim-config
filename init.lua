@@ -38,6 +38,9 @@ vim.wo.signcolumn = 'yes'
 vim.o.updatetime = 250
 vim.o.timeoutlen = 300
 
+-- Highlight current line as cursor
+vim.o.cursorline = true
+
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = 'menuone,noselect'
 
@@ -74,7 +77,7 @@ require('lazy').setup({
   'lewis6991/fileline.nvim',
   -- Autosave, not sure why I have it
   'pocco81/auto-save.nvim',
-  -- Multi cursor suppor]
+  -- Multi cursor support
   'mg979/vim-visual-multi',
   'weilbith/nvim-code-action-menu',
   'nkrkv/nvim-treesitter-rescript',
@@ -82,7 +85,6 @@ require('lazy').setup({
   'easymotion/vim-easymotion',
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
-
   {
     'ahmedkhalf/project.nvim',
     config = function()
@@ -290,6 +292,12 @@ require('lazy').setup({
     'nvim-treesitter/nvim-treesitter',
     dependencies = {
       'nvim-treesitter/nvim-treesitter-textobjects',
+      {
+        'nvim-treesitter/nvim-treesitter-context',
+        opts = {
+          max_lines = 3
+        }
+      },
     },
     build = ':TSUpdate',
   },
@@ -313,7 +321,7 @@ require('lazy').setup({
         respect_buf_cwd = true,
         sync_root_with_cwd = true,
         view = {
-          width = 30,
+          width = 40,
           centralize_selection = true
         },
         renderer = {
@@ -350,6 +358,8 @@ require('lazy').setup({
       })
     end
   },
+  -- This plugins is already deprecated but it seems to be the only way to choose which formatters
+  -- from the lsp config to use for specific filetypes. And it works pretty well
   {
     "jose-elias-alvarez/null-ls.nvim",
     event = { "BufReadPost", "BufNewFile" },
@@ -366,7 +376,6 @@ require('lazy').setup({
         sources = {
           formatting.prettierd.with {
             extra_filetypes = { "toml", "solidity" },
-            extra_args = { "--no-semi", "--single-quote", "--jsx-single-quote" },
           },
           formatting.stylua,
           formatting.ocamlformat,
@@ -376,7 +385,7 @@ require('lazy').setup({
         },
       }
     end,
-  }
+  },
 }, {})
 
 
@@ -551,10 +560,32 @@ local servers = {
   -- gopls = {},
   -- pyright = {},
   eslint = { filetypes = { 'javascript', 'typescript', 'javascriptreact', 'typescriptreact' } },
-  rust_analyzer = {},
+  rust_analyzer = {
+    inlayHints = {
+      enabled = true,
+      parameterNames = "none",
+      typeHints = true,
+    },
+    imports = {
+      granularity = {
+        group = "module",
+      },
+      prefix = "self",
+    },
+    cargo = {
+      buildScripts = {
+        enable = true,
+      },
+    },
+    procMacro = {
+      enable = true
+    },
+    checkOnSave = {
+      command = "clippy"
+    },
+  },
   tsserver = {},
   html = { filetypes = { 'html', 'twig', 'hbs' } },
-
   lua_ls = {
     Lua = {
       workspace = { checkThirdParty = false },
@@ -666,6 +697,10 @@ vim.api.nvim_set_keymap('x', '<A-j>', ":move '>+1<CR>gv", { noremap = true, sile
 vim.api.nvim_set_keymap('n', '<A-k>', "V:move '>-2<CR>gv", { noremap = true, silent = true })
 vim.api.nvim_set_keymap('x', '<A-k>', ":move '<-2<CR>gv", { noremap = true, silent = true })
 
+-- Make backpsace work as black hole cut
+vim.api.nvim_set_keymap('n', '<backspace>', '"_x', { noremap = true })
+vim.api.nvim_set_keymap('v', '<backspace>', '"_d', { noremap = true })
+
 -- Paste line on cmd+v
 vim.api.nvim_set_keymap('n', '<D-v>', 'p', { noremap = true })
 vim.api.nvim_set_keymap('i', '<D-v>', '<C-r>+', { noremap = true })
@@ -702,6 +737,5 @@ vim.api.nvim_set_keymap('n', '<D-C-Down>', 'Vy`<p`>', { silent = true })
 
 -- Exit terminal mode with Esc
 vim.api.nvim_set_keymap('t', '<Esc>', '<C-\\><C-n>', { nowait = true })
-
-
+-- Opens file under cursor in the panel above
 vim.api.nvim_set_keymap('n', 'gf', 'yiW<C-w>k:e <C-r>"<CR>', { silent = true })
