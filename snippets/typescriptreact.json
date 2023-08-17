@@ -1,0 +1,77 @@
+{
+  "import * as React from 'react'": {
+    "prefix": "imr",
+    "body": "import * as React from 'react'"
+  },
+  "React component": {
+    "prefix": "tsrsfc",
+    "body": [
+      "import * as React from 'react';",
+      "",
+      "type ${TM_FILENAME_BASE:Component}Props = { }",
+      "",
+      "export const ${TM_FILENAME_BASE:Component}: React.FC<${TM_FILENAME_BASE:Component}Props> = ({ }) => {",
+      "  return ($2)",
+      "}"
+    ]
+  },
+  "React component extends for design system": {
+    "prefix": "tsrsfcd",
+    "body": [
+      "import * as React from 'react';",
+      "import clsx from 'clsx';",
+      "",
+      "type ${TM_FILENAME_BASE:Component}Props = React.HTMLProps<$1> & { }",
+      "",
+      "export const ${TM_FILENAME_BASE:Component} = React.forwardRef<$1, ${TM_FILENAME_BASE:Component}Props>(function ${TM_FILENAME_BASE:Component} ({ className, children, ...other }, ref) {",
+      "  return (",
+      "    <$2 ref={ref} className={clsx('', className)} {...other}>$3</$2>",
+      "  )",
+      "})"
+    ]
+  },
+  "React-realy ragment componet": {
+    "prefix": "tsrsfcrelayfragment",
+    "body": [
+      "import * as React from 'react';",
+      "import { useFragment, graphql } from 'react-relay';",
+      "import { ${TM_FILENAME_BASE:Component}Fragment\\$key } from 'src/__generated__/${TM_FILENAME_BASE:Component}Fragment.graphql';",
+      "",
+      "type ${TM_FILENAME_BASE:Component}Props = {",
+      "  $3$key: ${TM_FILENAME_BASE:Component}Fragment\\$key",
+      "}",
+      "",
+      "export const ${TM_FILENAME_BASE:Component}: React.FC<${TM_FILENAME_BASE:Component}Props> = ({ $3$key }) => {",
+      "  const data = useFragment(graphql`",
+      "    fragment ${TM_FILENAME_BASE:Component}Fragment on $2 {",
+      "      $3",
+      "    }",
+      "  `, $3$key)",
+      "  ",
+      "  return (",
+      "   $4",
+      "  )",
+      "}"
+    ]
+  },
+  "Relay mutaion": {
+    "prefix": "relaymutation",
+    "body": [
+      "const $1Mutation = graphql`",
+      "  mutation ${TM_FILENAME_BASE:file_name}${2:$1}Mutation(",
+      "    \\$input: ${2:$1}Input!",
+      "  ) {",
+      "    $1(input: \\$input) {",
+      "      id",
+      "    }",
+      "  }",
+      "`;",
+      "",
+      "export const use${2:$1}Mutation = () =>",
+      "  useMutation<${TM_FILENAME_BASE:Component}${2:$1}Mutation>(",
+      "    $1Mutation",
+      "  );",
+      ""
+    ]
+  }
+}
