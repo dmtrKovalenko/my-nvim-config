@@ -47,6 +47,7 @@ vim.o.termguicolors = true;
 -- Renders spaces as "·"
 vim.opt.list = true
 vim.opt.listchars = vim.opt.listchars + "space:·"
+vim.g.camelcasemotion_key = "<leader>"
 
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
@@ -95,12 +96,8 @@ require('lazy').setup({
   },
   -- Camel case motion plugin
   {
-    "chrisgrieser/nvim-spider",
+    "bkad/CamelCaseMotion",
     config = function()
-      vim.keymap.set({ "n", "o", "x" }, "<>w", "<cmd>lua require('spider').motion('w')<CR>", { desc = "Spider-w" })
-      vim.keymap.set({ "n", "o", "x" }, "<leader>e", "<cmd>lua require('spider').motion('e')<CR>", {})
-      vim.keymap.set({ "n", "o", "x" }, "<leader>b", "<cmd>lua require('spider').motion('b')<CR>", {})
-      vim.keymap.set({ "n", "o", "x" }, "<leader>ge", "<cmd>lua require('spider').motion('ge')<CR>", {})
     end
   },
   -- Toggle terminal plugin
@@ -151,6 +148,7 @@ require('lazy').setup({
 
   -- Useful plugin to show you pending keybinds.
   { 'folke/which-key.nvim',  opts = {} },
+
   {
     -- Adds git releated signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
@@ -166,8 +164,14 @@ require('lazy').setup({
       on_attach = function(bufnr)
         vim.keymap.set('n', '<leader>gp', require('gitsigns').prev_hunk,
           { buffer = bufnr, desc = '[G]o to [P]revious Hunk' })
-        vim.keymap.set('n', '<leader>gn', require('gitsigns').next_hunk, { buffer = bufnr, desc = '[G]o to [N]ext Hunk' })
-        vim.keymap.set('n', '<leader>ph', require('gitsigns').preview_hunk, { buffer = bufnr, desc = '[P]review [H]unk' })
+        vim.keymap.set('n', '<leader>gn', require('gitsigns').next_hunk,
+          { buffer = bufnr, desc = '[G]it go to [N]ext Hunk' })
+        vim.keymap.set('n', '<leader>gd', require('gitsigns').preview_hunk,
+          { buffer = bufnr, desc = '[G]it [D]iff Hunk' })
+
+        vim.keymap.set('n', '<leader>gr', require('gitsigns').reset_hunk, { buffer = bufnr, desc = '[G]it [R]eset hunk' })
+        vim.keymap.set('n', '<leader>gb', require('gitsigns').toggle_current_line_blame,
+          { buffer = bufnr, desc = '[G]it [B]lame' })
       end,
     },
   },
@@ -421,7 +425,6 @@ vim.keymap.set('n', '<leader>gf', require('telescope.builtin').git_files, { desc
 vim.keymap.set('n', '<D-p>', require('telescope.builtin').git_files, { desc = 'Search [G]it [F]iles' })
 vim.keymap.set('n', '<D-o>', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
 
-vim.keymap.set('n', '<leader>sf', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
 vim.keymap.set('n', '<D-k>', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
 vim.keymap.set('n', '<D-S-f>', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
 vim.keymap.set('n', '<D-C-r>', ':Telescope projects<CR>', { desc = '[S]earch [P]projects' })
@@ -513,7 +516,6 @@ local on_lsp_attach = function(_, bufnr)
     vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
   end
 
-  lsp_map('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
   lsp_map('<D-r>', vim.lsp.buf.rename, '[R]e[n]ame')
   lsp_map('<D-.>', ':CodeActionMenu<CR>', '[C]ode [A]ction')
 
