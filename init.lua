@@ -702,7 +702,8 @@ vim.api.nvim_set_keymap('n', '<backspace>', '"_x', { noremap = true })
 vim.api.nvim_set_keymap('v', '<backspace>', '"_d', { noremap = true })
 
 -- Paste line on cmd+v
-vim.api.nvim_set_keymap('n', '<D-v>', 'p', { noremap = true })
+vim.keymap.set({ 'n', 'v' }, '<D-v>', 'p', { noremap = true })
+vim.api.nvim_set_keymap('v', '<D-c>', 'y', { noremap = true })
 vim.api.nvim_set_keymap('i', '<D-v>', '<C-r>+', { noremap = true })
 
 -- Write file on cmd+s
