@@ -1,19 +1,25 @@
 {
-	"name": "example-snippets",
-	"contributes": {
-		"snippets": [
-			{
-				"language": [
-					"typescriptreact"
-				],
-				"path": "./typescriptreact.json"
-			},
-			{
-				"language": [
-					"typescript"
-				],
-				"path": "./typescript.json"
-			}
-		]
-	}
+  "name": "example-snippets",
+  "contributes": {
+    "snippets": [
+      {
+        "language": [
+          "typescriptreact"
+        ],
+        "path": "./typescriptreact.json"
+      },
+      {
+        "language": [
+          "typescript"
+        ],
+        "path": "./typescript.json"
+      },
+      {
+        "language": [
+          "rust"
+        ],
+        "path": "./rust.json"
+      }
+    ]
+  }
 }

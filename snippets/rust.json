@@ -1,0 +1,12 @@
+{
+  "tonicmethod": {
+    "prefix": "tonicmethod",
+    "body": [
+      "async fn $1 (&self, request: Request<proto::$2Request>) -> GrpcResult<Response<proto::$2Response>> {",
+      "    let proto::$2Request {$3} = request.into_inner();",
+      "    ",
+      "    Ok(Response::new(proto::$2Response {}))",
+      "}"
+    ]
+  }
+}

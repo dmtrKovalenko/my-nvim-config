@@ -1,36 +1,30 @@
 {
-	"It test statement, starts with should": {
-		"prefix": "itshould",
-		"body": [
-			"it('Should $1', () => {",
-			"  $2",
-			"});"
-		]
-	},
-	"imt": {
-		"prefix": "imt",
-		"body": [
-			"import { $2 } from '$1'"
-		]
-	}, 
-	"Relay mutaion": {
-		"prefix": "relaymutation",
-		"body": [
-"const $1Mutation = graphql`",
-"  mutation ${TM_FILENAME_BASE:file_name}${2:$1}Mutation(",
-"    \\$input: ${2:$1}Input!",
-"  ) {",
-"    $1(input: \\$input) {",
-"      id",
-"    }",
-"  }",
-"`;",
-"",
-"export const use${2:$1}Mutation = () =>",
-"  useMutation<${TM_FILENAME_BASE:Component}${2:$1}Mutation>(",
-"    $1Mutation",
-"  );",
-"",
-		],
-	},
+  "It test statement, starts with should": {
+    "prefix": "itshould",
+    "body": ["it('Should $1', () => {", "  $2", "});"]
+  },
+  "imt": {
+    "prefix": "imt",
+    "body": ["import { $2 } from '$1'"]
+  },
+  "Relay mutaion": {
+    "prefix": "relaymutation",
+    "body": [
+      "const $1Mutation = graphql`",
+      "  mutation ${TM_FILENAME_BASE:file_name}${2:$1}Mutation(",
+      "    \\$input: ${2:$1}Input!",
+      "  ) {",
+      "    $1(input: \\$input) {",
+      "      id",
+      "    }",
+      "  }",
+      "`;",
+      "",
+      "export const use${2:$1}Mutation = () =>",
+      "  useMutation<${TM_FILENAME_BASE:Component}${2:$1}Mutation>(",
+      "    $1Mutation",
+      "  );",
+      ""
+    ]
+  }
 }

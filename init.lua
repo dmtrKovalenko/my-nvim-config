@@ -6,9 +6,6 @@ vim.g.kitty_fast_forwarded_modifiers = 'super'
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 
--- [[ Setting options ]]
--- See `:help vim.o`
-
 -- Make line numbers default
 vim.wo.number = true
 vim.wo.relativenumber = true
@@ -72,8 +69,6 @@ require('lazy').setup({
   'github/copilot.vim',
   -- Git managmenet
   'tpope/vim-fugitive',
-  -- Allows openning git urls
-  'tpope/vim-rhubarb',
   'lewis6991/fileline.nvim',
   -- Autosave, not sure why I have it
   'pocco81/auto-save.nvim',
@@ -85,6 +80,22 @@ require('lazy').setup({
   'easymotion/vim-easymotion',
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
+  -- Camel case motion plugin
+  "bkad/CamelCaseMotion",
+  {
+    "simrat39/rust-tools.nvim",
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'mfussenegger/nvim-dap',
+    }
+  },
+  { 'akinsho/git-conflict.nvim', version = "*", config = true },
+  {
+    'tpope/vim-rhubarb',
+    config = function()
+      vim.keymap.set('n', '<leader>gg', ':GBrowse<CR>', { silent = true, desc = '[G]it [G]o to file on GitHub' })
+    end
+  },
   {
     'ahmedkhalf/project.nvim',
     config = function()
@@ -94,12 +105,6 @@ require('lazy').setup({
         detection_methods = { "patterns" },
         patterns = { ".git" }
       })
-    end
-  },
-  -- Camel case motion plugin
-  {
-    "bkad/CamelCaseMotion",
-    config = function()
     end
   },
   -- Toggle terminal plugin
@@ -137,19 +142,22 @@ require('lazy').setup({
     'hrsh7th/nvim-cmp',
     dependencies = {
       -- Snippet Engine & its associated nvim-cmp source
-      'L3MON4D3/LuaSnip',
+      {
+        'L3MON4D3/LuaSnip',
+        build = "make install_jsregexp"
+      },
       'saadparwaiz1/cmp_luasnip',
 
       -- Adds LSP completion capabilities
       'hrsh7th/cmp-nvim-lsp',
 
       -- Adds a number of user-friendly snippets
-      'rafamadriz/friendly-snippets',
+      -- 'rafamadriz/friendly-snippets',
     },
   },
 
   -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim',  opts = {} },
+  { 'folke/which-key.nvim',      opts = {} },
 
   {
     -- Adds git releated signs to the gutter, as well as utilities for managing changes
@@ -170,6 +178,7 @@ require('lazy').setup({
           { buffer = bufnr, desc = '[G]it go to [N]ext Hunk' })
         vim.keymap.set('n', '<leader>gd', require('gitsigns').preview_hunk,
           { buffer = bufnr, desc = '[G]it [D]iff Hunk' })
+
 
         vim.keymap.set('n', '<leader>gr', require('gitsigns').reset_hunk, { buffer = bufnr, desc = '[G]it [R]eset hunk' })
         vim.keymap.set('n', '<leader>gb', require('gitsigns').toggle_current_line_blame,
@@ -321,7 +330,7 @@ require('lazy').setup({
         respect_buf_cwd = true,
         sync_root_with_cwd = true,
         view = {
-          width = 40,
+          width = 35,
           centralize_selection = true
         },
         renderer = {
@@ -365,17 +374,13 @@ require('lazy').setup({
     event = { "BufReadPost", "BufNewFile" },
     config = function()
       local null_ls = require "null-ls"
-
-      -- https://github.com/jose-elias-alvarez/null-ls.nvim/tree/main/lua/null-ls/builtins/formatting
       local formatting = null_ls.builtins.formatting
-      -- https://github.com/jose-elias-alvarez/null-ls.nvim/tree/main/lua/null-ls/builtins/diagnostics
-      -- local diagnostics = null_ls.builtins.diagnostics
 
       null_ls.setup {
         debug = false,
         sources = {
           formatting.prettierd.with {
-            extra_filetypes = { "toml", "solidity" },
+            extra_filetypes = { "toml", "solidity", "json" },
           },
           formatting.stylua,
           formatting.ocamlformat,
@@ -386,7 +391,28 @@ require('lazy').setup({
       }
     end,
   },
+
+  {
+    'saecki/crates.nvim',
+    event = "BufRead Cargo.toml",
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    config = function()
+      require('crates').setup()
+    end,
+  },
+
+  {
+    'm4xshen/autoclose.nvim',
+    config = function()
+      require("autoclose").setup({
+        keys = {
+          ["|"] = { escape = true, close = true, pair = "||", enabled_filetypes = { "rust" } },
+        },
+      })
+    end,
+  }
 }, {})
+
 
 
 -- [[ Basic Keymaps ]]
@@ -450,6 +476,10 @@ require('nvim-treesitter.configs').setup {
 
   -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
   auto_install = false,
+
+  autotag = {
+    enable_close_on_slash = false,
+  },
 
   highlight = { enable = true },
   indent = { enable = true },
@@ -522,7 +552,7 @@ local on_lsp_attach = function(_, bufnr)
       desc = 'LSP: ' .. desc
     end
 
-    vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc })
+    vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc, silent = true })
   end
 
   lsp_map('<D-r>', vim.lsp.buf.rename, '[R]e[n]ame')
@@ -560,30 +590,31 @@ local servers = {
   -- gopls = {},
   -- pyright = {},
   eslint = { filetypes = { 'javascript', 'typescript', 'javascriptreact', 'typescriptreact' } },
-  rust_analyzer = {
-    inlayHints = {
-      enabled = true,
-      parameterNames = "none",
-      typeHints = true,
-    },
-    imports = {
-      granularity = {
-        group = "module",
-      },
-      prefix = "self",
-    },
-    cargo = {
-      buildScripts = {
-        enable = true,
-      },
-    },
-    procMacro = {
-      enable = true
-    },
-    checkOnSave = {
-      command = "clippy"
-    },
-  },
+  -- For now testing te rust-tools crate
+  -- rust_analyzer = {
+  --   inlayHints = {
+  --     enabled = true,
+  --     parameterNames = "none",
+  --     typeHints = true,
+  --   },
+  --   imports = {
+  --     granularity = {
+  --       group = "module",
+  --     },
+  --     prefix = "self",
+  --   },
+  --   cargo = {
+  --     buildScripts = {
+  --       enable = true,
+  --     },
+  --   },
+  --   procMacro = {
+  --     enable = true
+  --   },
+  --   checkOnSave = {
+  --     command = "clippy"
+  --   },
+  -- },
   tsserver = {},
   html = { filetypes = { 'html', 'twig', 'hbs' } },
   lua_ls = {
@@ -600,6 +631,19 @@ require('neodev').setup()
 -- nvim-cmp supports additional completion capabilities, so broadcast that to servers
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
+
+require("rust-tools").setup({
+  tools = {
+    executor = require("rust-tools.executors").toggleterm,
+    inlay_hints = {
+      other_hints_prefix = ": ",
+    }
+  },
+  server = {
+    on_attach = on_lsp_attach,
+    capabilities = capabilities,
+  },
+})
 
 -- Ensure the servers above are installed
 local mason_lspconfig = require 'mason-lspconfig'
@@ -676,6 +720,7 @@ cmp.setup {
   sources = {
     { name = 'nvim_lsp' },
     { name = 'luasnip' },
+    { name = "crates" }
   },
 }
 
@@ -686,8 +731,8 @@ vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = tr
 vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
 -- My lovely vertical navigation speedups
-vim.keymap.set({ 'n', 'v' }, '<C-j>', '}', { noremap = true })
-vim.keymap.set({ 'n', 'v' }, '<C-k>', '{', { silent = true })
+vim.keymap.set({ 'n', 'v' }, '<C-j>', ':keepjumps normal! }<CR>', { silent = true })
+vim.keymap.set({ 'n', 'v' }, '<C-k>', ':keepjumps normal! {<CR>', { silent = true })
 vim.keymap.set({ 'n', 'v' }, 'J', '10j', { silent = true })
 vim.keymap.set({ 'n', 'v' }, 'K', '10k', { silent = true })
 
@@ -698,7 +743,7 @@ vim.api.nvim_set_keymap('n', '<A-k>', "V:move '>-2<CR>gv", { noremap = true, sil
 vim.api.nvim_set_keymap('x', '<A-k>', ":move '<-2<CR>gv", { noremap = true, silent = true })
 
 -- Make backpsace work as black hole cut
-vim.api.nvim_set_keymap('n', '<backspace>', '"_x', { noremap = true })
+vim.api.nvim_set_keymap('n', '<backspace>', '"_dh', { noremap = true })
 vim.api.nvim_set_keymap('v', '<backspace>', '"_d', { noremap = true })
 
 -- Paste line on cmd+v
@@ -736,7 +781,19 @@ vim.api.nvim_set_keymap('n', '<D-C-Up>', 'Vy`>p`<', { silent = true })
 vim.api.nvim_set_keymap('v', '<D-C-Down>', 'y`<kp`>', { silent = true })
 vim.api.nvim_set_keymap('n', '<D-C-Down>', 'Vy`<p`>', { silent = true })
 
+-- Map default <C-w> to the cmd+alt
+vim.api.nvim_set_keymap('n', '<D-A-v>', '<C-w>v<C-w>w', { silent = true })
+vim.api.nvim_set_keymap('n', '<D-A-l>', '<C-w>l', { silent = true })
+vim.api.nvim_set_keymap('n', '<D-A-h>', '<C-w>h', { silent = true })
+vim.api.nvim_set_keymap('n', '<D-A-q>', '<C-w>q', { silent = true })
+vim.api.nvim_set_keymap('n', '<D-A-j>', '<C-w>j', { silent = true })
+vim.api.nvim_set_keymap('n', '<D-A-k>', '<C-w>k', { silent = true })
+
 -- Exit terminal mode with Esc
 vim.api.nvim_set_keymap('t', '<Esc>', '<C-\\><C-n>', { nowait = true })
 -- Opens file under cursor in the panel above
 vim.api.nvim_set_keymap('n', 'gf', 'yiW<C-w>k:e <C-r>"<CR>', { silent = true })
+
+-- Set of commands that should be executed on startup
+vim.cmd([[command! -nargs=1 Browse silent lua vim.fn.system('open ' .. vim.fn.shellescape(<q-args>, 1))]])
+vim.cmd([[highlight DiagnosticUnderlineError cterm=undercurl gui=undercurl guisp=#f87171]])

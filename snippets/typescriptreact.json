@@ -3,6 +3,14 @@
     "prefix": "imr",
     "body": "import * as React from 'react'"
   },
+  "imt": {
+    "prefix": "imt",
+    "body": ["import { $2 } from '$1'"]
+  },
+  "useState": {
+    "prefix": "useState",
+    "body": ["const [$1, set${1/(.*)/${1:/capitalize}/}] = React.useState($2)"]
+  },
   "React component": {
     "prefix": "tsrsfc",
     "body": [
