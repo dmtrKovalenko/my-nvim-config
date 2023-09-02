@@ -44,10 +44,7 @@ require('lazy').setup({
   },
 })
 
--- Enables mouse mode only to the "visual" selection allowing to use mouse to highlight text
--- but does not intercepts click. It makes it possible to leverage most of the terminal emulators
--- to handle the "advanced clicks" like opening paths or urls
-vim.o.mouse = 'v'
+vim.o.mouse = 'a'
 
 -- Sync clipboard between OS and Neovim.
 --  Remove this option if you want your OS clipboard to remain independent.
@@ -115,16 +112,16 @@ vim.api.nvim_set_keymap('n', '<C-w>v', string.format(':vsplit term://%s<CR><C-w>
 vim.api.nvim_set_keymap('n', '<C-w>s', string.format(':split term://%s<CR><C-w>J', shell),
   { noremap = true, silent = true })
 
--- The most embarassing part of this config. Yes, I can open the file path under cursor with one command.
--- And yes, I'm running neovim terminals inside vscode.
-function OpenInVscode()
+local editor_command = 'nvim';
+
+function OpenInEditor()
   local clipboard_content = vim.fn.getreg('+')
-  local command = 'code -r -g ' .. clipboard_content
+  local command = editor_command .. ' ' .. clipboard_content
 
   vim.fn.system(command)
 end
 
-vim.api.nvim_set_keymap('n', 'gf', 'yiW:lua OpenInVscode()<CR>', { silent = true });
+vim.keymap.set('n', 'gf', OpenInEditor, { silent = true });
 
 -- Remove background color from the theme to avoid color difference with you terminal emulators
 -- (may look bad depends on the different tty app and themes)

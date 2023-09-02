@@ -2,6 +2,8 @@ vim.g.mapleader = '='
 vim.g.maplocalleader = '='
 vim.g.kitty_fast_forwarded_modifiers = 'super'
 
+vim.o.guifont = "JetBrainsMonoNL Nerd Font Mono:h18"
+
 -- disable netrw at the very start of your init.lua
 vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
@@ -14,9 +16,10 @@ vim.wo.relativenumber = true
 vim.o.mouse = 'a'
 
 -- Sync clipboard between OS and Neovim.
---  Remove this option if you want your OS clipboard to remain independent.
+--  move this option if you want your OS clipboard to remain independent.
 --  See `:help 'clipboard'`
 vim.o.clipboard = 'unnamedplus'
+vim.o.showmode = false
 
 -- Enable break indent
 vim.o.breakindent = true
@@ -77,11 +80,45 @@ require('lazy').setup({
   'weilbith/nvim-code-action-menu',
   'nkrkv/nvim-treesitter-rescript',
   'jparise/vim-graphql',
-  'easymotion/vim-easymotion',
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
   -- Camel case motion plugin
-  "bkad/CamelCaseMotion",
+  'bkad/CamelCaseMotion',
+
+  {
+    'phaazon/hop.nvim',
+    branch = 'v2',
+    config = function()
+      local hop = require('hop')
+      local directions = require('hop.hint').HintDirection
+
+      hop.setup({})
+
+      vim.keymap.set('', '<leader>f', function()
+        hop.hint_char2({ current_line_only = false })
+      end, { remap = true })
+
+      -- easymotion like keybind remove when get used to the leaderf-
+      vim.keymap.set('', '<leader><leader>f', function()
+        hop.hint_char1({ current_line_only = false })
+      end, { remap = true })
+
+      vim.keymap.set('', 'f', function()
+        hop.hint_char1({ direction = directions.AFTER_CURSOR, current_line_only = true })
+      end, { remap = true })
+      vim.keymap.set('', 'F', function()
+        hop.hint_char1({ direction = directions.BEFORE_CURSOR, current_line_only = true })
+      end, { remap = true })
+    end
+  },
+  -- Handy rename in a floating method
+  {
+    'filipdutescu/renamer.nvim',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    config = function()
+      require('renamer').setup {}
+    end
+  },
   {
     "simrat39/rust-tools.nvim",
     dependencies = {
@@ -230,13 +267,6 @@ require('lazy').setup({
   -- "gc" to comment visual regions/lines
   { 'numToStr/Comment.nvim', opts = {} },
 
-  -- Fuzzy Finder (files, lsp, etc)
-  {
-    'nvim-telescope/telescope.nvim',
-    branch = '0.1.x',
-    dependencies = {
-      'nvim-lua/plenary.nvim' }
-  },
 
   -- Project specific marks for most editable files
   {
@@ -281,6 +311,18 @@ require('lazy').setup({
       vim.keymap.set('n', '<F3>', function() require("harpoon.ui").nav_file(3) end, {})
       vim.keymap.set('n', '<F4>', function() require("harpoon.ui").nav_file(4) end, {})
     end
+  },
+
+  -- Fuzzy Finder (files, lsp, etc)
+  {
+    'nvim-telescope/telescope.nvim',
+    branch = '0.1.x',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      "kkharji/sqlite.lua",
+      'prochri/telescope-all-recent.nvim',
+
+    }
   },
 
   -- Fuzzy Finder Algorithm which requires local dependencies to be built.
@@ -330,7 +372,7 @@ require('lazy').setup({
         respect_buf_cwd = true,
         sync_root_with_cwd = true,
         view = {
-          width = 35,
+          width = 40,
           centralize_selection = true
         },
         renderer = {
@@ -402,15 +444,37 @@ require('lazy').setup({
   },
 
   {
+    'glepnir/dashboard-nvim',
+    event = 'VimEnter',
+    config = function()
+      require('dashboard').setup {
+        config = {
+          week_header = {
+            enable = true
+          }
+        }
+      }
+    end,
+    dependencies = { { 'nvim-tree/nvim-web-devicons' } }
+  },
+
+  {
     'm4xshen/autoclose.nvim',
     config = function()
       require("autoclose").setup({
         keys = {
           ["|"] = { escape = true, close = true, pair = "||", enabled_filetypes = { "rust" } },
+          ["/*"] = {
+            escape = true,
+            close = true,
+            pair = "/**/",
+            enabled_filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact" }
+          },
         },
       })
     end,
   }
+
 }, {})
 
 
@@ -448,6 +512,8 @@ require('telescope').setup {
 pcall(require('telescope').load_extension, 'fzf')
 require('telescope').load_extension('projects')
 
+require 'telescope-all-recent'.setup({})
+
 -- Set telescope keymaps
 vim.keymap.set('n', '<D-f>', function()
   -- You can pass additional configuration to telescope to change theme, layout, etc.
@@ -457,16 +523,16 @@ vim.keymap.set('n', '<D-f>', function()
 end, { desc = '] Fuzzily search in current buffer' })
 
 vim.keymap.set('n', '<leader>gf', require('telescope.builtin').git_files, { desc = 'Search [G]it [F]iles' })
-vim.keymap.set('n', '<D-p>', require('telescope.builtin').git_files, { desc = 'Search [G]it [F]iles' })
+vim.keymap.set('n', '<D-p>', require('telescope.builtin').commands, { desc = 'Search commands' })
 vim.keymap.set('n', '<D-o>', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
 
 vim.keymap.set('n', '<D-k>', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
 vim.keymap.set('n', '<D-S-f>', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
 vim.keymap.set('n', '<D-C-r>', ':Telescope projects<CR>', { desc = '[S]earch [P]projects' })
+vim.keymap.set('n', '<D-m>', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
 
 vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
 vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
-vim.keymap.set('n', '<leader>sd', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
 
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`
@@ -555,14 +621,15 @@ local on_lsp_attach = function(_, bufnr)
     vim.keymap.set('n', keys, func, { buffer = bufnr, desc = desc, silent = true })
   end
 
-  lsp_map('<D-r>', vim.lsp.buf.rename, '[R]e[n]ame')
+  lsp_map('<D-r>', require("renamer").rename, '[R]e[n]ame')
   lsp_map('<D-.>', ':CodeActionMenu<CR>', '[C]ode [A]ction')
 
   lsp_map('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
-  lsp_map('<D-g>', vim.lsp.buf.definition, '[G]oto [D]efinition')
   lsp_map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
-  lsp_map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
   lsp_map('gi', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
+  lsp_map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+
+  lsp_map('<D-g>', '<C-]>', '[G]oto [D]efinition')
   lsp_map('<D-A-g>', vim.lsp.buf.type_definition, 'Type [D]efinition')
 
   lsp_map('<leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
@@ -570,6 +637,8 @@ local on_lsp_attach = function(_, bufnr)
   lsp_map('<D-i>', vim.lsp.buf.hover, 'Hover Documentation')
   lsp_map('<D-u>', vim.lsp.buf.signature_help, 'Signature Documentation')
   lsp_map('<A-F>', vim.lsp.buf.format, 'Format')
+  vim.keymap.set({ 'n', 'i' }, '<C-f>', vim.lsp.buf.format, { buffer = bufnr, desc = "Format", silent = true })
+
 
   -- Create a command `:Format` local to the LSP buffer
   vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
@@ -672,6 +741,11 @@ local luasnip = require 'luasnip'
 -- require('luasnip.loaders.from_vscode').lazy_load()
 require("luasnip.loaders.from_vscode").load({ paths = "~/.config/nvim/snippets" })
 
+luasnip.config.set_config({
+  region_check_events = 'InsertEnter',
+  delete_check_events = 'InsertLeave'
+})
+
 luasnip.config.setup {}
 
 -- Make sure that we can work with luasnip and copilot at the same time
@@ -699,7 +773,7 @@ cmp.setup {
       local tab_shift_width = vim.opt.shiftwidth:get()
       local copilot_keys = vim.fn['copilot#Accept'](string.rep(' ', tab_shift_width))
 
-      if luasnip.expand_or_jumpable() then
+      if luasnip.expand_or_locally_jumpable() then
         luasnip.expand_or_jump()
       elseif copilot_keys ~= '' and type(copilot_keys) == 'string' then
         vim.api.nvim_feedkeys(copilot_keys, 'i', true)
@@ -708,9 +782,7 @@ cmp.setup {
       end
     end, { "i", "s" }),
     ['<S-Tab>'] = cmp.mapping(function(fallback)
-      if cmp.visible() then
-        cmp.select_prev_item()
-      elseif luasnip.locally_jumpable(-1) then
+      if luasnip.locally_jumpable(-1) then
         luasnip.jump(-1)
       else
         fallback()
@@ -730,9 +802,12 @@ vim.keymap.set({ 'n', 'v' }, '<Space>', '<Nop>', { silent = true })
 vim.keymap.set('n', 'k', "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
 vim.keymap.set('n', 'j', "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
--- My lovely vertical navigation speedups
-vim.keymap.set({ 'n', 'v' }, '<C-j>', ':keepjumps normal! }<CR>', { silent = true })
-vim.keymap.set({ 'n', 'v' }, '<C-k>', ':keepjumps normal! {<CR>', { silent = true })
+-- My lovely vertical navigation speedups (do not add them to the jumplist)
+vim.keymap.set('n', '<C-j>', ':keepjumps normal! }<CR>', { silent = true })
+vim.keymap.set('v', '<C-j>', '}', { silent = true })
+vim.keymap.set('n', '<C-k>', ':keepjumps normal! {<CR>', { silent = true })
+vim.keymap.set('v', '<C-k>', '{', { silent = true })
+
 vim.keymap.set({ 'n', 'v' }, 'J', '10j', { silent = true })
 vim.keymap.set({ 'n', 'v' }, 'K', '10k', { silent = true })
 
@@ -752,7 +827,7 @@ vim.api.nvim_set_keymap('v', '<D-c>', 'y', { noremap = true })
 vim.api.nvim_set_keymap('i', '<D-v>', '<C-r>+', { noremap = true })
 
 -- Write file on cmd+s
-vim.api.nvim_set_keymap('n', '<D-s>', ':w<CR>', { noremap = true })
+vim.api.nvim_set_keymap('n', '<D-s>', ':w<CR>', { silent = true })
 -- Open git
 vim.api.nvim_set_keymap('n', '<A-g>', ':Git<CR>', { silent = true })
 vim.api.nvim_set_keymap('n', '<D-S-g>', ':Git<CR>', { silent = true })
