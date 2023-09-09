@@ -322,29 +322,6 @@ require('lazy').setup({
     end
   },
 
-  -- Fuzzy Finder (files, lsp, etc)
-  {
-    'nvim-telescope/telescope.nvim',
-    branch = '0.1.x',
-    dependencies = {
-      'nvim-lua/plenary.nvim',
-      "kkharji/sqlite.lua",
-      'prochri/telescope-all-recent.nvim',
-    }
-  },
-
-  -- Fuzzy Finder Algorithm which requires local dependencies to be built.
-  -- Only load if `make` is available. Make sure you have the system
-  -- requirements installed.
-  {
-    'nvim-telescope/telescope-fzf-native.nvim',
-    -- NOTE: If you are having trouble with this installation,
-    --       refer to the README for telescope-fzf-native for more instructions.
-    build = 'make',
-    cond = function()
-      return vim.fn.executable 'make' == 1
-    end,
-  },
 
   {
     -- Highlight, edit, and navigate code
@@ -488,8 +465,10 @@ require('lazy').setup({
         },
       })
     end,
-  }
+  },
 
+  -- Follow up with the custom reusable configuration for plugins located in ~/lua folder
+  require('telescope-lazy').lazy({})
 }, {})
 
 -- [[ Basic Keymaps ]]
@@ -507,45 +486,6 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   group = highlight_group,
   pattern = '*',
 })
-
--- [[ Configure Telescope ]]
--- See `:help telescope` and `:help telescope.setup()`
-require('telescope').setup {
-  defaults = {
-    mappings = {
-      i = {
-        ['<C-u>'] = false,
-        ['<C-d>'] = false,
-      },
-    },
-  },
-}
-
--- Enable telescope fzf native, if installed
-pcall(require('telescope').load_extension, 'fzf')
-require('telescope').load_extension('projects')
-
-require 'telescope-all-recent'.setup({})
-
--- Set telescope keymaps
-vim.keymap.set('n', '<D-f>', function()
-  -- You can pass additional configuration to telescope to change theme, layout, etc.
-  require('telescope.builtin').current_buffer_fuzzy_find(require('telescope.themes').get_dropdown {
-    previewer = true,
-  })
-end, { desc = '] Fuzzily search in current buffer' })
-
-vim.keymap.set('n', '<leader>gf', require('telescope.builtin').git_files, { desc = 'Search [G]it [F]iles' })
-vim.keymap.set('n', '<D-p>', require('telescope.builtin').commands, { desc = 'Search commands' })
-vim.keymap.set('n', '<D-o>', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
-
-vim.keymap.set('n', '<D-k>', require('telescope.builtin').find_files, { desc = '[S]earch [F]iles' })
-vim.keymap.set('n', '<D-S-f>', require('telescope.builtin').live_grep, { desc = '[S]earch by [G]rep' })
-vim.keymap.set('n', '<D-C-r>', ':Telescope projects<CR>', { desc = '[S]earch [P]projects' })
-vim.keymap.set('n', '<D-m>', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
-
-vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
-vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
 
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`
@@ -660,43 +600,11 @@ local on_lsp_attach = function(_, bufnr)
 end
 
 -- Enable the following language servers
---  Feel free to add/remove any LSPs that you want here. They will automatically be installed.
---
---  Add any additional override configuration in the following tables. They will be passed to
---  the `settings` field of the server config. You must look up that documentation yourself.
---
---  If you want to override the default filetypes that your language server will attach to you can
---  define the property 'filetypes' to the map in question.
 local servers = {
   -- clangd = {},
   -- gopls = {},
   -- pyright = {},
   eslint = { filetypes = { 'javascript', 'typescript', 'javascriptreact', 'typescriptreact' } },
-  -- For now testing te rust-tools crate
-  -- rust_analyzer = {
-  --   inlayHints = {
-  --     enabled = true,
-  --     parameterNames = "none",
-  --     typeHints = true,
-  --   },
-  --   imports = {
-  --     granularity = {
-  --       group = "module",
-  --     },
-  --     prefix = "self",
-  --   },
-  --   cargo = {
-  --     buildScripts = {
-  --       enable = true,
-  --     },
-  --   },
-  --   procMacro = {
-  --     enable = true
-  --   },
-  --   checkOnSave = {
-  --     command = "clippy"
-  --   },
-  -- },
   tsserver = {},
   html = { filetypes = { 'html', 'twig', 'hbs' } },
   lua_ls = {
@@ -836,9 +744,10 @@ vim.api.nvim_set_keymap('n', '<backspace>', '"_dh', { noremap = true })
 vim.api.nvim_set_keymap('v', '<backspace>', '"_d', { noremap = true })
 
 -- Paste line on cmd+v
-vim.keymap.set({ 'n', 'v' }, '<D-v>', 'p', { noremap = true })
-vim.api.nvim_set_keymap('v', '<D-c>', 'y', { noremap = true })
-vim.api.nvim_set_keymap('i', '<D-v>', '<C-r>+', { noremap = true })
+vim.keymap.set('v', '<D-c>', 'y', { remap = true })
+vim.keymap.set('n', '<D-v>', 'p', { remap = true })
+vim.keymap.set('v', '<D-v>', '"_dP', { remap = true })
+vim.keymap.set('i', '<D-v>', '<C-r>+', { remap = true })
 
 -- Write file on cmd+s
 vim.api.nvim_set_keymap('n', '<D-s>', ':w<CR>', { silent = true })
