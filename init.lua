@@ -1,5 +1,5 @@
-vim.g.mapleader = '='
-vim.g.maplocalleader = '='
+vim.g.mapleader = ' '
+vim.g.maplocalleader = ' '
 vim.g.kitty_fast_forwarded_modifiers = 'super'
 
 vim.o.guifont = "JetBrainsMonoNL Nerd Font Mono:h18"
@@ -50,7 +50,6 @@ vim.o.termguicolors = true;
 -- Renders spaces as "·"
 vim.opt.list = true
 vim.opt.listchars = vim.opt.listchars + "space:·"
-vim.g.camelcasemotion_key = "<leader>"
 
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
@@ -307,9 +306,19 @@ require('lazy').setup({
       vim.keymap.set('n', '<A-a>', require("harpoon.mark").add_file, { noremap = true })
 
       vim.keymap.set('n', '<F1>', function() require("harpoon.ui").nav_file(1) end, {})
+      vim.keymap.set('n', '<leader>q', function() require("harpoon.ui").nav_file(1) end, {})
+
       vim.keymap.set('n', '<F2>', function() require("harpoon.ui").nav_file(2) end, {})
+      vim.keymap.set('n', '<leader>w', function() require("harpoon.ui").nav_file(2) end, {})
+
       vim.keymap.set('n', '<F3>', function() require("harpoon.ui").nav_file(3) end, {})
+      vim.keymap.set('n', '<leader>e', function() require("harpoon.ui").nav_file(3) end, {})
+
       vim.keymap.set('n', '<F4>', function() require("harpoon.ui").nav_file(4) end, {})
+      vim.keymap.set('n', '<leader>r', function() require("harpoon.ui").nav_file(4) end, {})
+
+      vim.keymap.set('n', '<F5>', function() require("harpoon.ui").nav_file(5) end, {})
+      vim.keymap.set('n', '<leader>t', function() require("harpoon.ui").nav_file(5) end, {})
     end
   },
 
@@ -321,7 +330,6 @@ require('lazy').setup({
       'nvim-lua/plenary.nvim',
       "kkharji/sqlite.lua",
       'prochri/telescope-all-recent.nvim',
-
     }
   },
 
@@ -464,20 +472,25 @@ require('lazy').setup({
       require("autoclose").setup({
         keys = {
           ["|"] = { escape = true, close = true, pair = "||", enabled_filetypes = { "rust" } },
+          ["{"] = { escape = true, close = true, pair = "{}" },
           ["/*"] = {
             escape = true,
             close = true,
             pair = "/**/",
             enabled_filetypes = { "typescript", "typescriptreact", "javascript", "javascriptreact" }
           },
+          ["'"] = {
+            escape = true,
+            close = true,
+            pair = "''",
+            disabled_filetypes = { "rust" }
+          }
         },
       })
     end,
   }
 
 }, {})
-
-
 
 -- [[ Basic Keymaps ]]
 
@@ -555,7 +568,7 @@ require('nvim-treesitter.configs').setup {
       init_selection = '<c-space>',
       node_incremental = '<c-space>',
       scope_incremental = '<c-s>',
-      node_decremental = '<M-space>',
+      node_decremental = '<S-space>',
     },
   },
   textobjects = {
@@ -761,8 +774,6 @@ cmp.setup {
   mapping = cmp.mapping.preset.insert {
     ['<C-n>'] = cmp.mapping.select_next_item(),
     ['<C-p>'] = cmp.mapping.select_prev_item(),
-    ['<C-d>'] = cmp.mapping.scroll_docs(-4),
-    ['<C-f>'] = cmp.mapping.scroll_docs(4),
     ['<C-Space>'] = cmp.mapping.complete {},
     ['<CR>'] = cmp.mapping.confirm {
       behavior = cmp.ConfirmBehavior.Replace,
@@ -807,6 +818,9 @@ vim.keymap.set('n', '<C-j>', ':keepjumps normal! }<CR>', { silent = true })
 vim.keymap.set('v', '<C-j>', '}', { silent = true })
 vim.keymap.set('n', '<C-k>', ':keepjumps normal! {<CR>', { silent = true })
 vim.keymap.set('v', '<C-k>', '{', { silent = true })
+vim.keymap.set({ 'n', 'v' }, '<C-h>', 'b', { silent = true })
+vim.keymap.set({ 'n', 'v' }, '<C-l>', 'w', { silent = true })
+vim.keymap.set({ 'n', 'v' }, '-', '$', { silent = true })
 
 vim.keymap.set({ 'n', 'v' }, 'J', '10j', { silent = true })
 vim.keymap.set({ 'n', 'v' }, 'K', '10k', { silent = true })

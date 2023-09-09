@@ -52,12 +52,12 @@
       "export const ${TM_FILENAME_BASE:Component}: React.FC<${TM_FILENAME_BASE:Component}Props> = ({ $3$key }) => {",
       "  const data = useFragment(graphql`",
       "    fragment ${TM_FILENAME_BASE:Component}Fragment on $2 {",
-      "      $3",
+      "      $5",
       "    }",
       "  `, $3$key)",
       "  ",
       "  return (",
-      "   $4",
+      "   $6",
       "  )",
       "}"
     ]
