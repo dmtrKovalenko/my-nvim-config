@@ -127,9 +127,18 @@ require('lazy').setup({
   },
   { 'akinsho/git-conflict.nvim', version = "*", config = true },
   {
-    'tpope/vim-rhubarb',
+    'ruifm/gitlinker.nvim',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+    },
     config = function()
-      vim.keymap.set('n', '<leader>gg', ':GBrowse<CR>', { silent = true, desc = '[G]it [G]o to file on GitHub' })
+      require('gitlinker').setup();
+      vim.api.nvim_set_keymap('n', '<leader>gg',
+        '<cmd>lua require"gitlinker".get_buf_range_url("n", {action_callback = require"gitlinker.actions".open_in_browser})<cr>',
+        { silent = true })
+      vim.api.nvim_set_keymap('v', '<leader>gg',
+        '<cmd>lua require"gitlinker".get_buf_range_url("v", {action_callback = require"gitlinker.actions".open_in_browser})<cr>',
+        {})
     end
   },
   {
