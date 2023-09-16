@@ -47,6 +47,8 @@ vim.o.completeopt = 'menuone,noselect'
 -- set termguicolors to enable highlight groups
 vim.o.termguicolors = true;
 
+vim.g.camelcasemotion_key = '='
+
 -- Renders spaces as "·"
 vim.opt.list = true
 vim.opt.listchars = vim.opt.listchars + "space:·"
@@ -145,6 +147,7 @@ require('lazy').setup({
     'ahmedkhalf/project.nvim',
     config = function()
       require("project_nvim").setup({
+        sync_root_with_cwd = true,
         show_hidden = false,
         silent_chdir = false,
         detection_methods = { "patterns" },
@@ -375,6 +378,12 @@ require('lazy').setup({
         filters = {
           dotfiles = false,
         },
+        ui = {
+          confirm = {
+            remove = false,
+            trash = false
+          },
+        },
         update_focused_file = {
           enable = true,
           update_root = false,
@@ -437,20 +446,6 @@ require('lazy').setup({
     end,
   },
 
-  {
-    'glepnir/dashboard-nvim',
-    event = 'VimEnter',
-    config = function()
-      require('dashboard').setup {
-        config = {
-          week_header = {
-            enable = true
-          }
-        }
-      }
-    end,
-    dependencies = { { 'nvim-tree/nvim-web-devicons' } }
-  },
 
   {
     'm4xshen/autoclose.nvim',
@@ -477,7 +472,8 @@ require('lazy').setup({
   },
 
   -- Follow up with the custom reusable configuration for plugins located in ~/lua folder
-  require('telescope-lazy').lazy({})
+  require('telescope-lazy').lazy({}),
+  require('alpha-lazy').lazy({})
 }, {})
 
 -- [[ Basic Keymaps ]]

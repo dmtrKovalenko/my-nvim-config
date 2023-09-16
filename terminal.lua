@@ -3,6 +3,8 @@ vim.g.maplocalleader = ' '
 
 vim.wo.number = true
 vim.wo.relativenumber = true
+vim.g.kitty_fast_forwarded_modifiers = 'super'
+local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
@@ -112,8 +114,20 @@ local shell = 'fish'
 -- Rebinds the splits to immediately open the the new terminal on the right/bottom.
 vim.api.nvim_set_keymap('n', '<C-w>v', ':vsplit<CR><C-w>w:terminal<CR>',
   { silent = true })
+vim.keymap.set({ 'n', 't' }, '<A-D-v>', '<C-\\><C-n>:vsplit<CR><C-w>w:terminal<CR>',
+  { silent = true })
+
 vim.api.nvim_set_keymap('n', '<C-w>s', ':split<CR><C-w>w:terminal<CR>',
   { silent = true })
+vim.keymap.set({ 'n', 't' }, '<A-D-s>', '<C-\\><C-n>:split<CR><C-w>w:terminal<CR>',
+  { silent = true })
+
+vim.api.nvim_set_keymap('n', '<D-A-l>', '<C-w>l', { silent = true })
+vim.api.nvim_set_keymap('n', '<D-A-h>', '<C-w>h', { silent = true })
+vim.api.nvim_set_keymap('n', '<D-A-q>', '<C-w>q', { silent = true })
+vim.api.nvim_set_keymap('n', '<D-A-j>', '<C-w>j', { silent = true })
+vim.api.nvim_set_keymap('n', '<D-A-k>', '<C-w>k', { silent = true })
+
 
 local editor_command = 'nvim';
 
