@@ -4,7 +4,6 @@ vim.g.maplocalleader = ' '
 vim.wo.number = true
 vim.wo.relativenumber = true
 vim.g.kitty_fast_forwarded_modifiers = 'super'
-local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
