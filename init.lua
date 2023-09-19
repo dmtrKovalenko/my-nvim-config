@@ -314,8 +314,8 @@ require('lazy').setup({
         },
       })
 
-      vim.keymap.set('n', '<A-h>', require("harpoon.ui").toggle_quick_menu, { noremap = true })
-      vim.keymap.set('n', '<A-a>', require("harpoon.mark").add_file, { noremap = true })
+      vim.keymap.set('n', '<leader>h', require("harpoon.ui").toggle_quick_menu, { noremap = true })
+      vim.keymap.set('n', '<leader>a', require("harpoon.mark").add_file, { noremap = true })
 
       vim.keymap.set('n', '<F1>', function() require("harpoon.ui").nav_file(1) end, {})
       vim.keymap.set('n', '<leader>q', function() require("harpoon.ui").nav_file(1) end, {})
@@ -522,8 +522,8 @@ require('nvim-treesitter.configs').setup {
       lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
       keymaps = {
         -- You can use the capture groups defined in textobjects.scm
-        ['aa'] = '@parameter.outer',
-        ['ia'] = '@parameter.inner',
+        ['ap'] = '@parameter.outer',
+        ['ip'] = '@parameter.inner',
         ['af'] = '@function.outer',
         ['if'] = '@function.inner',
         ['ac'] = '@class.outer',
@@ -553,10 +553,10 @@ require('nvim-treesitter.configs').setup {
     swap = {
       enable = true,
       swap_next = {
-        ['<leader>a'] = '@parameter.inner',
+        ['<A-p>'] = '@parameter.inner',
       },
       swap_previous = {
-        ['<leader>A'] = '@parameter.inner',
+        ['<A-P>'] = '@parameter.inner',
       },
     },
   },
@@ -687,7 +687,10 @@ cmp.setup {
   mapping = cmp.mapping.preset.insert {
     ['<C-n>'] = cmp.mapping.select_next_item(),
     ['<C-p>'] = cmp.mapping.select_prev_item(),
-    ['<C-Space>'] = cmp.mapping.complete {},
+    ['<C-Enter>'] = cmp.mapping.confirm {
+      behavior = cmp.ConfirmBehavior.Insert,
+      select = true,
+    },
     ['<CR>'] = cmp.mapping.confirm {
       behavior = cmp.ConfirmBehavior.Replace,
       select = true,
