@@ -1,6 +1,7 @@
 vim.g.mapleader = '='
 vim.g.maplocalleader = ' '
 
+vim.o.showmode = false
 vim.wo.number = true
 vim.wo.relativenumber = true
 vim.g.kitty_fast_forwarded_modifiers = 'super'
@@ -126,6 +127,12 @@ vim.api.nvim_set_keymap('n', '<D-A-h>', '<C-w>h', { silent = true })
 vim.api.nvim_set_keymap('n', '<D-A-q>', '<C-w>q', { silent = true })
 vim.api.nvim_set_keymap('n', '<D-A-j>', '<C-w>j', { silent = true })
 vim.api.nvim_set_keymap('n', '<D-A-k>', '<C-w>k', { silent = true })
+
+vim.api.nvim_set_keymap('t', '<D-A-l>', '<Esc><C-w>l', { silent = true })
+vim.api.nvim_set_keymap('t', '<D-A-h>', '<Esc><C-w>h', { silent = true })
+vim.api.nvim_set_keymap('t', '<D-A-q>', '<Esc><C-w>q', { silent = true })
+vim.api.nvim_set_keymap('t', '<D-A-j>', '<Esc><C-w>j', { silent = true })
+vim.api.nvim_set_keymap('t', '<D-A-k>', '<Esc><C-w>k', { silent = true })
 
 
 local editor_command = 'nvim';
