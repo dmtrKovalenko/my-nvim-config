@@ -85,7 +85,7 @@ require('lazy').setup({
   'tpope/vim-sleuth',
   -- Camel case motion plugin
   'bkad/CamelCaseMotion',
-
+  { 'IndianBoy42/tree-sitter-just', opts = {} },
   {
     'phaazon/hop.nvim',
     branch = 'v2',
@@ -127,7 +127,7 @@ require('lazy').setup({
       'mfussenegger/nvim-dap',
     }
   },
-  { 'akinsho/git-conflict.nvim', version = "*", config = true },
+  { 'akinsho/git-conflict.nvim',    version = "*", config = true },
   {
     'ruifm/gitlinker.nvim',
     dependencies = {
@@ -205,7 +205,7 @@ require('lazy').setup({
   },
 
   -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim',      opts = {} },
+  { 'folke/which-key.nvim',                      opts = {} },
 
   {
     -- Adds git releated signs to the gutter, as well as utilities for managing changes
@@ -269,21 +269,14 @@ require('lazy').setup({
   {
     "kylechui/nvim-surround",
     version = "*", -- Use for stability; omit to use `main` branch for the latest features
-    config = function()
-      require("nvim-surround").setup()
-    end
+    opts = {}
   },
 
   -- Automatically fill/change/remove xml-like tags
-  {
-    "https://github.com/windwp/nvim-ts-autotag",
-    config = function()
-      require('nvim-ts-autotag').setup()
-    end
-  },
+  { "https://github.com/windwp/nvim-ts-autotag", opts = {} },
 
   -- "gc" to comment visual regions/lines
-  { 'numToStr/Comment.nvim', opts = {} },
+  { 'numToStr/Comment.nvim',                     opts = {} },
 
 
   -- Project specific marks for most editable files
@@ -569,6 +562,17 @@ require('nvim-treesitter.configs').setup {
       },
     },
   },
+}
+
+require("nvim-treesitter.install").compilers = { "gcc", "clang" }
+require("nvim-treesitter.parsers").get_parser_configs().just = {
+  install_info = {
+    url = "https://github.com/IndianBoy42/tree-sitter-just", -- local path or git repo
+    files = { "src/parser.c", "src/scanner.cc" },
+    branch = "main",
+    use_makefile = true, -- this may be necessary on MacOS (try if you see compiler errors)
+  },
+  maintainers = { "@IndianBoy42" },
 }
 
 -- Diagnostic keymaps
