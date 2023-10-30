@@ -77,8 +77,6 @@ local function lazy(options)
         defaults = {
           mappings = {
             i = {
-              ['<C-u>'] = false,
-              ['<C-d>'] = false,
               ['<A-Bs>'] = function()
                 local keys = vim.api.nvim_replace_termcodes('<C-w>', true, false, true)
                 vim.api.nvim_feedkeys(keys, "i", true)

@@ -3,6 +3,7 @@ vim.g.maplocalleader = ' '
 vim.g.kitty_fast_forwarded_modifiers = 'super'
 
 vim.o.guifont = "JetBrainsMonoNL Nerd Font Mono:h18"
+vim.g.neovide_input_macos_alt_is_meta = true
 
 -- disable netrw at the very start of your init.lua
 vim.g.loaded_netrw = 1
@@ -12,7 +13,7 @@ vim.g.loaded_netrwPlugin = 1
 vim.wo.number = true
 vim.wo.relativenumber = true
 
--- Enable mouse mode
+-- Enale mouse mode
 vim.o.mouse = 'a'
 
 -- Sync clipboard between OS and Neovim.
@@ -85,6 +86,7 @@ require('lazy').setup({
   'tpope/vim-sleuth',
   -- Camel case motion plugin
   'bkad/CamelCaseMotion',
+  'normen/vim-pio',
   { 'IndianBoy42/tree-sitter-just', opts = {} },
   {
     'phaazon/hop.nvim',
@@ -317,23 +319,13 @@ require('lazy').setup({
       vim.keymap.set('n', '<leader>h', require("harpoon.ui").toggle_quick_menu, { noremap = true })
       vim.keymap.set('n', '<leader>a', require("harpoon.mark").add_file, { noremap = true })
 
-      vim.keymap.set('n', '<F1>', function() require("harpoon.ui").nav_file(1) end, {})
       vim.keymap.set('n', '<leader>q', function() require("harpoon.ui").nav_file(1) end, {})
-
-      vim.keymap.set('n', '<F2>', function() require("harpoon.ui").nav_file(2) end, {})
       vim.keymap.set('n', '<leader>w', function() require("harpoon.ui").nav_file(2) end, {})
-
-      vim.keymap.set('n', '<F3>', function() require("harpoon.ui").nav_file(3) end, {})
       vim.keymap.set('n', '<leader>e', function() require("harpoon.ui").nav_file(3) end, {})
-
-      vim.keymap.set('n', '<F4>', function() require("harpoon.ui").nav_file(4) end, {})
       vim.keymap.set('n', '<leader>r', function() require("harpoon.ui").nav_file(4) end, {})
-
-      vim.keymap.set('n', '<F5>', function() require("harpoon.ui").nav_file(5) end, {})
       vim.keymap.set('n', '<leader>t', function() require("harpoon.ui").nav_file(5) end, {})
     end
   },
-
 
   {
     -- Highlight, edit, and navigate code
@@ -473,7 +465,8 @@ require('lazy').setup({
 
   -- Follow up with the custom reusable configuration for plugins located in ~/lua folder
   require('telescope-lazy').lazy({}),
-  require('alpha-lazy').lazy({})
+  require('alpha-lazy').lazy({}),
+  require('dap-lazy').lazy({}),
 }, {})
 
 -- [[ Basic Keymaps ]]
@@ -596,6 +589,7 @@ local on_lsp_attach = function(_, bufnr)
   lsp_map('<D-.>', ':CodeActionMenu<CR>', '[C]ode [A]ction')
 
   lsp_map('gd', vim.lsp.buf.definition, '[G]oto [D]efinition')
+  lsp_map(' d', vim.lsp.buf.definition, '[G]oto [D]efinition')
   lsp_map('gD', vim.lsp.buf.declaration, '[G]oto [D]eclaration')
   lsp_map('gi', vim.lsp.buf.implementation, '[G]oto [I]mplementation')
   lsp_map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
@@ -619,7 +613,9 @@ end
 
 -- Enable the following language servers
 local servers = {
-  -- clangd = {},
+  clangd = {
+    -- filetypes = { 'c', 'cpp' }
+  },
   -- gopls = {},
   -- pyright = {},
   eslint = { filetypes = { 'javascript', 'typescript', 'javascriptreact', 'typescriptreact' } },
@@ -765,7 +761,7 @@ vim.api.nvim_set_keymap('n', '<backspace>', '"_dh', { noremap = true })
 vim.api.nvim_set_keymap('v', '<backspace>', '"_d', { noremap = true })
 
 -- Paste line on cmd+v
-vim.keymap.set('v', '<D-c>', 'y', { remap = true })
+vim.keymap.set({ 't', 'v' }, '<D-c>', 'y', { remap = true })
 vim.keymap.set('n', '<D-v>', 'p', { remap = true })
 vim.keymap.set('v', '<D-v>', '"_dP', { remap = true })
 vim.keymap.set('i', '<D-v>', '<C-r>+', { remap = true })
@@ -816,3 +812,5 @@ vim.api.nvim_set_keymap('n', 'gf', 'yiW<C-w>k:e <C-r>"<CR>', { silent = true })
 -- Set of commands that should be executed on startup
 vim.cmd([[command! -nargs=1 Browse silent lua vim.fn.system('open ' .. vim.fn.shellescape(<q-args>, 1))]])
 vim.cmd([[highlight DiagnosticUnderlineError cterm=undercurl gui=undercurl guisp=#f87171]])
+
+vim.keymap.set({ 'i', 't' }, 'jj', '<Esc>', {})
