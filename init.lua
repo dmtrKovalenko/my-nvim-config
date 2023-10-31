@@ -53,6 +53,8 @@ vim.g.camelcasemotion_key = '='
 -- Renders spaces as "·"
 vim.opt.list = true
 vim.opt.listchars = vim.opt.listchars + "space:·"
+vim.opt.title = true
+vim.opt.titlestring = '%t%(\\ %M%)%( (%{expand(\"%:~:.:h\")})%)%(\\ %a%)'
 
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
