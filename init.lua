@@ -54,7 +54,7 @@ vim.g.camelcasemotion_key = '='
 vim.opt.list = true
 vim.opt.listchars = vim.opt.listchars + "space:·"
 vim.opt.title = true
-vim.opt.titlestring = '%t%(\\ %M%)%( (%{expand(\"%:~:.:h\")})%)%(\\ %a%)'
+vim.opt.titlestring = '%t%( (%{fnamemodify(getcwd(), ":~:.")})%)'
 
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
