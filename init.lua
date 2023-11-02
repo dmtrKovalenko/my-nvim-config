@@ -88,8 +88,14 @@ require('lazy').setup({
   'tpope/vim-sleuth',
   -- Camel case motion plugin
   'bkad/CamelCaseMotion',
-  'normen/vim-pio',
+  "samjwill/nvim-unception",
   { 'IndianBoy42/tree-sitter-just', opts = {} },
+  {
+    'normen/vim-pio',
+    cond = function()
+      vim.fn.filereadable(vim.fn.getcwd() .. '/platformio.ini')
+    end
+  },
   {
     'phaazon/hop.nvim',
     branch = 'v2',
@@ -409,25 +415,13 @@ require('lazy').setup({
   -- This plugins is already deprecated but it seems to be the only way to choose which formatters
   -- from the lsp config to use for specific filetypes. And it works pretty well
   {
-    "jose-elias-alvarez/null-ls.nvim",
+    "MunifTanjim/prettier.nvim",
+    dependencies = { 'jose-elias-alvarez/null-ls.nvim' },
     event = { "BufReadPost", "BufNewFile" },
     config = function()
-      local null_ls = require "null-ls"
-      local formatting = null_ls.builtins.formatting
-
-      null_ls.setup {
-        debug = false,
-        sources = {
-          formatting.prettierd.with {
-            extra_filetypes = { "toml", "solidity", "json" },
-          },
-          formatting.stylua,
-          formatting.ocamlformat,
-          formatting.clang_format.with {
-            filetypes = { "cpp", "c" },
-          },
-        },
-      }
+      require("prettier").setup({
+        bin = "prettierd",
+      })
     end,
   },
 
@@ -439,7 +433,6 @@ require('lazy').setup({
       require('crates').setup()
     end,
   },
-
 
   {
     'm4xshen/autoclose.nvim',
@@ -578,7 +571,7 @@ vim.keymap.set('n', '<D-S-m>', vim.diagnostic.setloclist, { desc = 'Open diagnos
 
 -- [[ Configure LSP ]]
 --  This function gets run when an LSP connects to a particular buffer.
-local on_lsp_attach = function(_, bufnr)
+local on_lsp_attach = function(client, bufnr)
   local lsp_map = function(keys, func, desc)
     if desc then
       desc = 'LSP: ' .. desc
@@ -603,13 +596,35 @@ local on_lsp_attach = function(_, bufnr)
 
   lsp_map('<D-i>', vim.lsp.buf.hover, 'Hover Documentation')
   lsp_map('<D-u>', vim.lsp.buf.signature_help, 'Signature Documentation')
-  lsp_map('<A-F>', vim.lsp.buf.format, 'Format')
-  vim.keymap.set({ 'n', 'i' }, '<C-f>', vim.lsp.buf.format, { buffer = bufnr, desc = "Format", silent = true })
 
+  -- this appeared to be much easier way to hijack the formatter specifically for prettier
+  -- because for other languages the automatic formatter is usually the best one
+  local function format()
+    local filetype = vim.api.nvim_buf_get_option(0, 'filetype')
+    if
+        filetype == "typescript"
+        or filetype == "typescriptreact"
+        or filetype == "javascript"
+        or filetype == "javascriptreact"
+        or filetype == "html"
+        or filetype == "css"
+        or filetype == "json"
+        or filetype == "yaml"
+        or filetype == "markdown"
+        or filetype == "graphql"
+        or filetype == "vue"
+        or filetype == "svelte"
+    then
+      vim.cmd('Prettier')
+    else
+      vim.lsp.buf.format()
+    end
+  end
 
+  vim.keymap.set({ 'n', 'i' }, '<C-f>', format, { buffer = bufnr, desc = "Format", silent = true })
   -- Create a command `:Format` local to the LSP buffer
   vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
-    vim.lsp.buf.format()
+    format()
   end, { desc = 'Format current buffer with LSP' })
 end
 
