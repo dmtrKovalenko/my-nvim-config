@@ -25,7 +25,28 @@ local function define_colors()
   })
 end
 
-local function lazy(options)
+local function setup_default_configurations()
+  local dap = require('dap')
+  local lldb_configuration = {
+    {
+      name = 'Launch',
+      type = 'lldb',
+      request = 'launch',
+      program = function()
+        return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
+      end,
+      cwd = '${workspaceFolder}',
+      stopOnEntry = false,
+      args = {},
+    },
+  }
+
+  dap.configurations.c = lldb_configuration
+  dap.configurations.cpp = lldb_configuration
+  dap.configurations.rust = lldb_configuration
+end
+
+local function lazy(_options)
   return {
     'mfussenegger/nvim-dap',
     dependencies = {
@@ -64,36 +85,19 @@ local function lazy(options)
       vim.keymap.set('n', '<F9>', function() dap.toggle_breakpoint() end)
       vim.keymap.set('n', '<F10>', function() dap.terminate() end)
 
-
       dap.adapters.lldb = {
         type = 'executable',
         command = '/opt/homebrew/opt/llvm/bin/lldb-vscode', -- adjust as needed, must be absolute path
         name = 'lldb'
       }
 
-      local lldb_configuration = {
-        {
-          name = 'Launch',
-          type = 'lldb',
-          request = 'launch',
-          program = function()
-            return vim.fn.input('Path to executable: ', vim.fn.getcwd() .. '/', 'file')
-          end,
-          cwd = '${workspaceFolder}',
-          stopOnEntry = false,
-          args = {},
-        },
-      }
-
-      dap.configurations.c = lldb_configuration
-      dap.configurations.cpp = lldb_configuration
-      dap.configurations.rust = lldb_configuration
-
       vim.keymap.set('n', '<F5>', function()
         -- when debug is called firstly try to read and/or update launch.json confiugration
         -- from the local project which will override all the default configurations
         if vim.fn.filereadable('.vscode/launch.json') then
           require('dap.ext.vscode').load_launchjs(nil, { lldb = { 'rust', 'c', 'cpp' } })
+        else
+          setup_default_configurations()
         end
 
         require('dap').continue()
