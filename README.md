@@ -1,2 +1,2 @@
 # my-nvim-config
-My neovim configs (terminal profile neovim :scream)
+My neovim configs including my personal tmux replacement via neovim. 
