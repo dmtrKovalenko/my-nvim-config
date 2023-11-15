@@ -6,8 +6,8 @@ vim.o.guifont = "JetBrainsMonoNL Nerd Font Mono:h18"
 vim.g.neovide_input_macos_alt_is_meta = true
 
 -- disable netrw at the very start of your init.lua
-vim.g.loaded_netrw = 1
-vim.g.loaded_netrwPlugin = 1
+-- vim.g.loaded_netrw = 1
+-- vim.g.loaded_netrwPlugin = 1
 
 -- Make line numbers default
 vim.wo.number = true
@@ -106,6 +106,9 @@ require('lazy').setup({
       hop.setup({})
 
       vim.keymap.set('', '<leader>f', function()
+        hop.hint_char2({ current_line_only = false })
+      end, { remap = true })
+      vim.keymap.set('', '<C-f>', function()
         hop.hint_char2({ current_line_only = false })
       end, { remap = true })
 
@@ -358,9 +361,7 @@ require('lazy').setup({
     dependencies = {
       {
         'nvim-tree/nvim-web-devicons',
-        config = function()
-          require("nvim-web-devicons").setup()
-        end
+        config = true
       }
     },
     config = function()
@@ -480,12 +481,20 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   pattern = '*',
 })
 
+local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
+parser_config.wgsl = {
+  install_info = {
+    url = "https://github.com/szebniok/tree-sitter-wgsl",
+    files = { "src/parser.c" }
+  },
+}
+
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`
 require('nvim-treesitter.configs').setup {
   -- Add languages to be installed here that you want installed for treesitter
   ensure_installed = {
-    'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'typescript', 'vimdoc', 'vim', 'rescript', 'markdown'
+    'c', 'cpp', 'go', 'lua', 'python', 'rust', 'tsx', 'typescript', 'vimdoc', 'vim', 'rescript', 'markdown', 'wgsl'
   },
 
   -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
@@ -605,8 +614,6 @@ local on_lsp_attach = function(client, bufnr)
         filetype == "typescript"
         or filetype == "typescriptreact"
         or filetype == "javascript"
-        or filetype == "javascriptreact"
-        or filetype == "html"
         or filetype == "css"
         or filetype == "json"
         or filetype == "yaml"
@@ -621,7 +628,7 @@ local on_lsp_attach = function(client, bufnr)
     end
   end
 
-  vim.keymap.set({ 'n', 'i' }, '<C-f>', format, { buffer = bufnr, desc = "Format", silent = true })
+  vim.keymap.set({ 'n', 'i' }, '<F12>', format, { buffer = bufnr, desc = "Format", silent = true })
   -- Create a command `:Format` local to the LSP buffer
   vim.api.nvim_buf_create_user_command(bufnr, 'Format', function(_)
     format()
@@ -651,7 +658,14 @@ require('neodev').setup()
 
 -- nvim-cmp supports additional completion capabilities, so broadcast that to servers
 local capabilities = vim.lsp.protocol.make_client_capabilities()
-capabilities = require('cmp_nvim_lsp').default_capabilities(capabilities)
+-- it then vim cmp overrides only completion part of the text document. leave all other preassigned
+capabilities.textDocument.completion = require('cmp_nvim_lsp').default_capabilities(capabilities)
+    .textDocument
+    .completion
+
+-- optimizes cpu usage source https://github.com/neovim/neovim/issues/23291
+capabilities.workspace.didChangeWatchedFiles.dynamicRegistration = false
+
 
 require("rust-tools").setup({
   tools = {
@@ -664,6 +678,16 @@ require("rust-tools").setup({
     on_attach = on_lsp_attach,
     capabilities = capabilities,
   },
+  settings = {
+    ["rust-analyzer"] = {
+      diagnostics = {
+        experimental = {
+          enable = true
+        }
+      }
+    },
+  }
+
 })
 
 -- Ensure the servers above are installed
@@ -830,4 +854,10 @@ vim.api.nvim_set_keymap('n', 'gf', 'yiW<C-w>k:e <C-r>"<CR>', { silent = true })
 vim.cmd([[command! -nargs=1 Browse silent lua vim.fn.system('open ' .. vim.fn.shellescape(<q-args>, 1))]])
 vim.cmd([[highlight DiagnosticUnderlineError cterm=undercurl gui=undercurl guisp=#f87171]])
 
-vim.keymap.set({ 'i', 't' }, 'jj', '<Esc>', {})
+-- Simulate netrw gx without netrw
+-- Map 'gx' to open the file or URL under cursor
+vim.keymap.set('n', 'gx', function()
+  local target = vim.fn.expand("<cfile>")
+  vim.fn.system(string.format("open '%s'", target))
+end
+, { silent = true })
