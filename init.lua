@@ -459,6 +459,20 @@ require('lazy').setup({
     end,
   },
 
+  {
+    'nvim-pack/nvim-spectre',
+    config = function()
+      local spectre = require('spectre')
+
+      vim.keymap.set('n', '<D-S-r>', spectre.toggle, {
+        desc = "Toggle Spectre"
+      })
+      vim.keymap.set('v', '<D-S-r>', spectre.open_visual, {
+        desc = "Toggle Spectre"
+      })
+    end,
+  },
+
   -- Follow up with the custom reusable configuration for plugins located in ~/lua folder
   require('telescope-lazy').lazy({}),
   require('alpha-lazy').lazy({}),
