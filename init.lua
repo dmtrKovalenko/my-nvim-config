@@ -439,6 +439,9 @@ require('lazy').setup({
     'm4xshen/autoclose.nvim',
     config = function()
       require("autoclose").setup({
+        options = {
+          disabled_filetypes = { "TelescopePrompt", "text" }
+        },
         keys = {
           ["|"] = { escape = true, close = true, pair = "||", enabled_filetypes = { "rust" } },
           ["{"] = { escape = true, close = true, pair = "{}" },
