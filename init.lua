@@ -6,8 +6,8 @@ vim.o.guifont = "JetBrainsMonoNL Nerd Font Mono:h18"
 vim.g.neovide_input_macos_alt_is_meta = true
 
 -- disable netrw at the very start of your init.lua
--- vim.g.loaded_netrw = 1
--- vim.g.loaded_netrwPlugin = 1
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
 
 -- Make line numbers default
 vim.wo.number = true
@@ -53,6 +53,8 @@ vim.g.camelcasemotion_key = '='
 -- Renders spaces as "·"
 vim.opt.list = true
 vim.opt.listchars = vim.opt.listchars + "space:·"
+
+-- Set terminal tab title to `filename (cwd)`
 vim.opt.title = true
 vim.opt.titlestring = '%t%( (%{fnamemodify(getcwd(), ":~:.")})%)'
 
@@ -88,6 +90,7 @@ require('lazy').setup({
   'tpope/vim-sleuth',
   -- Camel case motion plugin
   'bkad/CamelCaseMotion',
+  -- Allows correctly openning and closing nested nvims in the terminal
   "samjwill/nvim-unception",
   { 'IndianBoy42/tree-sitter-just', opts = {} },
   {
@@ -156,18 +159,6 @@ require('lazy').setup({
         {})
     end
   },
-  {
-    'ahmedkhalf/project.nvim',
-    config = function()
-      require("project_nvim").setup({
-        sync_root_with_cwd = true,
-        show_hidden = false,
-        silent_chdir = false,
-        detection_methods = { "patterns" },
-        patterns = { ".git" }
-      })
-    end
-  },
   -- Toggle terminal plugin
   {
     "NvChad/nvterm",
@@ -218,7 +209,7 @@ require('lazy').setup({
   },
 
   -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim',                      opts = {} },
+  { 'folke/which-key.nvim',   opts = {} },
 
   {
     -- Adds git releated signs to the gutter, as well as utilities for managing changes
@@ -286,10 +277,10 @@ require('lazy').setup({
   },
 
   -- Automatically fill/change/remove xml-like tags
-  { "https://github.com/windwp/nvim-ts-autotag", opts = {} },
+  { "windwp/nvim-ts-autotag", opts = {} },
 
   -- "gc" to comment visual regions/lines
-  { 'numToStr/Comment.nvim',                     opts = {} },
+  { 'numToStr/Comment.nvim',  opts = {} },
 
 
   -- Project specific marks for most editable files
@@ -301,19 +292,11 @@ require('lazy').setup({
         global_settings = {
           save_on_toggle = true,
           save_on_change = true,
+          mark_branch = true,
+          excluded_filetypes = { "harpoon", "NvimTree", "TelescopePrompt" },
         },
         projects = {
           ["~/dev/"] = {
-            term = {
-              cmds = {
-                "yarn dev",
-                "yarn test",
-                "yarn lint",
-                "yarn build",
-              },
-              size = 0.5,
-              pos = "bottom",
-            },
             mark = {
               marks = { "1", "2", "3", "4" },
               sign = false,
@@ -518,6 +501,7 @@ require('nvim-treesitter.configs').setup {
   auto_install = true,
 
   autotag = {
+    enable = true,
     enable_close_on_slash = false,
   },
 

@@ -31,7 +31,6 @@ local function lazy(options)
       -- Enable telescope fzf native, if installed
       if not options.onlyLocalSearch then
         pcall(require('telescope').load_extension, 'fzf')
-        require('telescope').load_extension('projects')
 
         local function find_files()
           require('telescope.builtin').find_files({
