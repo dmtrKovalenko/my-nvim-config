@@ -111,9 +111,6 @@ require('lazy').setup({
       vim.keymap.set('', '<leader>f', function()
         hop.hint_char2({ current_line_only = false })
       end, { remap = true })
-      vim.keymap.set('', '<C-f>', function()
-        hop.hint_char2({ current_line_only = false })
-      end, { remap = true })
 
       -- easymotion like keybind remove when get used to the leaderf-
       vim.keymap.set('', '<leader><leader>f', function()
@@ -353,6 +350,9 @@ require('lazy').setup({
         respect_buf_cwd = true,
         sync_root_with_cwd = true,
         view = {
+          -- when streaming
+          -- width = 30,
+          -- normal mode
           width = 40,
           centralize_selection = true
         },
@@ -639,10 +639,8 @@ end
 -- Enable the following language servers
 local servers = {
   clangd = {
-    -- filetypes = { 'c', 'cpp' }
+    filetypes = { 'c', 'cpp' }
   },
-  -- gopls = {},
-  -- pyright = {},
   eslint = { filetypes = { 'javascript', 'typescript', 'javascriptreact', 'typescriptreact' } },
   tsserver = {},
   html = { filetypes = { 'html', 'twig', 'hbs' } },
@@ -652,6 +650,7 @@ local servers = {
       telemetry = { enable = false },
     },
   },
+  typos_lsp = {}
 }
 
 -- Setup neovim lua configuration
@@ -666,7 +665,6 @@ capabilities.textDocument.completion = require('cmp_nvim_lsp').default_capabilit
 
 -- optimizes cpu usage source https://github.com/neovim/neovim/issues/23291
 capabilities.workspace.didChangeWatchedFiles.dynamicRegistration = false
-
 
 require("rust-tools").setup({
   tools = {
@@ -851,6 +849,9 @@ vim.api.nvim_set_keymap('t', '<Esc>', '<C-\\><C-n>', { nowait = true })
 -- Opens file under cursor in the panel above
 vim.api.nvim_set_keymap('n', 'gf', 'yiW<C-w>k:e <C-r>"<CR>', { silent = true })
 
+-- Default vim search on Ctrl+f
+vim.api.nvim_set_keymap('n', '<C-f>', '/', { silent = true })
+
 -- Set of commands that should be executed on startup
 vim.cmd([[command! -nargs=1 Browse silent lua vim.fn.system('open ' .. vim.fn.shellescape(<q-args>, 1))]])
 vim.cmd([[highlight DiagnosticUnderlineError cterm=undercurl gui=undercurl guisp=#f87171]])
@@ -861,4 +862,4 @@ vim.keymap.set('n', 'gx', function()
   local target = vim.fn.expand("<cfile>")
   vim.fn.system(string.format("open '%s'", target))
 end
-, { silent = true })
+, { silent = false })
