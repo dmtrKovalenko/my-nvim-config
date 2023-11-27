@@ -2,6 +2,12 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 vim.g.kitty_fast_forwarded_modifiers = 'super'
 
+local IS_STREAMING = os.getenv('STREAM') ~= nil
+if IS_STREAMING then
+  vim.print(
+    "Hello my dear stream wathchers!")
+end
+
 vim.o.guifont = "JetBrainsMonoNL Nerd Font Mono:h18"
 vim.g.neovide_input_macos_alt_is_meta = true
 
@@ -76,7 +82,7 @@ local if_not_vscode = function() return not vim.g.vscode end
 
 require('lazy').setup({
   'github/copilot.vim',
-  -- Git managmenet
+  -- Git management
   'tpope/vim-fugitive',
   'lewis6991/fileline.nvim',
   -- Autosave, not sure why I have it
@@ -85,12 +91,13 @@ require('lazy').setup({
   'mg979/vim-visual-multi',
   'weilbith/nvim-code-action-menu',
   'nkrkv/nvim-treesitter-rescript',
+  'danielo515/tree-sitter-reason',
   'jparise/vim-graphql',
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
   -- Camel case motion plugin
   'bkad/CamelCaseMotion',
-  -- Allows correctly openning and closing nested nvims in the terminal
+  -- Allows correctly opening and closing nested nvims in the terminal
   "samjwill/nvim-unception",
   { 'IndianBoy42/tree-sitter-just', opts = {} },
   {
@@ -160,7 +167,13 @@ require('lazy').setup({
   {
     "NvChad/nvterm",
     config = function()
-      require("nvterm").setup()
+      require("nvterm").setup({
+        terminals = {
+          type_opts = {
+            horizontal = { split_ratio = (IS_STREAMING and .5) or .3 }
+          }
+        }
+      })
       local toggleTerm = function() require("nvterm.terminal").toggle("horizontal") end;
 
       vim.keymap.set('n', '<A-C>', toggleTerm, {});
@@ -209,7 +222,7 @@ require('lazy').setup({
   { 'folke/which-key.nvim',   opts = {} },
 
   {
-    -- Adds git releated signs to the gutter, as well as utilities for managing changes
+    -- Adds git related signs to the gutter, as well as utilities for managing changes
     'lewis6991/gitsigns.nvim',
     opts = {
       -- See `:help gitsigns.txt`
@@ -350,10 +363,7 @@ require('lazy').setup({
         respect_buf_cwd = true,
         sync_root_with_cwd = true,
         view = {
-          -- when streaming
-          -- width = 30,
-          -- normal mode
-          width = 40,
+          width = IS_STREAMING and 30 or 40,
           centralize_selection = true
         },
         renderer = {
@@ -639,7 +649,7 @@ end
 -- Enable the following language servers
 local servers = {
   clangd = {
-    filetypes = { 'c', 'cpp' }
+    -- filetypes = { 'c', 'cpp' }
   },
   eslint = { filetypes = { 'javascript', 'typescript', 'javascriptreact', 'typescriptreact' } },
   tsserver = {},
@@ -650,7 +660,13 @@ local servers = {
       telemetry = { enable = false },
     },
   },
-  typos_lsp = {}
+  typos_lsp = {},
+  grammarly = {
+    -- Grammarly language server requires node js 16.4 ¯\_(ツ)_/¯
+    -- https://github.com/neovim/nvim-lspconfig/issues/2007
+    cmd = { "n", "run", "16.4", "/Users/dmtrkovalenko/.local/share/nvim/mason/bin/grammarly-languageserver", "--stdio" },
+  },
+  ocamllsp = {}
 }
 
 -- Setup neovim lua configuration
@@ -703,9 +719,12 @@ mason_lspconfig.setup_handlers {
       on_attach = on_lsp_attach,
       settings = servers[server_name],
       filetypes = (servers[server_name] or {}).filetypes,
+      cmd = (servers[server_name] or {}).cmd
     }
   end
 }
+
+require('lspconfig').typos_lsp.setup {}
 
 -- [[ Configure nvim-cmp ]]
 -- See `:help cmp`
