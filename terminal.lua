@@ -6,6 +6,8 @@ vim.wo.number = true
 vim.wo.relativenumber = true
 vim.g.kitty_fast_forwarded_modifiers = 'super'
 
+local is_kitty = vim.env.KITTY_KITTEN == 'true'
+
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system {
@@ -25,6 +27,9 @@ require('lazy').setup({
     'projekt0n/github-nvim-theme',
     lazy = false,    -- make sure we load this during startup if it is your main colorscheme
     priority = 1000, -- make sure to load this before all the other start plugins
+    cond = function()
+      return not is_kitty
+    end,
     config = function()
       require('github-theme').setup({})
 
@@ -34,7 +39,9 @@ require('lazy').setup({
   {
     -- Set lualine as statusline
     'nvim-lualine/lualine.nvim',
-    -- See `:help lualine.txt`
+    cond = function()
+      return not is_kitty
+    end,
     opts = {
       options = {
         icons_enabled = false,
@@ -43,6 +50,20 @@ require('lazy').setup({
         section_separators = '',
       },
     },
+  },
+  {
+    'mikesmithgh/kitty-scrollback.nvim',
+    enabled = true,
+    lazy = true,
+    cmd = { 'KittyScrollbackGenerateKittens', 'KittyScrollbackCheckHealth' },
+    event = { 'User KittyScrollbackLaunch' },
+    config = function()
+      require('kitty-scrollback').setup({
+        custom = function()
+          vim.print('customstuff')
+        end
+      })
+    end,
   },
 
   require('telescope-lazy').lazy({ onlyLocalSearch = true })
@@ -65,7 +86,7 @@ vim.o.undofile = true
 vim.o.ignorecase = true
 vim.o.smartcase = true
 
--- As we are runnging terminal do not show the left column. It makes no sense.
+-- As we are running terminal do not show the left column. It makes no sense.
 vim.wo.signcolumn = 'no'
 
 -- Decrease update time
@@ -148,5 +169,7 @@ vim.keymap.set('n', 'gf', OpenInEditor, { silent = true });
 -- (may look bad depends on the different tty app and themes)
 vim.cmd('highlight Normal guibg=None')
 
--- Finally start the terminal mode whenever new neovim started with this config
-vim.cmd("terminal");
+if not is_kitty then
+  -- Finally start the terminal mode whenever new neovim started with this config
+  vim.cmd("terminal");
+end

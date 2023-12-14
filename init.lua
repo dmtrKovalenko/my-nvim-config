@@ -5,7 +5,7 @@ vim.g.kitty_fast_forwarded_modifiers = 'super'
 local IS_STREAMING = os.getenv('STREAM') ~= nil
 if IS_STREAMING then
   vim.print(
-    "Hello my dear stream wathchers!")
+    "Subscribe to my twitter @goose_plus_plus")
 end
 
 vim.o.guifont = "JetBrainsMonoNL Nerd Font Mono:h18"
@@ -103,7 +103,7 @@ require('lazy').setup({
   {
     'normen/vim-pio',
     cond = function()
-      vim.fn.filereadable(vim.fn.getcwd() .. '/platformio.ini')
+      return vim.fn.filereadable(vim.fn.getcwd() .. '/platformio.ini') == 1
     end
   },
   {
@@ -292,7 +292,6 @@ require('lazy').setup({
   -- "gc" to comment visual regions/lines
   { 'numToStr/Comment.nvim',  opts = {} },
 
-
   -- Project specific marks for most editable files
   {
     'ThePrimeagen/harpoon',
@@ -339,7 +338,7 @@ require('lazy').setup({
       {
         'nvim-treesitter/nvim-treesitter-context',
         opts = {
-          max_lines = 3
+          max_lines = IS_STREAMING and 1 or 3
         }
       },
     },
@@ -363,7 +362,7 @@ require('lazy').setup({
         respect_buf_cwd = true,
         sync_root_with_cwd = true,
         view = {
-          width = IS_STREAMING and 30 or 40,
+          width = IS_STREAMING and 30 or 35,
           centralize_selection = true
         },
         renderer = {
@@ -371,6 +370,13 @@ require('lazy').setup({
         },
         filters = {
           dotfiles = false,
+          custom = {
+            "^.git$",
+            "^.sl",
+            "^.DS_Store",
+            "^target",
+            "node_modules"
+          }
         },
         ui = {
           confirm = {
@@ -405,18 +411,6 @@ require('lazy').setup({
         autocmd = { enabled = true }
       })
     end
-  },
-  -- This plugins is already deprecated but it seems to be the only way to choose which formatters
-  -- from the lsp config to use for specific filetypes. And it works pretty well
-  {
-    "MunifTanjim/prettier.nvim",
-    dependencies = { 'jose-elias-alvarez/null-ls.nvim' },
-    event = { "BufReadPost", "BufNewFile" },
-    config = function()
-      require("prettier").setup({
-        bin = "prettierd",
-      })
-    end,
   },
 
   {
@@ -633,7 +627,17 @@ local on_lsp_attach = function(client, bufnr)
         or filetype == "vue"
         or filetype == "svelte"
     then
-      vim.cmd('Prettier')
+      local filepath = vim.api.nvim_buf_get_name(0)
+      local success, result = pcall(function()
+        local current_position = vim.api.nvim_win_get_cursor(0)
+        -- Call the prettier directly on the stdin because there is lspconfig way to setup it is formatter seamlessly
+        vim.api.nvim_command(string.format("silent %%!prettier --stdin-filepath %s", filepath))
+        vim.api.nvim_win_set_cursor(0, current_position)
+      end)
+
+      if not success then
+        error('Prettier failed: ' .. result)
+      end
     else
       vim.lsp.buf.format()
     end
@@ -649,7 +653,7 @@ end
 -- Enable the following language servers
 local servers = {
   clangd = {
-    -- filetypes = { 'c', 'cpp' }
+    filetypes = { 'c', 'cpp', 'proto' }
   },
   eslint = { filetypes = { 'javascript', 'typescript', 'javascriptreact', 'typescriptreact' } },
   tsserver = {},
@@ -665,6 +669,7 @@ local servers = {
     -- Grammarly language server requires node js 16.4 ¯\_(ツ)_/¯
     -- https://github.com/neovim/nvim-lspconfig/issues/2007
     cmd = { "n", "run", "16.4", "/Users/dmtrkovalenko/.local/share/nvim/mason/bin/grammarly-languageserver", "--stdio" },
+    filetypes = { 'markdown', 'text', 'hgcommit', 'gitcommit' },
   },
   ocamllsp = {}
 }
@@ -815,7 +820,7 @@ vim.api.nvim_set_keymap('x', '<A-j>', ":move '>+1<CR>gv", { noremap = true, sile
 vim.api.nvim_set_keymap('n', '<A-k>', "V:move '>-2<CR>gv", { noremap = true, silent = true })
 vim.api.nvim_set_keymap('x', '<A-k>', ":move '<-2<CR>gv", { noremap = true, silent = true })
 
--- Make backpsace work as black hole cut
+-- Make backspace work as black hole cut
 vim.api.nvim_set_keymap('n', '<backspace>', '"_dh', { noremap = true })
 vim.api.nvim_set_keymap('v', '<backspace>', '"_d', { noremap = true })
 
