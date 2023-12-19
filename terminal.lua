@@ -8,6 +8,9 @@ vim.g.kitty_fast_forwarded_modifiers = 'super'
 
 local is_kitty = vim.env.KITTY_KITTEN == 'true'
 
+vim.opt.title = true
+vim.opt.titlestring = '%{winnr("$")}xfish %{fnamemodify(getcwd(), ":~:.")}'
+
 local lazypath = vim.fn.stdpath 'data' .. '/lazy/lazy.nvim'
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system {

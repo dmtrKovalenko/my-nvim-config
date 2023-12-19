@@ -36,6 +36,7 @@ local function lazy(options)
         local function find_files()
           require('telescope.builtin').find_files({
             prompt_prefix = '🔍 ',
+            wrap_results = true,
             find_command = { 'rg', '--files', '--no-require-git' },
           })
         end
@@ -43,9 +44,6 @@ local function lazy(options)
         local function live_grep()
           require('telescope.builtin').live_grep({
             max_results = 1,
-            addional_args = function()
-              return { '--files' }
-            end,
           })
         end
 

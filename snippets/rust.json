@@ -20,5 +20,30 @@
     "body": [
       "#[derive(Debug, Clone$1)]"
     ]
+  },
+  "Juniper mutation": { 
+    "prefix": "junipermutation",
+    "body": [ 
+      "#[derive(GraphQLInputObject, Debug)]",
+      "#[graphql(context = Context)]",
+      "pub struct $1Input {",
+      "    $3", 
+      "    client_mutation_id: Option<ClientMutationId>,",
+      "}",
+      "",
+      "#[derive(GraphQLObject, Debug)]",
+      "#[graphql(context = Context)]",
+      "pub struct $1Payload {",
+      "    pub client_mutation_id: Option<ClientMutationId>,",
+      "}",
+      "",
+      "#[tracing::instrument(skip(context))]",
+      "pub(crate) async fn $2(",
+      "    context: &Context,",
+      "    input: $1Input,",
+      ") -> Result<$1Payload> {",
+      "    $4",
+      "}"
+    ]
   }
 }

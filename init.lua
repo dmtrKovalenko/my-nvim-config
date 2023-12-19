@@ -101,12 +101,6 @@ require('lazy').setup({
   "samjwill/nvim-unception",
   { 'IndianBoy42/tree-sitter-just', opts = {} },
   {
-    'normen/vim-pio',
-    cond = function()
-      return vim.fn.filereadable(vim.fn.getcwd() .. '/platformio.ini') == 1
-    end
-  },
-  {
     'phaazon/hop.nvim',
     branch = 'v2',
     config = function()
@@ -353,7 +347,20 @@ require('lazy').setup({
     dependencies = {
       {
         'nvim-tree/nvim-web-devicons',
-        config = true
+        config = {
+          override_by_extension = {
+            ["toml"] = {
+              icon = "",
+              color = "#475569",
+              name = "Toml"
+            },
+            ["patch"] = {
+              icon = "",
+              color = "#cbd5e1",
+              name = "patch"
+            }
+          },
+        }
       }
     },
     config = function()
@@ -432,6 +439,7 @@ require('lazy').setup({
         keys = {
           ["|"] = { escape = true, close = true, pair = "||", enabled_filetypes = { "rust" } },
           ["{"] = { escape = true, close = true, pair = "{}" },
+          ["<"] = { escape = false, close = true, pair = "<>" },
           ["/*"] = {
             escape = true,
             close = true,
@@ -485,13 +493,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   pattern = '*',
 })
 
-local parser_config = require "nvim-treesitter.parsers".get_parser_configs()
-parser_config.wgsl = {
-  install_info = {
-    url = "https://github.com/szebniok/tree-sitter-wgsl",
-    files = { "src/parser.c" }
-  },
-}
+vim.filetype.add({ extension = { wgsl = "wgsl" } })
 
 -- [[ Configure Treesitter ]]
 -- See `:help nvim-treesitter`
