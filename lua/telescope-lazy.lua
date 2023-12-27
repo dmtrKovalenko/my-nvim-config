@@ -35,7 +35,7 @@ local function lazy(options)
 
         local function find_files()
           require('telescope.builtin').find_files({
-            prompt_prefix = '🔍 ',
+            prompt_prefix = '🔭 ',
             wrap_results = true,
             find_command = { 'rg', '--files', '--no-require-git' },
           })
@@ -55,9 +55,23 @@ local function lazy(options)
         vim.keymap.set('n', '<leader>gf', require('telescope.builtin').git_files, { desc = 'Search [G]it [F]iles' })
         vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
         vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
+
+        local function open_file_under_cursor_in_telescope()
+          local target = vim.fn.expand("<cfile>")
+          vim.api.nvim_command('wincmd k')
+
+          require('telescope.builtin').find_files({
+            prompt_prefix = '🪿 ',
+            default_text = target,
+            wrap_results = true,
+            find_command = { 'rg', '--files', '--no-require-git' },
+          })
+        end
+
+        vim.keymap.set('n', 'gs', open_file_under_cursor_in_telescope, { desc = 'Search file name under cursor' })
       end
 
-      -- Sorts output of the telescope (all the pickers) using fecency alghoritm
+      -- Sorts output of the telescope (all the pickers) using fecency algorithm
       require 'telescope-all-recent'.setup({})
 
       -- Set telescope keymaps

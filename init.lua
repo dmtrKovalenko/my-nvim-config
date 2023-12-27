@@ -54,8 +54,6 @@ vim.o.completeopt = 'menuone,noselect'
 -- set termguicolors to enable highlight groups
 vim.o.termguicolors = true;
 
-vim.g.camelcasemotion_key = '='
-
 -- Renders spaces as "·"
 vim.opt.list = true
 vim.opt.listchars = vim.opt.listchars + "space:·"
@@ -89,17 +87,38 @@ require('lazy').setup({
   'pocco81/auto-save.nvim',
   -- Multi cursor support
   'mg979/vim-visual-multi',
+  -- Quick code actions menu
   'weilbith/nvim-code-action-menu',
+  -- A bunch of treesitter plugins
   'nkrkv/nvim-treesitter-rescript',
   'danielo515/tree-sitter-reason',
+  'IndianBoy42/tree-sitter-just',
   'jparise/vim-graphql',
   -- Detect tabstop and shiftwidth automatically
   'tpope/vim-sleuth',
   -- Camel case motion plugin
-  'bkad/CamelCaseMotion',
+  {
+    'bkad/CamelCaseMotion',
+    init = function()
+      vim.g.camelcasemotion_key = '='
+    end
+  },
   -- Allows correctly opening and closing nested nvims in the terminal
-  "samjwill/nvim-unception",
-  { 'IndianBoy42/tree-sitter-just', opts = {} },
+  {
+    "samjwill/nvim-unception",
+    init = function()
+      vim.g.unception_delete_replaced_buffer = true
+      vim.api.nvim_create_autocmd(
+        "User",
+        {
+          pattern = "UnceptionEditRequestReceived",
+          callback = function()
+            require("nvterm.terminal").hide("horizontal")
+          end
+        }
+      )
+    end
+  },
   {
     'phaazon/hop.nvim',
     branch = 'v2',
@@ -141,7 +160,7 @@ require('lazy').setup({
       'mfussenegger/nvim-dap',
     }
   },
-  { 'akinsho/git-conflict.nvim',    version = "*", config = true },
+  { 'akinsho/git-conflict.nvim', version = "*", config = true },
   {
     'ruifm/gitlinker.nvim',
     dependencies = {
@@ -160,18 +179,20 @@ require('lazy').setup({
   -- Toggle terminal plugin
   {
     "NvChad/nvterm",
-    config = function()
-      require("nvterm").setup({
-        terminals = {
-          type_opts = {
-            horizontal = { split_ratio = (IS_STREAMING and .5) or .3 }
-          }
+    opts = {
+      terminals = {
+        type_opts = {
+          horizontal = { split_ratio = (IS_STREAMING and .5) or .3 }
         }
-      })
-      local toggleTerm = function() require("nvterm.terminal").toggle("horizontal") end;
-
-      vim.keymap.set('n', '<A-C>', toggleTerm, {});
-      vim.keymap.set({ 'n', 't' }, '<D-S-c>', toggleTerm, {});
+      }
+    },
+    init = function()
+      vim.keymap.set(
+        { 'n', 't' },
+        '<D-S-c>',
+        function() require("nvterm.terminal").toggle("horizontal") end,
+        {}
+      );
     end,
   },
   -- NOTE: This is here your plugins related to LSP can be installed.
@@ -213,7 +234,7 @@ require('lazy').setup({
   },
 
   -- Useful plugin to show you pending keybinds.
-  { 'folke/which-key.nvim',   opts = {} },
+  { 'folke/which-key.nvim',      opts = {} },
 
   {
     -- Adds git related signs to the gutter, as well as utilities for managing changes
@@ -655,7 +676,12 @@ end
 -- Enable the following language servers
 local servers = {
   clangd = {
-    filetypes = { 'c', 'cpp', 'proto' }
+    filetypes = { 'c', 'cpp', 'proto' },
+    cmd = {
+      "clangd",
+      "--background-index",
+      "--query-driver=/Users/dmtrkovalenko/.platformio/packages/toolchain-xtensa-esp32/bin/xtensa-esp32-elf-gcc"
+    },
   },
   eslint = { filetypes = { 'javascript', 'typescript', 'javascriptreact', 'typescriptreact' } },
   tsserver = {},
@@ -673,6 +699,7 @@ local servers = {
     cmd = { "n", "run", "16.4", "/Users/dmtrkovalenko/.local/share/nvim/mason/bin/grammarly-languageserver", "--stdio" },
     filetypes = { 'markdown', 'text', 'hgcommit', 'gitcommit' },
   },
+  pylsp = {},
   ocamllsp = {}
 }
 
@@ -872,8 +899,15 @@ vim.api.nvim_set_keymap('n', '<D-A-k>', '<C-w>k', { silent = true })
 
 -- Exit terminal mode with Esc
 vim.api.nvim_set_keymap('t', '<Esc>', '<C-\\><C-n>', { nowait = true })
+
+local function open_file_under_cursor_in_the_panel_above()
+  local target = vim.fn.expand("<cfile>")
+  vim.api.nvim_command('wincmd k')
+  vim.api.nvim_command(string.format("e! %s", target))
+end
+
 -- Opens file under cursor in the panel above
-vim.api.nvim_set_keymap('n', 'gf', 'yiW<C-w>k:e <C-r>"<CR>', { silent = true })
+vim.keymap.set('n', 'gf', open_file_under_cursor_in_the_panel_above, { silent = true })
 
 -- Default vim search on Ctrl+f
 vim.api.nvim_set_keymap('n', '<C-f>', '/', { silent = true })
