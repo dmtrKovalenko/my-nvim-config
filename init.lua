@@ -58,6 +58,8 @@ vim.o.termguicolors = true;
 vim.opt.list = true
 vim.opt.listchars = vim.opt.listchars + "space:·"
 
+vim.opt.swapfile = false
+
 -- Set terminal tab title to `filename (cwd)`
 vim.opt.title = true
 vim.opt.titlestring = '%t%( (%{fnamemodify(getcwd(), ":~:.")})%)'
@@ -83,8 +85,6 @@ require('lazy').setup({
   -- Git management
   'tpope/vim-fugitive',
   'lewis6991/fileline.nvim',
-  -- Autosave, not sure why I have it
-  'pocco81/auto-save.nvim',
   -- Multi cursor support
   'mg979/vim-visual-multi',
   -- Quick code actions menu
@@ -264,18 +264,59 @@ require('lazy').setup({
     },
   },
   {
+    "catppuccin/nvim",
+    name = "catppuccin",
+    cond = if_not_vscode,
+    priority = 1000,
+    opts = {
+      integrations = {
+        treesitter = true,
+        telescope = true,
+      }
+    },
+    init = function()
+      vim.cmd.colorscheme 'catppuccin'
+    end,
+  },
+  {
+    priority = 1000,
     -- Set lualine as statusline
     'nvim-lualine/lualine.nvim',
     -- See `:help lualine.txt`
-    opts = {
-      options = {
-        icons_enabled = false,
-        theme = 'palenight',
-        component_separators = '|',
-        section_separators = '',
-      },
-    },
+    config = function()
+      local catpuccin = require("catppuccin.palettes.mocha");
+
+      local custom_catppuccin_theme = {
+        normal = {
+          a = { fg = catpuccin.crust, bg = catpuccin.mauve },
+          b = { fg = catpuccin.mauve, bg = catpuccin.base },
+          c = { fg = catpuccin.text, bg = catpuccin.base },
+        },
+
+        insert = { a = { fg = catpuccin.base, bg = catpuccin.pink, gui = "bold" } },
+        visual = { a = { fg = catpuccin.base, bg = catpuccin.sky } },
+        replace = { a = { fg = catpuccin.base, bg = catpuccin.green } },
+
+        inactive = {
+          a = { fg = catpuccin.text, bg = catpuccin.surface0 },
+          b = { fg = catpuccin.text, bg = catpuccin.surface0 },
+          c = { fg = catpuccin.text, bg = catpuccin.surface0 },
+        },
+      }
+
+      require("lualine").setup({
+        options = {
+          disabled_filetypes = {
+            statusline = { "NvimTree" }
+          },
+          theme = custom_catppuccin_theme,
+          component_separators = '|',
+          section_separators = '',
+        },
+      })
+    end
   },
+
   {
     -- Add indentation guides even on blank lines
     'lukas-reineke/indent-blankline.nvim',
@@ -368,7 +409,7 @@ require('lazy').setup({
     dependencies = {
       {
         'nvim-tree/nvim-web-devicons',
-        config = {
+        opts = {
           override_by_extension = {
             ["toml"] = {
               icon = "",
@@ -422,15 +463,7 @@ require('lazy').setup({
       vim.keymap.set('n', '<D-b>', ':NvimTreeToggle<CR>', { noremap = true })
     end,
   },
-  {
-    "catppuccin/nvim",
-    name = "catppuccin",
-    cond = if_not_vscode,
-    priority = 1000,
-    config = function()
-      vim.cmd.colorscheme 'catppuccin'
-    end,
-  },
+  -- A lightbulb highlight for code actions
   {
     'kosayoda/nvim-lightbulb',
     lazy = false,
@@ -478,6 +511,7 @@ require('lazy').setup({
     end,
   },
 
+  -- Global search and replace within cwd
   {
     'nvim-pack/nvim-spectre',
     config = function()
@@ -490,6 +524,25 @@ require('lazy').setup({
         desc = "Toggle Spectre"
       })
     end,
+  },
+
+  -- Better notifications and messagess
+  {
+    "folke/noice.nvim",
+    event = "VeryLazy",
+    opts = {
+      hover = {
+        enabled = false,
+      },
+    },
+    dependencies = {
+      -- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
+      "MunifTanjim/nui.nvim",
+      -- OPTIONAL:
+      --   `nvim-notify` is only needed, if you want to use the notification view.
+      --   If not available, we use `mini` as the fallback
+      "rcarriga/nvim-notify",
+    }
   },
 
   -- Follow up with the custom reusable configuration for plugins located in ~/lua folder
@@ -512,6 +565,12 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
   group = highlight_group,
   pattern = '*',
+})
+
+-- Do not create swap files as this config autosaving
+vim.opt.swapfile = false
+vim.api.nvim_create_autocmd({ 'InsertLeave', 'FocusLost', 'BufLeave' }, {
+  command = 'silent! wa'
 })
 
 vim.filetype.add({ extension = { wgsl = "wgsl" } })
@@ -716,6 +775,7 @@ capabilities.textDocument.completion = require('cmp_nvim_lsp').default_capabilit
 -- optimizes cpu usage source https://github.com/neovim/neovim/issues/23291
 capabilities.workspace.didChangeWatchedFiles.dynamicRegistration = false
 
+
 require("rust-tools").setup({
   tools = {
     executor = require("rust-tools.executors").toggleterm,
@@ -860,7 +920,7 @@ vim.keymap.set('v', '<D-v>', '"_dP', { remap = true })
 vim.keymap.set('i', '<D-v>', '<C-r>+', { remap = true })
 
 -- Write file on cmd+s
-vim.api.nvim_set_keymap('n', '<D-s>', ':w<CR>', { silent = true })
+vim.api.nvim_set_keymap('n', '<D-s>', ':silent w<CR>', { silent = true })
 -- Open git
 vim.api.nvim_set_keymap('n', '<A-g>', ':Git<CR>', { silent = true })
 vim.api.nvim_set_keymap('n', '<D-S-g>', ':Git<CR>', { silent = true })
