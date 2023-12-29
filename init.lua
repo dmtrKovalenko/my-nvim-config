@@ -84,6 +84,7 @@ require('lazy').setup({
   'github/copilot.vim',
   -- Git management
   'tpope/vim-fugitive',
+  -- Allows cursor locations in the :e
   'lewis6991/fileline.nvim',
   -- Multi cursor support
   'mg979/vim-visual-multi',
@@ -149,9 +150,7 @@ require('lazy').setup({
   {
     'filipdutescu/renamer.nvim',
     dependencies = { 'nvim-lua/plenary.nvim' },
-    config = function()
-      require('renamer').setup {}
-    end
+    opts = {}
   },
   {
     "simrat39/rust-tools.nvim",
@@ -293,7 +292,7 @@ require('lazy').setup({
           c = { fg = catpuccin.text, bg = catpuccin.base },
         },
 
-        insert = { a = { fg = catpuccin.base, bg = catpuccin.pink, gui = "bold" } },
+        insert = { a = { fg = catpuccin.base, bg = catpuccin.peach, gui = "bold" } },
         visual = { a = { fg = catpuccin.base, bg = catpuccin.sky } },
         replace = { a = { fg = catpuccin.base, bg = catpuccin.green } },
 
@@ -709,17 +708,46 @@ local on_lsp_attach = function(client, bufnr)
         or filetype == "vue"
         or filetype == "svelte"
     then
-      local filepath = vim.api.nvim_buf_get_name(0)
-      local success, result = pcall(function()
-        local current_position = vim.api.nvim_win_get_cursor(0)
-        -- Call the prettier directly on the stdin because there is lspconfig way to setup it is formatter seamlessly
-        vim.api.nvim_command(string.format("silent %%!prettier --stdin-filepath %s", filepath))
-        vim.api.nvim_win_set_cursor(0, current_position)
-      end)
+      local Job = require('plenary.job')
 
-      if not success then
-        error('Prettier failed: ' .. result)
-      end
+      -- Get the content of the buffer
+      local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
+      -- Get the filename of the current buffer
+      local filename = vim.api.nvim_buf_get_name(bufnr)
+
+      local output = {}
+      local prettierd = Job:new({
+        command = 'prettierd',
+        args = { '--stdin-filepath', filename }, -- Pass the --stdin-filepath option and filename
+        writer = table.concat(lines, "\n"),      -- Provide the content of the buffer as stdin
+        enable_handlers = true,                  -- Enable handlers for on_stdout and on_stderr
+        on_stdout = function(_job, data)
+          if data then
+            table.insert(output, data)
+          end
+        end,
+
+        on_exit = function(_job, code, _signal)
+          if code == 0 then
+            -- Update the buffer with the output of prettierd
+            vim.schedule(function() -- schedule is used to avoid conflict with the event loop
+              vim.api.nvim_buf_set_lines(bufnr, 0, #lines, false, output)
+            end)
+          else
+            vim.notify(table.concat(output, "\n"), vim.log.levels.ERROR, { title = 'Prettier failed' })
+          end
+        end,
+
+        on_stderr = function(job, data)
+          -- Print the error if there is one
+          if data then
+            vim.notify(data, vim.log.levels.ERROR, { title = 'Prettierd' })
+          end
+        end
+      })
+
+      -- Start the job
+      prettierd:start()
     else
       vim.lsp.buf.format()
     end
@@ -962,8 +990,22 @@ vim.api.nvim_set_keymap('t', '<Esc>', '<C-\\><C-n>', { nowait = true })
 
 local function open_file_under_cursor_in_the_panel_above()
   local target = vim.fn.expand("<cfile>")
+  local telescope = require("telescope.builtin")
+
   vim.api.nvim_command('wincmd k')
-  vim.api.nvim_command(string.format("e! %s", target))
+
+  if vim.loop.fs_stat(target) then
+    vim.api.nvim_command(string.format("e %s", target))
+  elseif telescope then
+    telescope.find_files({
+      prompt_prefix = '🪿 ',
+      default_text = target,
+      wrap_results = true,
+      find_command = { 'rg', '--files', '--no-require-git' },
+    })
+  else
+    error(string.format("File %s does not exist", target))
+  end
 end
 
 -- Opens file under cursor in the panel above
