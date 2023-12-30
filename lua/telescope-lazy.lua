@@ -1,9 +1,8 @@
 local function lazy(options)
   -- Fuzzy Finder (files, lsp, etc)
   return {
-    'nvim-telescope/telescope.nvim',
-    dir = "~/dev/telescope.nvim",
-    branch = '0.1.x',
+    'dmtrKovalenko/telescope.nvim',
+    branch = 'feat/support-file-path-location',
     dependencies = {
       'nvim-lua/plenary.nvim',
       "kkharji/sqlite.lua",

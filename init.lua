@@ -767,7 +767,8 @@ local servers = {
     cmd = {
       "clangd",
       "--background-index",
-      "--query-driver=/Users/dmtrkovalenko/.platformio/packages/toolchain-xtensa-esp32/bin/xtensa-esp32-elf-gcc"
+      "--query-driver=/Users/dmtrkovalenko/.platformio/packages/toolchain-xtensa-esp32/bin/xtensa-esp32-elf-gcc",
+      "--offset-encoding=utf-16"
     },
   },
   eslint = { filetypes = { 'javascript', 'typescript', 'javascriptreact', 'typescriptreact' } },
@@ -990,16 +991,17 @@ vim.api.nvim_set_keymap('t', '<Esc>', '<C-\\><C-n>', { nowait = true })
 
 local function open_file_under_cursor_in_the_panel_above()
   local target = vim.fn.expand("<cfile>")
+  local full_path_with_suffix = vim.fn.expand("<cWORD>")
   local telescope = require("telescope.builtin")
 
   vim.api.nvim_command('wincmd k')
 
   if vim.loop.fs_stat(target) then
-    vim.api.nvim_command(string.format("e %s", target))
+    vim.api.nvim_command(string.format("e %s", full_path_with_suffix))
   elseif telescope then
     telescope.find_files({
       prompt_prefix = '🪿 ',
-      default_text = target,
+      default_text = full_path_with_suffix,
       wrap_results = true,
       find_command = { 'rg', '--files', '--no-require-git' },
     })
