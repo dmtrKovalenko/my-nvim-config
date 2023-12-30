@@ -990,13 +990,14 @@ vim.api.nvim_set_keymap('n', '<D-A-k>', '<C-w>k', { silent = true })
 vim.api.nvim_set_keymap('t', '<Esc>', '<C-\\><C-n>', { nowait = true })
 
 local function open_file_under_cursor_in_the_panel_above()
-  local target = vim.fn.expand("<cfile>")
-  local full_path_with_suffix = vim.fn.expand("<cWORD>")
   local telescope = require("telescope.builtin")
+
+  local filename = vim.fn.expand("<cfile>")
+  local full_path_with_suffix = vim.fn.expand("<cWORD>")
 
   vim.api.nvim_command('wincmd k')
 
-  if vim.loop.fs_stat(target) then
+  if vim.loop.fs_stat(filename) then
     vim.api.nvim_command(string.format("e %s", full_path_with_suffix))
   elseif telescope then
     telescope.find_files({
@@ -1006,7 +1007,7 @@ local function open_file_under_cursor_in_the_panel_above()
       find_command = { 'rg', '--files', '--no-require-git' },
     })
   else
-    error(string.format("File %s does not exist", target))
+    error(string.format("File %s does not exist", filename))
   end
 end
 
