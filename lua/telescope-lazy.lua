@@ -1,12 +1,12 @@
 local function lazy(options)
   -- Fuzzy Finder (files, lsp, etc)
   return {
-    'dmtrKovalenko/telescope.nvim',
-    branch = 'feat/support-file-path-location',
+    'nvim-telescope/telescope.nvim',
     dependencies = {
       'nvim-lua/plenary.nvim',
-      "kkharji/sqlite.lua",
+      'kkharji/sqlite.lua',
       'prochri/telescope-all-recent.nvim',
+      'nvim-telescope/telescope-ui-select.nvim',
       -- Fuzzy Finder Algorithm which requires local dependencies to be built.
       -- Only load if `make` is available. Make sure you have the system
       -- requirements installed.
@@ -22,12 +22,12 @@ local function lazy(options)
       {
         "nvim-telescope/telescope-live-grep-args.nvim",
         version = "^1.0.0",
-        config = function()
-          require("telescope").load_extension("live_grep_args")
-        end
       }
     },
     config = function()
+      pcall(require('telescope').load_extension, 'ui-select')
+      pcall(require('telescope').load_extension, 'live_grep_args')
+
       -- Enable telescope fzf native, if installed
       if not options.onlyLocalSearch then
         pcall(require('telescope').load_extension, 'fzf')
@@ -42,18 +42,16 @@ local function lazy(options)
 
         local function live_grep()
           require('telescope.builtin').live_grep({
-            max_results = 1,
+            wrap_results = true
           })
         end
 
-        vim.keymap.set('n', '<D-k>', find_files, { desc = '[S]earch [F]iles' })
-        vim.keymap.set('n', '<D-S-f>', live_grep, { desc = '[S]earch by [G]rep' })
-        vim.keymap.set('n', '<D-C-r>', ':Telescope projects<CR>', { desc = '[S]earch [P]projects' })
-        vim.keymap.set('n', '<D-m>', require('telescope.builtin').diagnostics, { desc = '[S]earch [D]iagnostics' })
+        vim.keymap.set('n', '<D-k>', find_files, { desc = 'Search Files' })
+        vim.keymap.set('n', '<D-S-f>', live_grep, { desc = 'Live Grep' })
+        vim.keymap.set('n', '<D-m>', require('telescope.builtin').diagnostics, { desc = 'Diagnostics' })
         vim.keymap.set('n', '<D-o>', require('telescope.builtin').oldfiles, { desc = '[?] Find recently opened files' })
-        vim.keymap.set('n', '<leader>gf', require('telescope.builtin').git_files, { desc = 'Search [G]it [F]iles' })
-        vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
-        vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = '[S]earch current [W]ord' })
+        vim.keymap.set('n', '<leader>gf', require('telescope.builtin').git_files, { desc = 'Search by git files' })
+        vim.keymap.set('n', '<leader>sw', require('telescope.builtin').grep_string, { desc = 'Search word' })
 
         local function open_file_under_cursor_in_telescope()
           local target = vim.fn.expand("<cfile>")
@@ -82,7 +80,7 @@ local function lazy(options)
       end, { desc = '] Fuzzily search in current buffer' })
 
       vim.keymap.set('n', '<D-p>', require('telescope.builtin').commands, { desc = 'Search commands' })
-      vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = '[S]earch [H]elp' })
+      vim.keymap.set('n', '<leader>sh', require('telescope.builtin').help_tags, { desc = 'Search help' })
 
       require('telescope').setup {
         defaults = {

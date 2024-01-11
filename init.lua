@@ -60,6 +60,16 @@ vim.opt.listchars = vim.opt.listchars + "space:·"
 
 vim.opt.swapfile = false
 
+vim.api.nvim_create_autocmd(
+  "FileType",
+  {
+    pattern = { "typescript", "typescriptreact", "javascript", "css", "html", "json", "yaml", "markdown" },
+    callback = function()
+      vim.opt.iskeyword:append { '-', '#' }
+    end
+  }
+)
+
 -- Set terminal tab title to `filename (cwd)`
 vim.opt.title = true
 vim.opt.titlestring = '%t%( (%{fnamemodify(getcwd(), ":~:.")})%)'
@@ -121,8 +131,8 @@ require('lazy').setup({
     end
   },
   {
-    'phaazon/hop.nvim',
-    branch = 'v2',
+    'smoka7/hop.nvim',
+    version = '*',
     config = function()
       local hop = require('hop')
       local directions = require('hop.hint').HintDirection
@@ -131,19 +141,14 @@ require('lazy').setup({
 
       vim.keymap.set('', '<leader>f', function()
         hop.hint_char2({ current_line_only = false })
-      end, { remap = true })
-
-      -- easymotion like keybind remove when get used to the leaderf-
-      vim.keymap.set('', '<leader><leader>f', function()
-        hop.hint_char1({ current_line_only = false })
-      end, { remap = true })
+      end, { remap = true, desc = 'Hop 2 characters' })
 
       vim.keymap.set('', 'f', function()
         hop.hint_char1({ direction = directions.AFTER_CURSOR, current_line_only = true })
-      end, { remap = true })
+      end, { remap = true, desc = 'Hop to next character (this line)' })
       vim.keymap.set('', 'F', function()
         hop.hint_char1({ direction = directions.BEFORE_CURSOR, current_line_only = true })
-      end, { remap = true })
+      end, { remap = true, desc = 'Hop to previous character (this line)' })
     end
   },
   -- Handy rename in a floating method
@@ -169,10 +174,7 @@ require('lazy').setup({
       require('gitlinker').setup();
       vim.api.nvim_set_keymap('n', '<leader>gg',
         '<cmd>lua require"gitlinker".get_buf_range_url("n", {action_callback = require"gitlinker.actions".open_in_browser})<cr>',
-        { silent = true })
-      vim.api.nvim_set_keymap('v', '<leader>gg',
-        '<cmd>lua require"gitlinker".get_buf_range_url("v", {action_callback = require"gitlinker.actions".open_in_browser})<cr>',
-        {})
+        { silent = true, desc = "Open git link in the browser" })
     end
   },
   -- Toggle terminal plugin
@@ -271,6 +273,12 @@ require('lazy').setup({
       integrations = {
         treesitter = true,
         telescope = true,
+        notify = true,
+        gitsigns = true,
+        noice = true,
+        dap = true,
+        dap_ui = true,
+        nvimtree = true
       }
     },
     init = function()
@@ -374,14 +382,14 @@ require('lazy').setup({
         },
       })
 
-      vim.keymap.set('n', '<leader>h', require("harpoon.ui").toggle_quick_menu, { noremap = true })
-      vim.keymap.set('n', '<leader>a', require("harpoon.mark").add_file, { noremap = true })
+      vim.keymap.set('n', '<leader>h', require("harpoon.ui").toggle_quick_menu, { noremap = true, desc = "Harpoon view" })
+      vim.keymap.set('n', '<leader>a', require("harpoon.mark").add_file, { noremap = true, desc = "Harpoon this path" })
 
-      vim.keymap.set('n', '<leader>q', function() require("harpoon.ui").nav_file(1) end, {})
-      vim.keymap.set('n', '<leader>w', function() require("harpoon.ui").nav_file(2) end, {})
-      vim.keymap.set('n', '<leader>e', function() require("harpoon.ui").nav_file(3) end, {})
-      vim.keymap.set('n', '<leader>r', function() require("harpoon.ui").nav_file(4) end, {})
-      vim.keymap.set('n', '<leader>t', function() require("harpoon.ui").nav_file(5) end, {})
+      vim.keymap.set('n', '<leader>q', function() require("harpoon.ui").nav_file(1) end, { desc = "Harpoon #1" })
+      vim.keymap.set('n', '<leader>w', function() require("harpoon.ui").nav_file(2) end, { desc = "Harpoon #2" })
+      vim.keymap.set('n', '<leader>e', function() require("harpoon.ui").nav_file(3) end, { desc = "Harpoon #3" })
+      vim.keymap.set('n', '<leader>r', function() require("harpoon.ui").nav_file(4) end, { desc = "Harpoon #4" })
+      vim.keymap.set('n', '<leader>t', function() require("harpoon.ui").nav_file(5) end, { desc = "Harpoon #5" })
     end
   },
 
@@ -477,9 +485,6 @@ require('lazy').setup({
     'saecki/crates.nvim',
     event = "BufRead Cargo.toml",
     dependencies = { 'nvim-lua/plenary.nvim' },
-    config = function()
-      require('crates').setup()
-    end,
   },
 
   {
@@ -530,17 +535,26 @@ require('lazy').setup({
     "folke/noice.nvim",
     event = "VeryLazy",
     opts = {
-      hover = {
-        enabled = false,
+      presets = {
+        lsp_doc_border = false
       },
+      lsp = {
+        hover = {
+          enabled = false,
+        },
+      }
     },
     dependencies = {
       -- if you lazy-load any plugin below, make sure to add proper `module="..."` entries
       "MunifTanjim/nui.nvim",
-      -- OPTIONAL:
-      --   `nvim-notify` is only needed, if you want to use the notification view.
-      --   If not available, we use `mini` as the fallback
-      "rcarriga/nvim-notify",
+      {
+        "rcarriga/nvim-notify",
+        opts = {
+          fps = 60,
+          top_down = false
+        }
+      }
+
     }
   },
 
@@ -590,7 +604,7 @@ require('nvim-treesitter.configs').setup {
     enable_close_on_slash = false,
   },
 
-  highlight = { enable = true },
+  highlight = { enable = true, additional_vim_regex_highlighting = false },
   indent = { enable = true },
   incremental_selection = {
     enable = true,
@@ -943,7 +957,7 @@ vim.api.nvim_set_keymap('n', '<backspace>', '"_dh', { noremap = true })
 vim.api.nvim_set_keymap('v', '<backspace>', '"_d', { noremap = true })
 
 -- Paste line on cmd+v
-vim.keymap.set({ 't', 'v' }, '<D-c>', 'y', { remap = true })
+vim.api.nvim_set_keymap('v', '<D-c>', '"+y', { silent = true })
 vim.keymap.set('n', '<D-v>', 'p', { remap = true })
 vim.keymap.set('v', '<D-v>', '"_dP', { remap = true })
 vim.keymap.set('i', '<D-v>', '<C-r>+', { remap = true })
