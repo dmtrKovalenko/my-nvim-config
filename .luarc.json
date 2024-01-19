@@ -1,7 +1,8 @@
 {
     "diagnostics.disable": [
         "missing-fields",
-        "undefined-global"
+        "undefined-global",
+        "unused-local"
     ],
     "diagnostics.globals": [
         "setup"
