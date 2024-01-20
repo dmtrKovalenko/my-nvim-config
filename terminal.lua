@@ -4,7 +4,42 @@ vim.g.maplocalleader = " "
 vim.o.showmode = false
 vim.wo.number = true
 vim.wo.relativenumber = true
+vim.o.scrollback = 100000
 vim.g.kitty_fast_forwarded_modifiers = "super"
+
+vim.o.mouse = "a"
+
+-- Sync clipboard between OS and Neovim.
+--  Remove this option if you want your OS clipboard to remain independent.
+--  See `:help 'clipboard'`
+vim.o.clipboard = "unnamedplus"
+
+-- Enable break indent
+vim.o.breakindent = true
+
+-- Save undo history
+vim.o.undofile = true
+
+-- Case-insensitive searching UNLESS \C or capital in search
+vim.o.ignorecase = true
+vim.o.smartcase = true
+
+vim.o.splitright = true
+vim.o.splitbelow = true
+
+-- As we are running terminal do not show the left column. It makes no sense.
+vim.wo.signcolumn = "no"
+
+-- Decrease update time
+vim.o.updatetime = 250
+vim.o.timeoutlen = 300
+
+-- Set completeopt to have a better completion experience
+vim.o.completeopt = "menuone,noselect"
+vim.o.termguicolors = true
+
+vim.g.loaded_netrw = 1
+vim.g.loaded_netrwPlugin = 1
 
 local is_kitty = vim.env.KITTY_KITTEN == "true"
 
@@ -69,39 +104,6 @@ require("lazy").setup {
   require("telescope-lazy").lazy { onlyLocalSearch = true },
 }
 
-vim.o.mouse = "a"
-
--- Sync clipboard between OS and Neovim.
---  Remove this option if you want your OS clipboard to remain independent.
---  See `:help 'clipboard'`
-vim.o.clipboard = "unnamedplus"
-
--- Enable break indent
-vim.o.breakindent = true
-
--- Save undo history
-vim.o.undofile = true
-
--- Case-insensitive searching UNLESS \C or capital in search
-vim.o.ignorecase = true
-vim.o.smartcase = true
-
-vim.opt.splitright = true
-vim.opt.splitbelow = true
-
--- As we are running terminal do not show the left column. It makes no sense.
-vim.wo.signcolumn = "no"
-
--- Decrease update time
-vim.o.updatetime = 250
-vim.o.timeoutlen = 300
-
--- Set completeopt to have a better completion experience
-vim.o.completeopt = "menuone,noselect"
-
--- NOTE: You should make sure your terminal supports this
-vim.o.termguicolors = true
-
 -- Keymaps for better default experience
 -- See `:help vim.keymap.set()`
 vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
@@ -162,7 +164,7 @@ function OpenInEditor()
 end
 
 -- Create function
-function lightsource_setup()
+function Lightsource_setup()
   -- First terminal in vertical split
   vim.cmd "86 vsplit | terminal just fe-dev"
 
@@ -180,7 +182,7 @@ end
 -- Register the command
 vim.api.nvim_exec(
   [[
-  command! LightSourceSetup lua lightsource_setup()
+  command! LightSourceSetup lua Lightsource_setup()
 ]],
   false
 )

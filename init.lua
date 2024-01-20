@@ -54,7 +54,12 @@ vim.o.termguicolors = true
 vim.opt.list = true
 vim.opt.listchars = vim.opt.listchars + "space:·"
 
+-- Do not create swap files as this config autosaving
 vim.opt.swapfile = false
+
+-- Set terminal tab title to `filename (cwd)`
+vim.opt.title = true
+vim.opt.titlestring = '%t%( (%{fnamemodify(getcwd(), ":~:.")})%)'
 
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "typescript", "typescriptreact", "javascript", "css", "html", "json", "yaml", "markdown" },
@@ -62,10 +67,6 @@ vim.api.nvim_create_autocmd("FileType", {
     vim.opt.iskeyword:append { "-", "#", "$" }
   end,
 })
-
--- Set terminal tab title to `filename (cwd)`
-vim.opt.title = true
-vim.opt.titlestring = '%t%( (%{fnamemodify(getcwd(), ":~:.")})%)'
 
 local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -100,7 +101,7 @@ require("lazy").setup({
   "danielo515/tree-sitter-reason",
   "IndianBoy42/tree-sitter-just",
   "jparise/vim-graphql",
-  { 'chentoast/marks.nvim',      opts = {} },
+  { "chentoast/marks.nvim", opts = {} },
   -- Detect tabstop and shiftwidth automatically
   "tpope/vim-sleuth",
   -- Camel case motion plugin
@@ -125,7 +126,6 @@ require("lazy").setup({
   },
   {
     "smoka7/hop.nvim",
-    version = "*",
     config = function()
       local hop = require "hop"
       local directions = require("hop.hint").HintDirection
@@ -178,7 +178,7 @@ require("lazy").setup({
     opts = {
       terminals = {
         type_opts = {
-          horizontal = { split_ratio = (IS_STREAMING and 0.5) or 0.3 },
+          horizontal = { split_ratio = ((IS_STREAMING or vim.api.nvim_get_option "lines" < 70) and 0.5) or 0.3 },
         },
       },
     },
@@ -222,7 +222,7 @@ require("lazy").setup({
   },
 
   -- Useful plugin to show you pending keybinds.
-  { "folke/which-key.nvim",   opts = {} },
+  { "folke/which-key.nvim", opts = {} },
 
   {
     -- Adds git related signs to the gutter, as well as utilities for managing changes
@@ -358,7 +358,7 @@ require("lazy").setup({
   { "windwp/nvim-ts-autotag", opts = {} },
 
   -- "gc" to comment visual regions/lines
-  { "numToStr/Comment.nvim",  opts = {} },
+  { "numToStr/Comment.nvim", opts = {} },
 
   -- Project specific marks for most editable files
   {
@@ -468,10 +468,10 @@ require("lazy").setup({
           dotfiles = false,
           custom = {
             "^.git$",
-            "^.sl",
+            "^.sl$",
             "^.DS_Store",
-            "^target",
-            "node_modules",
+            "^target$",
+            "^node_modules$",
           },
         },
         ui = {
@@ -578,8 +578,6 @@ vim.api.nvim_create_autocmd("TextYankPost", {
   pattern = "*",
 })
 
--- Do not create swap files as this config autosaving
-vim.opt.swapfile = false
 vim.api.nvim_create_autocmd({ "InsertLeave", "FocusLost", "BufLeave" }, {
   command = "silent! wa",
 })
@@ -720,16 +718,16 @@ local on_lsp_attach = function(client, bufnr)
   local function format()
     local filetype = vim.api.nvim_buf_get_option(0, "filetype")
     if
-        filetype == "typescript"
-        or filetype == "typescriptreact"
-        or filetype == "javascript"
-        or filetype == "css"
-        or filetype == "json"
-        or filetype == "yaml"
-        or filetype == "markdown"
-        or filetype == "graphql"
-        or filetype == "vue"
-        or filetype == "svelte"
+      filetype == "typescript"
+      or filetype == "typescriptreact"
+      or filetype == "javascript"
+      or filetype == "css"
+      or filetype == "json"
+      or filetype == "yaml"
+      or filetype == "markdown"
+      or filetype == "graphql"
+      or filetype == "vue"
+      or filetype == "svelte"
     then
       local Job = require "plenary.job"
 
@@ -742,8 +740,8 @@ local on_lsp_attach = function(client, bufnr)
       local prettierd = Job:new {
         command = "prettierd",
         args = { "--stdin-filepath", filename }, -- Pass the --stdin-filepath option and filename
-        writer = table.concat(lines, "\n"),      -- Provide the content of the buffer as stdin
-        enable_handlers = true,                  -- Enable handlers for on_stdout and on_stderr
+        writer = table.concat(lines, "\n"), -- Provide the content of the buffer as stdin
+        enable_handlers = true, -- Enable handlers for on_stdout and on_stderr
         on_stdout = function(_job, data)
           if data then
             table.insert(output, data)
@@ -823,7 +821,7 @@ require("neodev").setup()
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 -- it then vim cmp overrides only completion part of the text document. leave all other preassigned
 capabilities.textDocument.completion =
-    require("cmp_nvim_lsp").default_capabilities(capabilities).textDocument.completion
+  require("cmp_nvim_lsp").default_capabilities(capabilities).textDocument.completion
 
 -- optimizes cpu usage source https://github.com/neovim/neovim/issues/23291
 capabilities.workspace.didChangeWatchedFiles.dynamicRegistration = false
@@ -964,11 +962,11 @@ vim.api.nvim_set_keymap("x", "<A-k>", ":move '<-2<CR>gv", { noremap = true, sile
 vim.api.nvim_set_keymap("n", "<backspace>", '"_dh', { noremap = true })
 vim.api.nvim_set_keymap("v", "<backspace>", '"_d', { noremap = true })
 
--- Paste line on cmd+v
-vim.api.nvim_set_keymap("v", "<D-c>", '"+y', { silent = true })
-vim.keymap.set("n", "<D-v>", "p", { remap = true })
-vim.keymap.set("v", "<D-v>", '"_dP', { remap = true })
-vim.keymap.set("i", "<D-v>", "<C-r>+", { remap = true })
+-- -- Paste line on cmd+v
+-- vim.api.nvim_set_keymap("v", "<D-c>", '"+y', { silent = true })
+-- vim.keymap.set("n", "<D-v>", "p", { remap = true })
+-- vim.keymap.set("v", "<D-v>", '"_dP', { remap = true })
+-- vim.keymap.set("i", "<D-v>", "<C-r>+", { remap = true })
 
 -- Write file on cmd+s
 vim.api.nvim_set_keymap("n", "<D-s>", ":silent w<CR>", { silent = true })
