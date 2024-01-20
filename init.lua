@@ -100,6 +100,7 @@ require("lazy").setup({
   "danielo515/tree-sitter-reason",
   "IndianBoy42/tree-sitter-just",
   "jparise/vim-graphql",
+  { 'chentoast/marks.nvim',      opts = {} },
   -- Detect tabstop and shiftwidth automatically
   "tpope/vim-sleuth",
   -- Camel case motion plugin
@@ -196,11 +197,6 @@ require("lazy").setup({
       -- Automatically install LSPs to stdpath for neovim
       { "williamboman/mason.nvim", config = true },
       "williamboman/mason-lspconfig.nvim",
-
-      -- Useful status updates for LSP
-      -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-      { "j-hui/fidget.nvim", tag = "legacy", opts = {} },
-
       -- Additional lua configuration, makes nvim stuff amazing!
       "folke/neodev.nvim",
     },
@@ -226,7 +222,7 @@ require("lazy").setup({
   },
 
   -- Useful plugin to show you pending keybinds.
-  { "folke/which-key.nvim", opts = {} },
+  { "folke/which-key.nvim",   opts = {} },
 
   {
     -- Adds git related signs to the gutter, as well as utilities for managing changes
@@ -338,8 +334,6 @@ require("lazy").setup({
   {
     -- Add indentation guides even on blank lines
     "lukas-reineke/indent-blankline.nvim",
-    -- Enable `lukas-reineke/indent-blankline.nvim`
-    -- See `:help indent_blankline.txt`
     main = "ibl",
     opts = {
       indent = {
@@ -364,7 +358,7 @@ require("lazy").setup({
   { "windwp/nvim-ts-autotag", opts = {} },
 
   -- "gc" to comment visual regions/lines
-  { "numToStr/Comment.nvim", opts = {} },
+  { "numToStr/Comment.nvim",  opts = {} },
 
   -- Project specific marks for most editable files
   {
@@ -726,16 +720,16 @@ local on_lsp_attach = function(client, bufnr)
   local function format()
     local filetype = vim.api.nvim_buf_get_option(0, "filetype")
     if
-      filetype == "typescript"
-      or filetype == "typescriptreact"
-      or filetype == "javascript"
-      or filetype == "css"
-      or filetype == "json"
-      or filetype == "yaml"
-      or filetype == "markdown"
-      or filetype == "graphql"
-      or filetype == "vue"
-      or filetype == "svelte"
+        filetype == "typescript"
+        or filetype == "typescriptreact"
+        or filetype == "javascript"
+        or filetype == "css"
+        or filetype == "json"
+        or filetype == "yaml"
+        or filetype == "markdown"
+        or filetype == "graphql"
+        or filetype == "vue"
+        or filetype == "svelte"
     then
       local Job = require "plenary.job"
 
@@ -748,8 +742,8 @@ local on_lsp_attach = function(client, bufnr)
       local prettierd = Job:new {
         command = "prettierd",
         args = { "--stdin-filepath", filename }, -- Pass the --stdin-filepath option and filename
-        writer = table.concat(lines, "\n"), -- Provide the content of the buffer as stdin
-        enable_handlers = true, -- Enable handlers for on_stdout and on_stderr
+        writer = table.concat(lines, "\n"),      -- Provide the content of the buffer as stdin
+        enable_handlers = true,                  -- Enable handlers for on_stdout and on_stderr
         on_stdout = function(_job, data)
           if data then
             table.insert(output, data)
@@ -829,7 +823,7 @@ require("neodev").setup()
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 -- it then vim cmp overrides only completion part of the text document. leave all other preassigned
 capabilities.textDocument.completion =
-  require("cmp_nvim_lsp").default_capabilities(capabilities).textDocument.completion
+    require("cmp_nvim_lsp").default_capabilities(capabilities).textDocument.completion
 
 -- optimizes cpu usage source https://github.com/neovim/neovim/issues/23291
 capabilities.workspace.didChangeWatchedFiles.dynamicRegistration = false
