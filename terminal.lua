@@ -1,4 +1,4 @@
-vim.g.mapleader = "="
+vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
 vim.o.showmode = false
@@ -16,9 +16,6 @@ vim.o.clipboard = "unnamedplus"
 
 -- Enable break indent
 vim.o.breakindent = true
-
--- Save undo history
-vim.o.undofile = true
 
 -- Case-insensitive searching UNLESS \C or capital in search
 vim.o.ignorecase = true
@@ -62,7 +59,7 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup {
   {
     "projekt0n/github-nvim-theme",
-    lazy = false, -- make sure we load this during startup if it is your main colorscheme
+    lazy = false,    -- make sure we load this during startup if it is your main colorscheme
     priority = 1000, -- make sure to load this before all the other start plugins
     cond = function()
       return not is_kitty
@@ -100,7 +97,16 @@ require("lazy").setup {
       }
     end,
   },
+  {
+    'stevearc/oil.nvim',
+    opts = {
+      default_file_explorer = false,
+      delete_to_trash = true,
+      lsp_rename_autosave = true
+    }
+  },
 
+  require("hop-lazy").lazy {},
   require("telescope-lazy").lazy { onlyLocalSearch = true },
 }
 
@@ -133,6 +139,7 @@ vim.api.nvim_set_keymap("v", "<C-k>", "10k", { silent = true })
 
 -- Exit terminal mode with Esc
 vim.api.nvim_set_keymap("t", "<Esc>", "<C-\\><C-n>", { nowait = true })
+-- Close inner command with Ctrl-C i normal mode
 vim.api.nvim_set_keymap("n", "<C-c>", "i<C-c>", {})
 
 -- Rebinds the splits to immediately open the the new terminal on the right/bottom.
@@ -154,24 +161,25 @@ vim.api.nvim_set_keymap("t", "<D-A-q>", "<Esc><C-w>q", { silent = true })
 vim.api.nvim_set_keymap("t", "<D-A-j>", "<Esc><C-w>j", { silent = true })
 vim.api.nvim_set_keymap("t", "<D-A-k>", "<Esc><C-w>k", { silent = true })
 
-local editor_command = "nvim"
-
-function OpenInEditor()
-  local clipboard_content = vim.fn.getreg "+"
-  local command = editor_command .. " " .. clipboard_content
+function OpenInNewTabEditor()
+  local target = vim.fn.expand "<cfile>"
+  local current_dir = vim.api.nvim_exec('pwd', true)
+  local command = "kitty @ launch --type=tab --cwd=" .. current_dir .. " fish --command 'nvim" .. " " .. target .. "'"
 
   vim.fn.system(command)
 end
 
+vim.keymap.set("n", "gf", OpenInNewTabEditor, { silent = true })
+
 -- Create function
 function Lightsource_setup()
   -- First terminal in vertical split
-  vim.cmd "86 vsplit | terminal just fe-dev"
+  vim.cmd "86 vsplit | terminal fish --command 'just fe-dev'"
 
   -- -- Navigate back to the first window
   -- vim.cmd('wincmd p')
 
-  vim.cmd "24 split | terminal btop --preset 2"
+  vim.cmd "24 split | terminal fish --command 'btop --preset 2'"
   -- Second terminal in horizontal split - replace 'cli_command1' with your first command
 
   -- Navigate to the third window (second terminal)
@@ -186,8 +194,6 @@ vim.api.nvim_exec(
 ]],
   false
 )
-
-vim.keymap.set("n", "gf", OpenInEditor, { silent = true })
 
 -- Remove background color from the theme to avoid color difference with you terminal emulators
 -- (may look bad depends on the different tty app and themes)

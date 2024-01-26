@@ -100,8 +100,16 @@ require("lazy").setup({
   "nkrkv/nvim-treesitter-rescript",
   "danielo515/tree-sitter-reason",
   "IndianBoy42/tree-sitter-just",
-  "jparise/vim-graphql",
-  { "chentoast/marks.nvim", opts = {} },
+  -- "jparise/vim-graphql",
+  { "chentoast/marks.nvim",      opts = {} },
+  {
+    'stevearc/oil.nvim',
+    opts = {
+      default_file_explorer = false,
+      delete_to_trash = true,
+      lsp_rename_autosave = true
+    }
+  },
   -- Detect tabstop and shiftwidth automatically
   "tpope/vim-sleuth",
   -- Camel case motion plugin
@@ -122,26 +130,6 @@ require("lazy").setup({
           require("nvterm.terminal").hide "horizontal"
         end,
       })
-    end,
-  },
-  {
-    "smoka7/hop.nvim",
-    config = function()
-      local hop = require "hop"
-      local directions = require("hop.hint").HintDirection
-
-      hop.setup {}
-
-      vim.keymap.set("", "<leader>f", function()
-        hop.hint_char2 { current_line_only = false }
-      end, { remap = true, desc = "Hop 2 characters" })
-
-      vim.keymap.set("", "f", function()
-        hop.hint_char1 { direction = directions.AFTER_CURSOR, current_line_only = true }
-      end, { remap = true, desc = "Hop to next character (this line)" })
-      vim.keymap.set("", "F", function()
-        hop.hint_char1 { direction = directions.BEFORE_CURSOR, current_line_only = true }
-      end, { remap = true, desc = "Hop to previous character (this line)" })
     end,
   },
   -- Handy rename in a floating method
@@ -178,7 +166,7 @@ require("lazy").setup({
     opts = {
       terminals = {
         type_opts = {
-          horizontal = { split_ratio = ((IS_STREAMING or vim.api.nvim_get_option "lines" < 70) and 0.5) or 0.3 },
+          horizontal = { split_ratio = ((IS_STREAMING or vim.api.nvim_get_option "lines" < 60) and 0.5) or 0.3 },
         },
       },
     },
@@ -220,9 +208,6 @@ require("lazy").setup({
       -- 'rafamadriz/friendly-snippets',
     },
   },
-
-  -- Useful plugin to show you pending keybinds.
-  { "folke/which-key.nvim", opts = {} },
 
   {
     -- Adds git related signs to the gutter, as well as utilities for managing changes
@@ -358,7 +343,7 @@ require("lazy").setup({
   { "windwp/nvim-ts-autotag", opts = {} },
 
   -- "gc" to comment visual regions/lines
-  { "numToStr/Comment.nvim", opts = {} },
+  { "numToStr/Comment.nvim",  opts = {} },
 
   -- Project specific marks for most editable files
   {
@@ -560,6 +545,7 @@ require("lazy").setup({
   require("telescope-lazy").lazy {},
   require("alpha-lazy").lazy {},
   require("dap-lazy").lazy {},
+  require("hop-lazy").lazy {},
 }, {})
 
 -- [[ Basic Keymaps ]]
@@ -635,6 +621,8 @@ require("nvim-treesitter.configs").setup {
         ["if"] = "@function.inner",
         ["ac"] = "@class.outer",
         ["ic"] = "@class.inner",
+        ["as"] = "@statement.outer",
+        ["is"] = "@statement.inner"
       },
     },
     move = {
@@ -670,6 +658,7 @@ require("nvim-treesitter.configs").setup {
 }
 
 require("nvim-treesitter.install").compilers = { "gcc", "clang" }
+---@diagnostic disable-next-line: inject-field
 require("nvim-treesitter.parsers").get_parser_configs().just = {
   install_info = {
     url = "https://github.com/IndianBoy42/tree-sitter-just", -- local path or git repo
@@ -718,16 +707,16 @@ local on_lsp_attach = function(client, bufnr)
   local function format()
     local filetype = vim.api.nvim_buf_get_option(0, "filetype")
     if
-      filetype == "typescript"
-      or filetype == "typescriptreact"
-      or filetype == "javascript"
-      or filetype == "css"
-      or filetype == "json"
-      or filetype == "yaml"
-      or filetype == "markdown"
-      or filetype == "graphql"
-      or filetype == "vue"
-      or filetype == "svelte"
+        filetype == "typescript"
+        or filetype == "typescriptreact"
+        or filetype == "javascript"
+        or filetype == "css"
+        or filetype == "json"
+        or filetype == "yaml"
+        or filetype == "markdown"
+        or filetype == "graphql"
+        or filetype == "vue"
+        or filetype == "svelte"
     then
       local Job = require "plenary.job"
 
@@ -740,8 +729,8 @@ local on_lsp_attach = function(client, bufnr)
       local prettierd = Job:new {
         command = "prettierd",
         args = { "--stdin-filepath", filename }, -- Pass the --stdin-filepath option and filename
-        writer = table.concat(lines, "\n"), -- Provide the content of the buffer as stdin
-        enable_handlers = true, -- Enable handlers for on_stdout and on_stderr
+        writer = table.concat(lines, "\n"),      -- Provide the content of the buffer as stdin
+        enable_handlers = true,                  -- Enable handlers for on_stdout and on_stderr
         on_stdout = function(_job, data)
           if data then
             table.insert(output, data)
@@ -812,6 +801,7 @@ local servers = {
   },
   pylsp = {},
   ocamllsp = {},
+  relay_lsp = {}
 }
 
 -- Setup neovim lua configuration
@@ -821,7 +811,7 @@ require("neodev").setup()
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 -- it then vim cmp overrides only completion part of the text document. leave all other preassigned
 capabilities.textDocument.completion =
-  require("cmp_nvim_lsp").default_capabilities(capabilities).textDocument.completion
+    require("cmp_nvim_lsp").default_capabilities(capabilities).textDocument.completion
 
 -- optimizes cpu usage source https://github.com/neovim/neovim/issues/23291
 capabilities.workspace.didChangeWatchedFiles.dynamicRegistration = false
@@ -961,12 +951,6 @@ vim.api.nvim_set_keymap("x", "<A-k>", ":move '<-2<CR>gv", { noremap = true, sile
 -- Make backspace work as black hole cut
 vim.api.nvim_set_keymap("n", "<backspace>", '"_dh', { noremap = true })
 vim.api.nvim_set_keymap("v", "<backspace>", '"_d', { noremap = true })
-
--- -- Paste line on cmd+v
--- vim.api.nvim_set_keymap("v", "<D-c>", '"+y', { silent = true })
--- vim.keymap.set("n", "<D-v>", "p", { remap = true })
--- vim.keymap.set("v", "<D-v>", '"_dP', { remap = true })
--- vim.keymap.set("i", "<D-v>", "<C-r>+", { remap = true })
 
 -- Write file on cmd+s
 vim.api.nvim_set_keymap("n", "<D-s>", ":silent w<CR>", { silent = true })

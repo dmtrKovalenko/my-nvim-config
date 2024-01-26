@@ -1,5 +1,5 @@
-local function lazy(options)
-  -- Fuzzy Finder (files, lsp, etc)
+-- Fuzzy Finder (files, lsp, etc)
+local function telescope(options)
   return {
     "nvim-telescope/telescope.nvim",
     dependencies = {
@@ -100,5 +100,5 @@ local function lazy(options)
 end
 
 return {
-  lazy = lazy,
+  lazy = telescope,
 }
