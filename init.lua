@@ -885,6 +885,7 @@ cmp.setup {
       luasnip.lsp_expand(args.body)
     end,
   },
+  performance = { max_view_entries = 7 },
   mapping = cmp.mapping.preset.insert {
     ["<C-n>"] = cmp.mapping.select_next_item(),
     ["<C-p>"] = cmp.mapping.select_prev_item(),
@@ -958,12 +959,17 @@ vim.api.nvim_set_keymap("n", "<D-s>", ":silent w<CR>", { silent = true })
 vim.api.nvim_set_keymap("n", "<A-g>", ":Git<CR>", { silent = true })
 vim.api.nvim_set_keymap("n", "<D-S-g>", ":Git<CR>", { silent = true })
 
--- Map multi cursor view to the cmd
+-- Move to next occurrence with multi cursor
 vim.api.nvim_set_keymap("n", "<D-d>", "<C-n>", { silent = true })
 vim.api.nvim_set_keymap("v", "<D-d>", "<C-n>", { silent = true })
 
+-- Move to next occurrence using native search
+vim.api.nvim_set_keymap("n", "<D-n>", "*", { silent = true })
+vim.api.nvim_set_keymap("n", "<D-S-n>", "#", { silent = true })
+
 -- Delete a word by alt+backspace
 vim.api.nvim_set_keymap("i", "<A-BS>", "<C-w>", { noremap = true })
+vim.api.nvim_set_keymap("n", "<A-BS>", "db", { noremap = true })
 
 -- Select whole buffer
 vim.api.nvim_set_keymap("n", "<D-a>", "ggVG", {})
@@ -992,6 +998,11 @@ vim.api.nvim_set_keymap("n", "<D-A-k>", "<C-w>k", { silent = true })
 
 -- Exit terminal mode with Esc
 vim.api.nvim_set_keymap("t", "<Esc>", "<C-\\><C-n>", { nowait = true })
+
+-- A bunch of useful shortcuts for one-time small actions boujnd on leader
+vim.api.nvim_set_keymap("n", "<leader>n", ":nohlsearch<CR>", { silent = true })
+vim.api.nvim_set_keymap("n", "<leader>l", ":EslintFixAll<CR>", { silent = true })
+vim.api.nvim_set_keymap("n", "<leader>o", ":Oil<CR>", { silent = true })
 
 local function open_file_under_cursor_in_the_panel_above()
   local telescope = require "telescope.builtin"
