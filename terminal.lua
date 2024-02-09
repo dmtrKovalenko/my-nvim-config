@@ -59,7 +59,7 @@ vim.opt.rtp:prepend(lazypath)
 require("lazy").setup {
   {
     "projekt0n/github-nvim-theme",
-    lazy = false,    -- make sure we load this during startup if it is your main colorscheme
+    lazy = false, -- make sure we load this during startup if it is your main colorscheme
     priority = 1000, -- make sure to load this before all the other start plugins
     cond = function()
       return not is_kitty
@@ -98,12 +98,12 @@ require("lazy").setup {
     end,
   },
   {
-    'stevearc/oil.nvim',
+    "stevearc/oil.nvim",
     opts = {
       default_file_explorer = false,
       delete_to_trash = true,
-      lsp_rename_autosave = true
-    }
+      lsp_rename_autosave = true,
+    },
   },
 
   require("hop-lazy").lazy {},
@@ -163,7 +163,7 @@ vim.api.nvim_set_keymap("t", "<D-A-k>", "<Esc><C-w>k", { silent = true })
 
 function OpenInNewTabEditor()
   local target = vim.fn.expand "<cfile>"
-  local current_dir = vim.api.nvim_exec('pwd', true)
+  local current_dir = vim.api.nvim_exec("pwd", true)
   local command = "kitty @ launch --type=tab --cwd=" .. current_dir .. " fish --command 'nvim" .. " " .. target .. "'"
 
   vim.fn.system(command)

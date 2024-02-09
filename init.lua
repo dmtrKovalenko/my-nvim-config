@@ -101,14 +101,14 @@ require("lazy").setup({
   "danielo515/tree-sitter-reason",
   "IndianBoy42/tree-sitter-just",
   -- "jparise/vim-graphql",
-  { "chentoast/marks.nvim",      opts = {} },
+  { "chentoast/marks.nvim", opts = {} },
   {
-    'stevearc/oil.nvim',
+    "stevearc/oil.nvim",
     opts = {
       default_file_explorer = false,
       delete_to_trash = true,
-      lsp_rename_autosave = true
-    }
+      lsp_rename_autosave = true,
+    },
   },
   -- Detect tabstop and shiftwidth automatically
   "tpope/vim-sleuth",
@@ -343,7 +343,7 @@ require("lazy").setup({
   { "windwp/nvim-ts-autotag", opts = {} },
 
   -- "gc" to comment visual regions/lines
-  { "numToStr/Comment.nvim",  opts = {} },
+  { "numToStr/Comment.nvim", opts = {} },
 
   -- Project specific marks for most editable files
   {
@@ -543,9 +543,9 @@ require("lazy").setup({
   },
 
   {
-    'stevearc/conform.nvim',
+    "stevearc/conform.nvim",
     config = function()
-      require("conform").setup({
+      require("conform").setup {
         formatters_by_ft = {
           lua = { "stylua" },
           rust = { "rustfmt" },
@@ -560,13 +560,13 @@ require("lazy").setup({
           json = { { "prettierd", "prettier" } },
           yaml = { { "prettierd", "prettier" } },
           graphql = { { "prettierd", "prettier" } },
-        }
-      })
+        },
+      }
 
       local function format()
-        require("conform").format({
+        require("conform").format {
           lsp_fallback = true,
-        })
+        }
       end
 
       vim.keymap.set({ "n", "i" }, "<F12>", format, { desc = "Format", silent = true })
@@ -655,7 +655,7 @@ require("nvim-treesitter.configs").setup {
         ["ac"] = "@class.outer",
         ["ic"] = "@class.inner",
         ["as"] = "@statement.outer",
-        ["is"] = "@statement.inner"
+        ["is"] = "@statement.inner",
       },
     },
     move = {
@@ -755,7 +755,7 @@ local servers = {
   lua_ls = {
     Lua = {
       runtime = {
-        version = 'LuaJIT'
+        version = "LuaJIT",
       },
       workspace = { checkThirdParty = false },
       telemetry = { enable = false },
@@ -770,7 +770,7 @@ local servers = {
   },
   pylsp = {},
   ocamllsp = {},
-  relay_lsp = {}
+  relay_lsp = {},
 }
 
 -- Setup neovim lua configuration
@@ -780,7 +780,7 @@ require("neodev").setup()
 local capabilities = vim.lsp.protocol.make_client_capabilities()
 -- it then vim cmp overrides only completion part of the text document. leave all other preassigned
 capabilities.textDocument.completion =
-    require("cmp_nvim_lsp").default_capabilities(capabilities).textDocument.completion
+  require("cmp_nvim_lsp").default_capabilities(capabilities).textDocument.completion
 
 -- optimizes cpu usage source https://github.com/neovim/neovim/issues/23291
 capabilities.workspace.didChangeWatchedFiles.dynamicRegistration = false
