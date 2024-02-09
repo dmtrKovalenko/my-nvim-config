@@ -542,6 +542,38 @@ require("lazy").setup({
     },
   },
 
+  {
+    'stevearc/conform.nvim',
+    config = function()
+      require("conform").setup({
+        formatters_by_ft = {
+          lua = { "stylua" },
+          rust = { "rustfmt" },
+          c = { "clang-format" },
+          cpp = { "clang-format" },
+          python = { "isort", "black" },
+          javascript = { { "prettierd", "prettier" } },
+          markdown = { { "prettierd", "prettier" } },
+          typescript = { { "prettierd", "prettier" } },
+          typescriptreact = { { "prettierd", "prettier" } },
+          css = { { "prettierd", "prettier" } },
+          json = { { "prettierd", "prettier" } },
+          yaml = { { "prettierd", "prettier" } },
+          graphql = { { "prettierd", "prettier" } },
+        }
+      })
+
+      local function format()
+        require("conform").format({
+          lsp_fallback = true,
+        })
+      end
+
+      vim.keymap.set({ "n", "i" }, "<F12>", format, { desc = "Format", silent = true })
+      vim.api.nvim_create_user_command("Format", format, { desc = "Format current buffer with LSP" })
+    end,
+  },
+
   -- Follow up with the custom reusable configuration for plugins located in ~/lua folder
   require("telescope-lazy").lazy {},
   require("alpha-lazy").lazy {},
@@ -702,73 +734,6 @@ local on_lsp_attach = function(client, bufnr)
 
   lsp_map("<D-i>", vim.lsp.buf.hover, "Hover Documentation")
   lsp_map("<D-u>", vim.lsp.buf.signature_help, "Signature Documentation")
-
-  -- this appeared to be much easier way to hijack the formatter specifically for prettier
-  -- because for other languages the automatic formatter is usually the best one
-  local function format()
-    local filetype = vim.api.nvim_buf_get_option(0, "filetype")
-    if
-        filetype == "typescript"
-        or filetype == "typescriptreact"
-        or filetype == "javascript"
-        or filetype == "css"
-        or filetype == "json"
-        or filetype == "yaml"
-        or filetype == "markdown"
-        or filetype == "graphql"
-        or filetype == "vue"
-        or filetype == "svelte"
-    then
-      local Job = require "plenary.job"
-
-      -- Get the content of the buffer
-      local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, false)
-      -- Get the filename of the current buffer
-      local filename = vim.api.nvim_buf_get_name(bufnr)
-
-      local output = {}
-      local prettierd = Job:new {
-        command = "prettierd",
-        args = { "--stdin-filepath", filename }, -- Pass the --stdin-filepath option and filename
-        writer = table.concat(lines, "\n"),      -- Provide the content of the buffer as stdin
-        enable_handlers = true,                  -- Enable handlers for on_stdout and on_stderr
-        on_stdout = function(_job, data)
-          if data then
-            table.insert(output, data)
-          end
-        end,
-
-        on_exit = function(_job, code, _signal)
-          if code == 0 then
-            -- Update the buffer with the output of prettierd
-            vim.schedule(function() -- schedule is used to avoid conflict with the event loop
-              vim.api.nvim_buf_set_lines(bufnr, 0, #lines, false, output)
-            end)
-          else
-            vim.notify(table.concat(output, "\n"), vim.log.levels.ERROR, { title = "Prettier failed" })
-          end
-        end,
-
-        on_stderr = function(job, data)
-          -- Print the error if there is one
-          if data then
-            vim.notify(data, vim.log.levels.ERROR, { title = "Prettierd" })
-          end
-        end,
-      }
-
-      -- Start the job
-      prettierd:start()
-    else
-      vim.lsp.buf.format()
-    end
-  end
-
-  vim.keymap.set({ "n", "i" }, "<F12>", format, { buffer = bufnr, desc = "Format", silent = true })
-  -- Create a command `:Format` local to the LSP buffer
-  vim.api.nvim_buf_create_user_command(bufnr, "Format", function(_)
-    format()
-  end, { desc = "Format current buffer with LSP" })
 end
 
 -- Enable the following language servers
@@ -789,6 +754,9 @@ local servers = {
   html = { filetypes = { "html", "twig", "hbs" } },
   lua_ls = {
     Lua = {
+      runtime = {
+        version = 'LuaJIT'
+      },
       workspace = { checkThirdParty = false },
       telemetry = { enable = false },
     },
