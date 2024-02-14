@@ -39,6 +39,7 @@ vim.wo.signcolumn = "yes"
 
 -- Decrease update time
 vim.o.updatetime = 250
+vim.o.timeout = true
 vim.o.timeoutlen = 300
 
 -- Highlight current line as cursor
@@ -139,10 +140,8 @@ require("lazy").setup({
     opts = {},
   },
   {
-    "simrat39/rust-tools.nvim",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-    },
+    "mrcjkb/rustaceanvim",
+    ft = { "rust" },
   },
   { "akinsho/git-conflict.nvim", version = "*", config = true },
   {
@@ -489,7 +488,7 @@ require("lazy").setup({
   {
     "saecki/crates.nvim",
     event = "BufRead Cargo.toml",
-    opts = true,
+    opts = {},
     dependencies = { "nvim-lua/plenary.nvim" },
   },
 
@@ -572,6 +571,21 @@ require("lazy").setup({
       vim.keymap.set({ "n", "i" }, "<F12>", format, { desc = "Format", silent = true })
       vim.api.nvim_create_user_command("Format", format, { desc = "Format current buffer with LSP" })
     end,
+  },
+  {
+    "folke/which-key.nvim",
+    event = "VeryLazy",
+    opts = {
+      plugins = {
+        spelling = {
+          enabled = false,
+        },
+      },
+      motions = {
+        count = false,
+      },
+      triggers_nowait = { '"' },
+    },
   },
 
   -- Follow up with the custom reusable configuration for plugins located in ~/lua folder
@@ -785,22 +799,28 @@ capabilities.textDocument.completion =
 -- optimizes cpu usage source https://github.com/neovim/neovim/issues/23291
 capabilities.workspace.didChangeWatchedFiles.dynamicRegistration = false
 
-require("rust-tools").setup {
-  tools = {
-    executor = require("rust-tools.executors").toggleterm,
-    inlay_hints = {
-      other_hints_prefix = ": ",
-    },
-  },
+local signs = { Error = "󰚌 ", Warn = " ", Hint = "󱧡 ", Info = " " }
+for type, icon in pairs(signs) do
+  local hl = "DiagnosticSign" .. type
+  vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
+end
+
+vim.g.rustaceanvim = {
+  -- Plugin configuration
+  tools = {},
+  -- LSP configuration
   server = {
     on_attach = on_lsp_attach,
-    capabilities = capabilities,
-  },
-  settings = {
-    ["rust-analyzer"] = {
-      diagnostics = {
-        experimental = {
-          enable = true,
+    default_settings = {
+      -- rust-analyzer language server configuration
+      ["rust-analyzer"] = {
+        diagnostics = {
+          experimental = {
+            enable = true,
+          },
+        },
+        files = {
+          excludeDirs = { "target", "node_modules", ".git", ".sl" },
         },
       },
     },
@@ -972,6 +992,9 @@ vim.api.nvim_set_keymap("t", "<Esc>", "<C-\\><C-n>", { nowait = true })
 vim.api.nvim_set_keymap("n", "<leader>n", ":nohlsearch<CR>", { silent = true })
 vim.api.nvim_set_keymap("n", "<leader>l", ":EslintFixAll<CR>", { silent = true })
 vim.api.nvim_set_keymap("n", "<leader>o", ":Oil<CR>", { silent = true })
+
+--  Pull one line down useful rempaps from the numeric line
+vim.keymap.set("n", "<C-t>", "%", { remap = true })
 
 local function open_file_under_cursor_in_the_panel_above()
   local telescope = require "telescope.builtin"
