@@ -37,10 +37,9 @@ vim.o.smartcase = true
 -- Keep signcolumn on by default
 vim.wo.signcolumn = "yes"
 
--- Decrease update time
-vim.o.updatetime = 250
+--  Set timeout for key sequences
 vim.o.timeout = true
-vim.o.timeoutlen = 300
+vim.o.timeoutlen = 250
 
 -- Highlight current line as cursor
 vim.o.cursorline = true
@@ -55,7 +54,7 @@ vim.o.termguicolors = true
 vim.opt.list = true
 vim.opt.listchars = vim.opt.listchars + "space:·"
 
--- Do not create swap files as this config autosaving
+-- Do not create swap files as this config autosaving everything on disk
 vim.opt.swapfile = false
 
 -- Set terminal tab title to `filename (cwd)`
@@ -94,14 +93,25 @@ require("lazy").setup({
   -- Allows cursor locations in the :e
   "lewis6991/fileline.nvim",
   -- Multi cursor support
-  "mg979/vim-visual-multi",
-  -- Quick code actions menu
-  "weilbith/nvim-code-action-menu",
+  "aznhe21/actions-preview.nvim",
   -- A bunch of treesitter plugins
   "nkrkv/nvim-treesitter-rescript",
   "danielo515/tree-sitter-reason",
   "IndianBoy42/tree-sitter-just",
-  -- "jparise/vim-graphql",
+  -- Turn off some of the feature on big buffers
+  "LunarVim/bigfile.nvim",
+  {
+    -- A better code actions menu
+    "weilbith/nvim-code-action-menu",
+    config = function()
+      require("actions-preview").setup {
+        diff = {
+          algorithm = "minimal",
+          ignore_whitespace = true,
+        },
+      }
+    end,
+  },
   { "chentoast/marks.nvim", opts = {} },
   {
     "stevearc/oil.nvim",
@@ -123,6 +133,7 @@ require("lazy").setup({
   -- Allows correctly opening and closing nested nvims in the terminal
   {
     "samjwill/nvim-unception",
+    event = "VeryLazy",
     init = function()
       vim.g.unception_delete_replaced_buffer = true
       vim.api.nvim_create_autocmd("User", {
@@ -162,10 +173,13 @@ require("lazy").setup({
   -- Toggle terminal plugin
   {
     "NvChad/nvterm",
+    event = "BufWinEnter",
     opts = {
       terminals = {
         type_opts = {
-          horizontal = { split_ratio = ((IS_STREAMING or vim.api.nvim_get_option "lines" < 60) and 0.5) or 0.3 },
+          horizontal = {
+            split_ratio = ((IS_STREAMING or vim.api.nvim_get_option_value("lines", {}) < 60) and 0.5) or 0.3,
+          },
         },
       },
     },
@@ -192,6 +206,7 @@ require("lazy").setup({
   {
     -- Autocompletion
     "hrsh7th/nvim-cmp",
+    event = "InsertEnter",
     dependencies = {
       -- Snippet Engine & its associated nvim-cmp source
       {
@@ -559,6 +574,8 @@ require("lazy").setup({
           json = { { "prettierd", "prettier" } },
           yaml = { { "prettierd", "prettier" } },
           graphql = { { "prettierd", "prettier" } },
+          rescript = { "rescript" },
+          ocaml = { "ocamlformat" },
         },
       }
 
@@ -733,8 +750,13 @@ local on_lsp_attach = function(client, bufnr)
     vim.keymap.set("n", keys, func, { buffer = bufnr, desc = desc, silent = true })
   end
 
+  if vim.bo.filetype == "rust" then
+    lsp_map("<D-.>", ":RustLsp codeAction<CR>", "[C]ode [A]ction")
+  else
+    lsp_map("<D-.>", require("actions-preview").code_actions, "[C]ode [A]ction")
+  end
+
   lsp_map("<D-r>", require("renamer").rename, "[R]e[n]ame")
-  lsp_map("<D-.>", ":CodeActionMenu<CR>", "[C]ode [A]ction")
 
   lsp_map("gd", vim.lsp.buf.definition, "[G]oto [D]efinition")
   lsp_map("gD", vim.lsp.buf.definition, "[G]oto [D]eclaration")
@@ -783,8 +805,8 @@ local servers = {
     filetypes = { "markdown", "text", "hgcommit", "gitcommit" },
   },
   pylsp = {},
-  ocamllsp = {},
   relay_lsp = {},
+  astro = {},
 }
 
 -- Setup neovim lua configuration
@@ -825,6 +847,13 @@ vim.g.rustaceanvim = {
       },
     },
   },
+  dap = {
+    adapter = {
+      type = "executable",
+      command = "/opt/homebrew/opt/llvm/bin/lldb-vscode", -- adjust as needed, must be absolute path
+      name = "lldb",
+    },
+  },
 }
 
 -- Ensure the servers above are installed
@@ -846,7 +875,13 @@ mason_lspconfig.setup_handlers {
   end,
 }
 
-require("lspconfig").typos_lsp.setup {}
+-- In order to enforce using the ocaml lsp from the current switch/sandbox/esy env avoid using mason
+-- and configure ocaml lsp manually.
+require("lspconfig").ocamllsp.setup {
+  capabilities = capabilities,
+  on_attach = on_lsp_attach,
+  settings = {},
+}
 
 -- [[ Configure nvim-cmp ]]
 -- See `:help cmp`
@@ -925,12 +960,7 @@ vim.keymap.set("n", "<C-j>", ":keepjumps normal! }<CR>", { silent = true })
 vim.keymap.set("v", "<C-j>", "}", { silent = true })
 vim.keymap.set("n", "<C-k>", ":keepjumps normal! {<CR>", { silent = true })
 vim.keymap.set("v", "<C-k>", "{", { silent = true })
-vim.keymap.set({ "n", "v" }, "<C-h>", "b", { silent = true })
-vim.keymap.set({ "n", "v" }, "<C-l>", "w", { silent = true })
 vim.keymap.set({ "n", "v" }, "-", "$", { silent = true })
-
--- vim.keymap.set({ 'n', 'v' }, 'J', '10j', { silent = true })
--- vim.keymap.set({ 'n', 'v' }, 'K', '10k', { silent = true })
 
 -- Move lines up and down
 vim.api.nvim_set_keymap("n", "<A-j>", "V:move '>+1<CR>gv", { noremap = true, silent = true })
@@ -970,6 +1000,9 @@ vim.api.nvim_set_keymap("v", "<D-/>", "gc", {})
 -- Switch between buffers
 vim.keymap.set("n", "H", ":bprevious<CR>", { silent = true })
 vim.keymap.set("n", "L", ":bnext<CR>", { silent = true })
+
+vim.keymap.set({ "n", "v" }, "<C-h>", "b", { silent = true })
+vim.keymap.set({ "n", "v" }, "<C-l>", "w", { silent = true })
 
 -- Duplicate lines
 vim.api.nvim_set_keymap("v", "<D-C-Up>", "y`>p`<", { silent = true })
