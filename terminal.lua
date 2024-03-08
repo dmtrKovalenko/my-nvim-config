@@ -102,7 +102,6 @@ require("lazy").setup {
     opts = {
       default_file_explorer = false,
       delete_to_trash = true,
-      lsp_rename_autosave = true,
     },
   },
 

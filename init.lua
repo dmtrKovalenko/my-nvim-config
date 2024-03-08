@@ -17,6 +17,7 @@ vim.wo.relativenumber = true
 
 -- Enale mouse mode
 vim.o.mouse = "a"
+vim.o.foldmethod = "manual"
 
 -- Sync clipboard between OS and Neovim.
 --  move this option if you want your OS clipboard to remain independent.
@@ -118,7 +119,9 @@ require("lazy").setup({
     opts = {
       default_file_explorer = false,
       delete_to_trash = true,
-      lsp_rename_autosave = true,
+      lsp_file_methods = {
+        autosave_changes = true,
+      },
     },
   },
   -- Detect tabstop and shiftwidth automatically
@@ -549,6 +552,9 @@ require("lazy").setup({
         hover = {
           enabled = false,
         },
+      },
+      progress = {
+        max_width = 0.3,
       },
     },
     dependencies = {
@@ -1064,3 +1070,5 @@ vim.keymap.set("n", "gx", function()
   local target = vim.fn.expand "<cfile>"
   vim.fn.system(string.format("open '%s'", target))
 end, { silent = false })
+
+require("refactoring-macro").setupMacro()
