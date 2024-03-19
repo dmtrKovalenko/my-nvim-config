@@ -64,6 +64,7 @@ local function lazy(_options)
         "rcarriga/nvim-dap-ui",
         types = true,
       },
+      "nvim-neotest/nvim-nio",
     },
     config = function()
       local dap = require "dap"
