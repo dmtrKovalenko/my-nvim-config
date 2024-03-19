@@ -299,6 +299,9 @@ require("lazy").setup({
     -- Set lualine as statusline
     "nvim-lualine/lualine.nvim",
     -- See `:help lualine.txt`
+    cond = function()
+      return os.getenv "PRESENTATION" ~= "true"
+    end,
     config = function()
       local catpuccin = require "catppuccin.palettes.mocha"
 
@@ -811,7 +814,6 @@ local servers = {
     filetypes = { "markdown", "text", "hgcommit", "gitcommit" },
   },
   pylsp = {},
-  relay_lsp = {},
   astro = {},
 }
 
@@ -889,6 +891,13 @@ require("lspconfig").ocamllsp.setup {
   settings = {},
 }
 
+require("lspconfig").relay_lsp.setup {
+  capabilities = capabilities,
+  on_attach = on_lsp_attach,
+  cmd = { "yarn", "relay-compiler", "lsp" },
+  settings = {},
+}
+
 -- [[ Configure nvim-cmp ]]
 -- See `:help cmp`
 local cmp = require "cmp"
@@ -962,10 +971,10 @@ vim.keymap.set("n", "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = tr
 vim.keymap.set("n", "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
 -- My lovely vertical navigation speedups (do not add them to the jumplist)
-vim.keymap.set("n", "<C-j>", ":keepjumps normal! }<CR>", { silent = true })
-vim.keymap.set("v", "<C-j>", "}", { silent = true })
-vim.keymap.set("n", "<C-k>", ":keepjumps normal! {<CR>", { silent = true })
-vim.keymap.set("v", "<C-k>", "{", { silent = true })
+vim.keymap.set("n", "<C-j>", ":keepjumps normal! }<CR>", { silent = true, remap = true })
+vim.keymap.set("v", "<C-j>", "}", { silent = true, remap = true })
+vim.keymap.set("n", "<C-k>", ":keepjumps normal! {<CR>", { silent = true, remap = true })
+vim.keymap.set("v", "<C-k>", "{", { silent = true, remap = true })
 vim.keymap.set({ "n", "v" }, "-", "$", { silent = true })
 
 -- Move lines up and down
@@ -1072,3 +1081,9 @@ vim.keymap.set("n", "gx", function()
 end, { silent = false })
 
 require("refactoring-macro").setupMacro()
+
+if os.getenv "PRESENTATION" then
+  vim.cmd "LspStop"
+  vim.o.relativenumber = false
+  vim.o.cursorline = false
+end
