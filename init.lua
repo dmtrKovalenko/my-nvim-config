@@ -696,6 +696,8 @@ require("nvim-treesitter.configs").setup {
         ["ic"] = "@class.inner",
         ["as"] = "@statement.outer",
         ["is"] = "@statement.inner",
+        ["av"] = "@assignment.outer",
+        ["iv"] = "@assignment.inner",
       },
     },
     move = {
