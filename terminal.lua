@@ -170,16 +170,16 @@ end
 
 vim.keymap.set("n", "gf", OpenInNewTabEditor, { silent = true })
 
--- Create function
 function Lightsource_setup()
-  -- First terminal in vertical split
   vim.cmd "86 vsplit | terminal fish --command 'just fe-dev'"
 
-  -- -- Navigate back to the first window
-  -- vim.cmd('wincmd p')
-
   vim.cmd "24 split | terminal fish --command 'btop --preset 2'"
-  -- Second terminal in horizontal split - replace 'cli_command1' with your first command
+  vim.opt_local.number = false
+  vim.opt_local.relativenumber = false
+
+  if vim.api.nvim_get_option_value("lines", {}) > 60 then
+    vim.cmd "wincmd ="
+  end
 
   -- Navigate to the third window (second terminal)
   vim.cmd "wincmd w"

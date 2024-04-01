@@ -99,6 +99,7 @@ require("lazy").setup({
   "nkrkv/nvim-treesitter-rescript",
   "danielo515/tree-sitter-reason",
   "IndianBoy42/tree-sitter-just",
+  "mg979/vim-visual-multi",
   -- Turn off some of the feature on big buffers
   "LunarVim/bigfile.nvim",
   {
@@ -580,6 +581,7 @@ require("lazy").setup({
           typescript = { { "prettierd", "prettier" } },
           typescriptreact = { { "prettierd", "prettier" } },
           css = { { "prettierd", "prettier" } },
+          svg = { { "xmlformat" } },
           json = { { "prettierd", "prettier" } },
           yaml = { { "prettierd", "prettier" } },
           graphql = { { "prettierd", "prettier" } },
@@ -763,6 +765,7 @@ local on_lsp_attach = function(client, bufnr)
 
   if vim.bo.filetype == "rust" then
     lsp_map("<D-.>", ":RustLsp codeAction<CR>", "[C]ode [A]ction")
+    vim.keymap.set("n", "<F4>", ":RustLsp debuggables<CR>", { silent = true, desc = "Rust: Debuggables" })
   else
     lsp_map("<D-.>", require("actions-preview").code_actions, "[C]ode [A]ction")
   end
@@ -935,7 +938,7 @@ cmp.setup {
       select = true,
     },
     ["<CR>"] = cmp.mapping.confirm {
-      behavior = cmp.ConfirmBehavior.Replace,
+      behavior = cmp.ConfirmBehavior.Insert,
       select = true,
     },
     ["<Tab>"] = cmp.mapping(function(fallback)
