@@ -156,7 +156,7 @@ require("lazy").setup({
   },
   {
     "mrcjkb/rustaceanvim",
-    ft = { "rust" },
+    lazy = false,
   },
   { "akinsho/git-conflict.nvim", version = "*", config = true },
   {
@@ -363,16 +363,15 @@ require("lazy").setup({
   -- Automatically fill/change/remove xml-like tags
   { "windwp/nvim-ts-autotag", opts = {} },
 
-  -- "gc" to comment visual regions/lines
-  { "numToStr/Comment.nvim", opts = {} },
-
   -- Project specific marks for most editable files
   {
     "ThePrimeagen/harpoon",
+    branch = "harpoon2",
     dependencies = { "nvim-lua/plenary.nvim" },
     config = function()
-      require("harpoon").setup {
-        global_settings = {
+      local harpoon = require "harpoon"
+      harpoon.setup {
+        settings = {
           save_on_toggle = true,
           save_on_change = true,
           mark_branch = true,
@@ -393,28 +392,28 @@ require("lazy").setup({
         },
       }
 
-      vim.keymap.set(
-        "n",
-        "<leader>h",
-        require("harpoon.ui").toggle_quick_menu,
-        { noremap = true, desc = "Harpoon view" }
-      )
-      vim.keymap.set("n", "<leader>a", require("harpoon.mark").add_file, { noremap = true, desc = "Harpoon this path" })
+      vim.keymap.set("n", "<leader>h", function()
+        harpoon.ui:toggle_quick_menu(harpoon:list())
+      end, { noremap = true, desc = "Harpoon view" })
+
+      vim.keymap.set("n", "<leader>a", function()
+        harpoon:list():add()
+      end, { noremap = true, desc = "Harpoon this path" })
 
       vim.keymap.set("n", "<leader>q", function()
-        require("harpoon.ui").nav_file(1)
+        harpoon:list():select(1)
       end, { desc = "Harpoon #1" })
       vim.keymap.set("n", "<leader>w", function()
-        require("harpoon.ui").nav_file(2)
+        harpoon:list():select(2)
       end, { desc = "Harpoon #2" })
       vim.keymap.set("n", "<leader>e", function()
-        require("harpoon.ui").nav_file(3)
+        harpoon:list():select(3)
       end, { desc = "Harpoon #3" })
       vim.keymap.set("n", "<leader>r", function()
-        require("harpoon.ui").nav_file(4)
+        harpoon:list():select(4)
       end, { desc = "Harpoon #4" })
       vim.keymap.set("n", "<leader>t", function()
-        require("harpoon.ui").nav_file(5)
+        harpoon:list():select(5)
       end, { desc = "Harpoon #5" })
     end,
   },
@@ -663,17 +662,22 @@ require("nvim-treesitter.configs").setup {
     "rescript",
     "markdown",
     "wgsl",
+    "html",
+    "ocaml",
   },
 
   -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
   auto_install = true,
-
   autotag = {
     enable = true,
+    use_languagetree = true,
     enable_close_on_slash = false,
   },
-
-  highlight = { enable = true, additional_vim_regex_highlighting = false },
+  highlight = {
+    enable = true,
+    use_languagetree = true,
+    additional_vim_regex_highlighting = false,
+  },
   indent = { enable = true },
   incremental_selection = {
     enable = true,
@@ -849,11 +853,6 @@ vim.g.rustaceanvim = {
     default_settings = {
       -- rust-analyzer language server configuration
       ["rust-analyzer"] = {
-        diagnostics = {
-          experimental = {
-            enable = true,
-          },
-        },
         files = {
           excludeDirs = { "target", "node_modules", ".git", ".sl" },
         },
@@ -929,7 +928,7 @@ cmp.setup {
       luasnip.lsp_expand(args.body)
     end,
   },
-  performance = { max_view_entries = 7 },
+  performance = { max_view_entries = 15 },
   mapping = cmp.mapping.preset.insert {
     ["<C-n>"] = cmp.mapping.select_next_item(),
     ["<C-p>"] = cmp.mapping.select_prev_item(),
@@ -993,7 +992,7 @@ vim.api.nvim_set_keymap("n", "<backspace>", '"_dh', { noremap = true })
 vim.api.nvim_set_keymap("v", "<backspace>", '"_d', { noremap = true })
 
 -- Write file on cmd+s
-vim.api.nvim_set_keymap("n", "<D-s>", ":silent w<CR>", { silent = true })
+vim.api.nvim_set_keymap("n", "<D-s>", "w<CR>", { silent = true })
 -- Open git
 vim.api.nvim_set_keymap("n", "<A-g>", ":Git<CR>", { silent = true })
 vim.api.nvim_set_keymap("n", "<D-S-g>", ":Git<CR>", { silent = true })
@@ -1014,7 +1013,7 @@ vim.api.nvim_set_keymap("n", "<A-BS>", "db", { noremap = true })
 vim.api.nvim_set_keymap("n", "<D-a>", "ggVG", {})
 
 -- Comment out lines
-vim.api.nvim_set_keymap("n", "<D-/>", "gc_", {})
+vim.api.nvim_set_keymap("n", "<D-/>", "gcc", {})
 vim.api.nvim_set_keymap("v", "<D-/>", "gc", {})
 
 -- Switch between buffers
