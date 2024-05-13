@@ -41,7 +41,7 @@ local function telescope(options)
         end
 
         local function live_grep()
-          require("telescope.builtin").live_grep {
+          require("telescope").extensions.live_grep_args.live_grep_args {
             wrap_results = true,
           }
         end
@@ -87,6 +87,12 @@ local function telescope(options)
         defaults = {
           mappings = {
             i = {
+              ["<D-'>"] = require("telescope-live-grep-args.actions").quote_prompt(),
+              ["<D-i>"] = require("telescope-live-grep-args.actions").quote_prompt {
+                postfix = " --iglob ",
+              },
+              ["<C-Down>"] = require("telescope.actions").cycle_history_next,
+              ["<C-Up>"] = require("telescope.actions").cycle_history_prev,
               ["<A-Bs>"] = function()
                 local keys = vim.api.nvim_replace_termcodes("<C-w>", true, false, true)
                 vim.api.nvim_feedkeys(keys, "i", true)
