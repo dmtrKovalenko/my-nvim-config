@@ -62,6 +62,8 @@ vim.opt.swapfile = false
 vim.opt.title = true
 vim.opt.titlestring = '%t%( (%{fnamemodify(getcwd(), ":~:.")})%)'
 
+vim.g.copilot_node_command = "/opt/homebrew/Cellar/node/22.0.0/bin/node"
+
 vim.api.nvim_create_autocmd("FileType", {
   pattern = { "typescript", "typescriptreact", "javascript", "css", "html", "json", "yaml", "markdown" },
   callback = function()
@@ -370,17 +372,16 @@ require("lazy").setup({
     dependencies = { "nvim-lua/plenary.nvim" },
     config = function()
       local harpoon = require "harpoon"
-      harpoon.setup {
+      harpoon:setup {
         settings = {
           save_on_toggle = true,
-          save_on_change = true,
           mark_branch = true,
           excluded_filetypes = { "harpoon", "NvimTree", "TelescopePrompt" },
         },
         projects = {
-          ["~/dev/"] = {
+          ["$HOME/dev/"] = {
             mark = {
-              marks = { "1", "2", "3", "4" },
+              marks = { "1", "2", "3", "4", "5" },
               sign = false,
               hl = "String",
               numhl = "Comment",
@@ -586,6 +587,7 @@ require("lazy").setup({
           graphql = { { "prettierd", "prettier" } },
           rescript = { "rescript" },
           ocaml = { "ocamlformat" },
+          sql = { "pg_format" },
         },
       }
 
@@ -1036,6 +1038,8 @@ vim.api.nvim_set_keymap("n", "<D-A-h>", "<C-w>h", { silent = true })
 vim.api.nvim_set_keymap("n", "<D-A-q>", "<C-w>q", { silent = true })
 vim.api.nvim_set_keymap("n", "<D-A-j>", "<C-w>j", { silent = true })
 vim.api.nvim_set_keymap("n", "<D-A-k>", "<C-w>k", { silent = true })
+
+vim.keymap.set({ "n" }, "<D-s>", ":w<CR>", { silent = true, desc = "Save file" })
 
 -- Exit terminal mode with Esc
 vim.api.nvim_set_keymap("t", "<Esc>", "<C-\\><C-n>", { nowait = true })
