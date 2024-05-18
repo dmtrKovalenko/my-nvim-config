@@ -62,15 +62,6 @@ vim.opt.swapfile = false
 vim.opt.title = true
 vim.opt.titlestring = '%t%( (%{fnamemodify(getcwd(), ":~:.")})%)'
 
-vim.g.copilot_node_command = "/opt/homebrew/Cellar/node/22.0.0/bin/node"
-
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = { "typescript", "typescriptreact", "javascript", "css", "html", "json", "yaml", "markdown" },
-  callback = function()
-    vim.opt.iskeyword:append { "-", "#", "$" }
-  end,
-})
-
 local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
   vim.fn.system {
@@ -624,13 +615,7 @@ require("lazy").setup({
   require("hop-lazy").lazy {},
 }, {})
 
--- [[ Basic Keymaps ]]
-
--- Keymaps for better default experience
--- See `:help vim.keymap.set()`
-
--- [[ Highlight on yank ]]
--- See `:help vim.highlight.on_yank()`
+-- [[ Custom Autocmds]]
 local highlight_group = vim.api.nvim_create_augroup("YankHighlight", { clear = true })
 vim.api.nvim_create_autocmd("TextYankPost", {
   callback = function()
@@ -642,6 +627,20 @@ vim.api.nvim_create_autocmd("TextYankPost", {
 
 vim.api.nvim_create_autocmd({ "InsertLeave", "FocusLost", "BufLeave" }, {
   command = "silent! wa",
+})
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "typescript", "typescriptreact", "javascript", "css", "html", "json", "yaml", "markdown" },
+  callback = function()
+    vim.opt.iskeyword:append { "-", "#", "$" }
+  end,
+})
+
+vim.api.nvim_create_autocmd("TermOpen", {
+  pattern = "*",
+  callback = function()
+    vim.opt_local.wrap = false
+  end,
 })
 
 vim.filetype.add { extension = { wgsl = "wgsl" } }
@@ -855,6 +854,9 @@ vim.g.rustaceanvim = {
     default_settings = {
       -- rust-analyzer language server configuration
       ["rust-analyzer"] = {
+        check = {
+          allTargets = false,
+        },
         files = {
           excludeDirs = { "target", "node_modules", ".git", ".sl" },
         },

@@ -2,6 +2,7 @@ vim.g.mapleader = " "
 vim.g.maplocalleader = " "
 
 vim.o.showmode = false
+vim.o.wrap = false
 vim.wo.number = true
 vim.wo.relativenumber = true
 vim.o.scrollback = 100000
