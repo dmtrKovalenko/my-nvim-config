@@ -42,6 +42,8 @@ vim.wo.signcolumn = "yes"
 vim.o.timeout = true
 vim.o.timeoutlen = 250
 
+-- Set the scolloff
+vim.o.scrolloff = 10
 -- Highlight current line as cursor
 vim.o.cursorline = true
 
@@ -820,7 +822,13 @@ local servers = {
   grammarly = {
     -- Grammarly language server requires node js 16.4 ¯\_(ツ)_/¯
     -- https://github.com/neovim/nvim-lspconfig/issues/2007
-    cmd = { "n", "run", "16.4", "/Users/dmtrkovalenko/.local/share/nvim/mason/bin/grammarly-languageserver", "--stdio" },
+    cmd = {
+      "n",
+      "run",
+      "16.4",
+      "/Users/dmtrkovalenko/.local/share/nvim/mason/bin/grammarly-languageserver",
+      "--stdio",
+    },
     filetypes = { "markdown", "text", "hgcommit", "gitcommit" },
   },
   pylsp = {},
@@ -1019,6 +1027,9 @@ vim.api.nvim_set_keymap("n", "<D-a>", "ggVG", {})
 -- Comment out lines
 vim.api.nvim_set_keymap("n", "<D-/>", "gcc", {})
 vim.api.nvim_set_keymap("v", "<D-/>", "gc", {})
+
+-- Clear line with cd
+vim.api.nvim_set_keymap("n", "cd", "0D", {})
 
 -- Switch between buffers
 vim.keymap.set("n", "H", ":bprevious<CR>", { silent = true })
