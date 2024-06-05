@@ -56,8 +56,8 @@ local function lazy(opts)
       end
 
       dashboard.section.buttons.val = {
-        dashboard.button("l", "󱐋 LightSource", ":e ~/dev/lightsource<CR>"),
-        dashboard.button("f", " FFrames", ":e ~/dev/fframes<CR>"),
+        dashboard.button("l", "󱐋 LightSource", ":e ~/dev/lightsource<CR>:Telescope find_files<cr>"),
+        dashboard.button("f", " FFrames", ":e ~/dev/fframes<CR>:Telescope find_files<cr>"),
         dashboard.button(
           "--------------------------------------------------",
           " ",
@@ -66,8 +66,8 @@ local function lazy(opts)
         -- dashboard.button("r", "  Projects", ":Telescope projects <CR>"),
         dashboard.button("s", "  Search all files", ":Telescope find_files <CR>"),
         dashboard.button("a", "  New file", ":ene <BAR> startinsert <CR>"),
-        dashboard.button("g", "  Recently used files", ":Telescope oldfiles <CR>"),
-        dashboard.button("c", "󰢻  Configuration", ":e ~/.config/nvim<CR>"),
+        dashboard.button("p", "  Projects", ":Telescope projects<cr>"),
+        dashboard.button("c", "󰢻  Configuration", ":e ~/.config/nvim/init.lua<CR>"),
         dashboard.button("q", "󰩈  Quit Neovim", ":qa<CR>"),
       }
 

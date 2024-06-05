@@ -113,6 +113,16 @@ require("lazy").setup({
   {
     "stevearc/oil.nvim",
     opts = {
+      keymaps = {
+        ["yp"] = {
+          desc = "Copy filepath to system clipboard",
+          callback = function()
+            require("oil.actions").copy_entry_path.callback()
+            vim.fn.setreg("+", vim.fn.getreg(vim.v.register))
+            vim.notify("Copied full path", "info", { title = "Oil" })
+          end,
+        },
+      },
       default_file_explorer = false,
       delete_to_trash = true,
       lsp_file_methods = {
@@ -356,7 +366,17 @@ require("lazy").setup({
   },
 
   -- Automatically fill/change/remove xml-like tags
-  { "windwp/nvim-ts-autotag", opts = {} },
+  {
+    "windwp/nvim-ts-autotag",
+    opts = {
+      opts = {
+        -- Defaults
+        enable_close = true, -- Auto close tags
+        enable_rename = true, -- Auto rename pairs of tags
+        enable_close_on_slash = false, -- Auto close on trailing </
+      },
+    },
+  },
 
   -- Project specific marks for most editable files
   {
@@ -427,68 +447,6 @@ require("lazy").setup({
     build = ":TSUpdate",
   },
 
-  {
-    "nvim-tree/nvim-tree.lua",
-    version = "*",
-    lazy = false,
-    cond = if_not_vscode,
-    dependencies = {
-      {
-        "nvim-tree/nvim-web-devicons",
-        opts = {
-          override_by_extension = {
-            ["toml"] = {
-              icon = "",
-              color = "#475569",
-              name = "Toml",
-            },
-            ["patch"] = {
-              icon = "",
-              color = "#cbd5e1",
-              name = "patch",
-            },
-          },
-        },
-      },
-    },
-    config = function()
-      require("nvim-tree").setup {
-        sort_by = "case_sensitive",
-        respect_buf_cwd = true,
-        sync_root_with_cwd = true,
-        view = {
-          width = IS_STREAMING and 30 or 35,
-          centralize_selection = true,
-        },
-        renderer = {
-          group_empty = true,
-        },
-        filters = {
-          dotfiles = false,
-          custom = {
-            "^.git$",
-            "^.sl$",
-            "^.DS_Store",
-            "^target$",
-            "^node_modules$",
-          },
-        },
-        ui = {
-          confirm = {
-            remove = false,
-            trash = false,
-          },
-        },
-        update_focused_file = {
-          enable = true,
-          update_root = false,
-          ignore_list = {},
-        },
-      }
-
-      vim.keymap.set("n", "<D-b>", ":NvimTreeToggle<CR>", { noremap = true })
-    end,
-  },
   -- A lightbulb highlight for code actions
   {
     "kosayoda/nvim-lightbulb",
@@ -610,11 +568,22 @@ require("lazy").setup({
     },
   },
 
+  {
+    "ahmedkhalf/project.nvim",
+    config = function()
+      require("project_nvim").setup {
+        detection_methods = { "pattern" },
+        patterns = { ".git", ".sl" },
+      }
+    end,
+  },
+
   -- Follow up with the custom reusable configuration for plugins located in ~/lua folder
   require("telescope-lazy").lazy {},
   require("alpha-lazy").lazy {},
   require("dap-lazy").lazy {},
   require("hop-lazy").lazy {},
+  require "sidebar",
 }, {})
 
 -- [[ Custom Autocmds]]
@@ -671,11 +640,6 @@ require("nvim-treesitter.configs").setup {
 
   -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
   auto_install = true,
-  autotag = {
-    enable = true,
-    use_languagetree = true,
-    enable_close_on_slash = false,
-  },
   highlight = {
     enable = true,
     use_languagetree = true,
@@ -886,6 +850,15 @@ local mason_lspconfig = require "mason-lspconfig"
 mason_lspconfig.setup {
   ensure_installed = vim.tbl_keys(servers),
 }
+
+vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
+  underline = true,
+  virtual_text = {
+    spacing = 5,
+    severity_limit = "Warning",
+  },
+  update_in_insert = true,
+})
 
 mason_lspconfig.setup_handlers {
   function(server_name)

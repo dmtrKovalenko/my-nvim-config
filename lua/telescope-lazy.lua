@@ -27,6 +27,7 @@ local function telescope(options)
     config = function()
       pcall(require("telescope").load_extension, "ui-select")
       pcall(require("telescope").load_extension, "live_grep_args")
+      pcall(require("telescope").load_extension, "projects")
 
       -- Enable telescope fzf native, if installed
       if not options.onlyLocalSearch then
