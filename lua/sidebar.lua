@@ -20,7 +20,7 @@ return {
             desc = "Diagnostics (Trouble)",
           },
           {
-            "<leader>ts",
+            "<leader>tt",
             "<cmd>Trouble symbols toggle<cr>",
             desc = "Symbols (Trouble)",
           },

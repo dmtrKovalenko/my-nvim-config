@@ -172,9 +172,9 @@ end
 vim.keymap.set("n", "gf", OpenInNewTabEditor, { silent = true })
 
 function Lightsource_setup()
-  vim.cmd "86 vsplit | terminal fish --command 'just fe-dev'"
+  vim.cmd "86 vsplit | terminal fish -C 'just fe-dev'"
 
-  vim.cmd "24 split | terminal fish --command 'btop --preset 2'"
+  vim.cmd "24 split | terminal fish -C 'btop --preset 2'"
   vim.opt_local.number = false
   vim.opt_local.relativenumber = false
 
