@@ -68,7 +68,7 @@ return {
           filter = function(_buf, win)
             return vim.w[win].trouble.mode == "diagnostics"
           end,
-          open = "Trouble diagnostics focus=false filter.severity=vim.diagnostic.severity.ERROR",
+          open = "Trouble diagnostics focus=false min.severity=vim.diagnostic.severity.ERROR",
           size = { height = 0.4 },
         },
       },

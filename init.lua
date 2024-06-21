@@ -88,13 +88,12 @@ require("lazy").setup({
   "tpope/vim-fugitive",
   -- Allows cursor locations in the :e
   "lewis6991/fileline.nvim",
-  -- Multi cursor support
+  -- Code actions preview using telescope
   "aznhe21/actions-preview.nvim",
-  -- A bunch of treesitter plugins
-  "nkrkv/nvim-treesitter-rescript",
-  "danielo515/tree-sitter-reason",
-  "IndianBoy42/tree-sitter-just",
+  -- Multi cursor support
   "mg979/vim-visual-multi",
+  --  Automatically jump to the last cursor position
+  "farmergreg/vim-lastplace",
   -- Turn off some of the feature on big buffers
   "LunarVim/bigfile.nvim",
   {
@@ -110,6 +109,11 @@ require("lazy").setup({
     end,
   },
   { "chentoast/marks.nvim", opts = {} },
+  { "luckasRanarison/tailwind-tools.nvim", opts = {
+    custom_filetypes = {
+      "rescript",
+    },
+  } },
   {
     "stevearc/oil.nvim",
     opts = {
@@ -238,11 +242,12 @@ require("lazy").setup({
     opts = {
       -- See `:help gitsigns.txt`
       signs = {
-        add = { text = "+" },
-        change = { text = "~" },
+        add = { text = "┃" },
+        change = { text = "┃" },
         delete = { text = "_" },
         topdelete = { text = "‾" },
         changedelete = { text = "~" },
+        untracked = { text = "┆" },
       },
       on_attach = function(bufnr)
         vim.keymap.set(
@@ -382,6 +387,7 @@ require("lazy").setup({
   {
     "ThePrimeagen/harpoon",
     branch = "harpoon2",
+    commit = "e76cb03",
     dependencies = { "nvim-lua/plenary.nvim" },
     config = function()
       local harpoon = require "harpoon"
@@ -437,6 +443,10 @@ require("lazy").setup({
     "nvim-treesitter/nvim-treesitter",
     dependencies = {
       "nvim-treesitter/nvim-treesitter-textobjects",
+      -- Custom treesitter parserrs
+      "rescript-lang/tree-sitter-rescript",
+      "danielo515/tree-sitter-reason",
+      "IndianBoy42/tree-sitter-just",
       {
         "nvim-treesitter/nvim-treesitter-context",
         opts = {
@@ -445,6 +455,120 @@ require("lazy").setup({
       },
     },
     build = ":TSUpdate",
+    config = function()
+      -- [[ Configure Treesitter ]]
+      -- See `:help nvim-treesitter`
+      require("nvim-treesitter.configs").setup {
+        -- Add languages to be installed here that you want installed for treesitter
+        ensure_installed = {
+          "c",
+          "cpp",
+          "go",
+          "lua",
+          "python",
+          "rust",
+          "tsx",
+          "typescript",
+          "vimdoc",
+          "vim",
+          "rescript",
+          "markdown",
+          "wgsl",
+          "html",
+          "ocaml",
+        },
+
+        -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
+        auto_install = true,
+        highlight = {
+          enable = true,
+          use_languagetree = true,
+          additional_vim_regex_highlighting = false,
+        },
+        indent = { enable = true },
+        incremental_selection = {
+          enable = true,
+          keymaps = {
+            init_selection = "<c-space>",
+            node_incremental = "<c-space>",
+            scope_incremental = "<c-s>",
+            node_decremental = "<S-space>",
+          },
+        },
+        textobjects = {
+          select = {
+            enable = true,
+            lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
+            keymaps = {
+              -- You can use the capture groups defined in textobjects.scm
+              ["ap"] = "@parameter.outer",
+              ["ip"] = "@parameter.inner",
+              ["af"] = "@function.outer",
+              ["if"] = "@function.inner",
+              ["ac"] = "@class.outer",
+              ["ic"] = "@class.inner",
+              ["as"] = "@statement.outer",
+              ["is"] = "@statement.inner",
+              ["av"] = "@assignment.outer",
+              ["iv"] = "@assignment.inner",
+            },
+          },
+          move = {
+            enable = true,
+            set_jumps = true, -- whether to set jumps in the jumplist
+            goto_next_start = {
+              ["]{"] = "@function.outer",
+              ["]c"] = "@class.outer",
+            },
+            goto_next_end = {
+              ["]}"] = "@function.outer",
+              ["]C"] = "@class.outer",
+            },
+            goto_previous_start = {
+              ["[{"] = "@function.outer",
+              ["[c"] = "@class.outer",
+            },
+            goto_previous_end = {
+              ["[}"] = "@function.outer",
+              ["[C"] = "@class.outer",
+            },
+          },
+          swap = {
+            enable = true,
+            swap_next = {
+              ["<A-p>"] = "@parameter.inner",
+            },
+            swap_previous = {
+              ["<A-P>"] = "@parameter.inner",
+            },
+          },
+        },
+      }
+
+      require("nvim-treesitter.install").compilers = { "gcc", "clang" }
+      local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
+
+      parser_config.just = {
+        install_info = {
+          url = "https://github.com/IndianBoy42/tree-sitter-just", -- local path or git repo
+          files = { "src/parser.c", "src/scanner.cc" },
+          branch = "main",
+          use_makefile = true, -- this may be necessary on MacOS (try if you see compiler errors)
+        },
+        maintainers = { "@IndianBoy42" },
+      }
+
+      parser_config.rescript = {
+        install_info = {
+          url = "https://github.com/rescript-lang/tree-sitter-rescript",
+          branch = "main",
+          files = { "src/parser.c", "src/scanner.c" },
+          generate_requires_npm = false,
+          requires_generate_from_grammar = true,
+          use_makefile = true, -- macOS specific instruction
+        },
+      }
+    end,
   },
 
   -- A lightbulb highlight for code actions
@@ -536,7 +660,7 @@ require("lazy").setup({
           json = { { "prettierd", "prettier" } },
           yaml = { { "prettierd", "prettier" } },
           graphql = { { "prettierd", "prettier" } },
-          rescript = { "rescript" },
+          rescript = { "rescript-format" },
           ocaml = { "ocamlformat" },
           sql = { "pg_format" },
         },
@@ -578,6 +702,14 @@ require("lazy").setup({
     end,
   },
 
+  {
+    "rmagatti/auto-session",
+    opts = {
+      log_level = "error",
+      auto_session_suppress_dirs = { "~/", "~/Downloads", "/" },
+    },
+  },
+
   -- Follow up with the custom reusable configuration for plugins located in ~/lua folder
   require("telescope-lazy").lazy {},
   require("alpha-lazy").lazy {},
@@ -616,107 +748,6 @@ vim.api.nvim_create_autocmd("TermOpen", {
 
 vim.filetype.add { extension = { wgsl = "wgsl" } }
 
--- [[ Configure Treesitter ]]
--- See `:help nvim-treesitter`
-require("nvim-treesitter.configs").setup {
-  -- Add languages to be installed here that you want installed for treesitter
-  ensure_installed = {
-    "c",
-    "cpp",
-    "go",
-    "lua",
-    "python",
-    "rust",
-    "tsx",
-    "typescript",
-    "vimdoc",
-    "vim",
-    "rescript",
-    "markdown",
-    "wgsl",
-    "html",
-    "ocaml",
-  },
-
-  -- Autoinstall languages that are not installed. Defaults to false (but you can change for yourself!)
-  auto_install = true,
-  highlight = {
-    enable = true,
-    use_languagetree = true,
-    additional_vim_regex_highlighting = false,
-  },
-  indent = { enable = true },
-  incremental_selection = {
-    enable = true,
-    keymaps = {
-      init_selection = "<c-space>",
-      node_incremental = "<c-space>",
-      scope_incremental = "<c-s>",
-      node_decremental = "<S-space>",
-    },
-  },
-  textobjects = {
-    select = {
-      enable = true,
-      lookahead = true, -- Automatically jump forward to textobj, similar to targets.vim
-      keymaps = {
-        -- You can use the capture groups defined in textobjects.scm
-        ["ap"] = "@parameter.outer",
-        ["ip"] = "@parameter.inner",
-        ["af"] = "@function.outer",
-        ["if"] = "@function.inner",
-        ["ac"] = "@class.outer",
-        ["ic"] = "@class.inner",
-        ["as"] = "@statement.outer",
-        ["is"] = "@statement.inner",
-        ["av"] = "@assignment.outer",
-        ["iv"] = "@assignment.inner",
-      },
-    },
-    move = {
-      enable = true,
-      set_jumps = true, -- whether to set jumps in the jumplist
-      goto_next_start = {
-        ["]{"] = "@function.outer",
-        ["]c"] = "@class.outer",
-      },
-      goto_next_end = {
-        ["]}"] = "@function.outer",
-        ["]C"] = "@class.outer",
-      },
-      goto_previous_start = {
-        ["[{"] = "@function.outer",
-        ["[c"] = "@class.outer",
-      },
-      goto_previous_end = {
-        ["[}"] = "@function.outer",
-        ["[C"] = "@class.outer",
-      },
-    },
-    swap = {
-      enable = true,
-      swap_next = {
-        ["<A-p>"] = "@parameter.inner",
-      },
-      swap_previous = {
-        ["<A-P>"] = "@parameter.inner",
-      },
-    },
-  },
-}
-
-require("nvim-treesitter.install").compilers = { "gcc", "clang" }
----@diagnostic disable-next-line: inject-field
-require("nvim-treesitter.parsers").get_parser_configs().just = {
-  install_info = {
-    url = "https://github.com/IndianBoy42/tree-sitter-just", -- local path or git repo
-    files = { "src/parser.c", "src/scanner.cc" },
-    branch = "main",
-    use_makefile = true, -- this may be necessary on MacOS (try if you see compiler errors)
-  },
-  maintainers = { "@IndianBoy42" },
-}
-
 -- Diagnostic keymaps
 vim.keymap.set("n", "[d", vim.diagnostic.goto_prev, { desc = "Go to previous diagnostic message" })
 vim.keymap.set("n", "]d", vim.diagnostic.goto_next, { desc = "Go to next diagnostic message" })
@@ -734,12 +765,13 @@ local on_lsp_attach = function(client, bufnr)
     vim.keymap.set("n", keys, func, { buffer = bufnr, desc = desc, silent = true })
   end
 
-  if vim.bo.filetype == "rust" then
-    lsp_map("<D-.>", ":RustLsp codeAction<CR>", "[C]ode [A]ction")
-    vim.keymap.set("n", "<F4>", ":RustLsp debuggables<CR>", { silent = true, desc = "Rust: Debuggables" })
-  else
-    lsp_map("<D-.>", require("actions-preview").code_actions, "[C]ode [A]ction")
-  end
+  -- if vim.bo.filetype == "rust" then
+  --   lsp_map("<D-.>", ":RustLsp codeAction<CR>", "[C]ode [A]ction")
+  --   vim.keymap.set("n", "<F4>", ":RustLsp debuggables<CR>", { silent = true, desc = "Rust: Debuggables" })
+  -- else
+  --   lsp_map("<D-.>", require("actions-preview").code_actions, "[C]ode [A]ction")
+  -- end
+  lsp_map("<D-.>", require("actions-preview").code_actions, "[C]ode [A]ction")
 
   lsp_map("<D-r>", require("renamer").rename, "[R]e[n]ame")
 
@@ -997,7 +1029,7 @@ vim.api.nvim_set_keymap("n", "<A-BS>", "db", { noremap = true })
 -- Select whole buffer
 vim.api.nvim_set_keymap("n", "<D-a>", "ggVG", {})
 
--- Comment out lines
+-- FIXME Comment out lines
 vim.api.nvim_set_keymap("n", "<D-/>", "gcc", {})
 vim.api.nvim_set_keymap("v", "<D-/>", "gc", {})
 

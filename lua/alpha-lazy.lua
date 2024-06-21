@@ -56,8 +56,8 @@ local function lazy(opts)
       end
 
       dashboard.section.buttons.val = {
-        dashboard.button("l", "󱐋 LightSource", ":e ~/dev/lightsource<CR>:Telescope find_files<cr>"),
-        dashboard.button("f", " FFrames", ":e ~/dev/fframes<CR>:Telescope find_files<cr>"),
+        dashboard.button("l", "󱐋 LightSource", ":e ~/dev/lightsource<CR>:SessionRestore<cr>"),
+        dashboard.button("f", " FFrames", ":e ~/dev/fframes<CR>:SessionRestore<cr>"),
         dashboard.button(
           "--------------------------------------------------",
           " ",
