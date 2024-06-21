@@ -693,11 +693,14 @@ require("lazy").setup({
   },
 
   {
-    "ahmedkhalf/project.nvim",
+    "dmtrkovalenko/project.nvim",
     config = function()
       require("project_nvim").setup {
         detection_methods = { "pattern" },
         patterns = { ".git", ".sl" },
+        after_project_selection_callback = function()
+          vim.notify "SessionRestore"
+        end,
       }
     end,
   },
@@ -708,6 +711,9 @@ require("lazy").setup({
       log_level = "error",
       auto_session_suppress_dirs = { "~/", "~/Downloads", "/" },
     },
+    init = function()
+      vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
+    end,
   },
 
   -- Follow up with the custom reusable configuration for plugins located in ~/lua folder
