@@ -50,7 +50,6 @@ local function telescope(options)
         vim.keymap.set("n", "<D-k>", find_files, { desc = "Search Files" })
         vim.keymap.set("n", "<D-S-f>", live_grep, { desc = "Live Grep" })
         vim.keymap.set("n", "<D-m>", require("telescope.builtin").diagnostics, { desc = "Diagnostics" })
-        vim.keymap.set("n", "<D-o>", require("telescope.builtin").oldfiles, { desc = "Recently open files " })
         vim.keymap.set("n", "<D-l>", require("telescope.builtin").lsp_document_symbols, { desc = "LSP symbols" })
         vim.keymap.set("n", "<leader>sg", require("telescope.builtin").git_files, { desc = "Search by git files" })
         vim.keymap.set("n", "<leader>sw", require("telescope.builtin").grep_string, { desc = "Search word" })
@@ -69,9 +68,6 @@ local function telescope(options)
 
         vim.keymap.set("n", "gs", open_file_under_cursor_in_telescope, { desc = "Search file name under cursor" })
       end
-
-      -- Sorts output of the telescope (all the pickers) using fecency algorithm
-      require("telescope-all-recent").setup {}
 
       -- Set telescope keymaps
       vim.keymap.set("n", "<D-f>", function()

@@ -118,6 +118,7 @@ require("lazy").setup({
     "stevearc/oil.nvim",
     opts = {
       keymaps = {
+        ["<D-i>"] = "actions.select",
         ["yp"] = {
           desc = "Copy filepath to system clipboard",
           callback = function()
@@ -710,6 +711,7 @@ require("lazy").setup({
     opts = {
       log_level = "error",
       auto_session_suppress_dirs = { "~/", "~/Downloads", "/" },
+      bypass_session_save_file_types = { "help", "alpha", "trouble", "telescope" },
     },
     init = function()
       vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
@@ -1068,10 +1070,10 @@ vim.keymap.set({ "n" }, "<D-s>", ":w<CR>", { silent = true, desc = "Save file" }
 -- Exit terminal mode with Esc
 vim.api.nvim_set_keymap("t", "<Esc>", "<C-\\><C-n>", { nowait = true })
 
--- A bunch of useful shortcuts for one-time small actions boujnd on leader
+-- A bunch of useful shortcuts for one-time small actions bound on leader
 vim.api.nvim_set_keymap("n", "<leader>n", ":nohlsearch<CR>", { silent = true })
 vim.api.nvim_set_keymap("n", "<leader>l", ":EslintFixAll<CR>", { silent = true })
-vim.api.nvim_set_keymap("n", "<leader>o", ":Oil<CR>", { silent = true })
+vim.api.nvim_set_keymap("n", "<D-o>", ":Oil<CR>", { silent = true })
 
 --  Pull one line down useful rempaps from the numeric line
 vim.keymap.set("n", "<C-t>", "%", { remap = true })

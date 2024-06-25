@@ -61,16 +61,16 @@ return {
           open = "Trouble symbols position=left focus=false filter.buf=0",
           size = { height = 0.6 },
         },
-        {
-          ft = "trouble",
-          pinned = true,
-          title = "Troubles",
-          filter = function(_buf, win)
-            return vim.w[win].trouble.mode == "diagnostics"
-          end,
-          open = "Trouble diagnostics focus=false min.severity=vim.diagnostic.severity.ERROR",
-          size = { height = 0.4 },
-        },
+        -- {
+        --   ft = "trouble",
+        --   pinned = true,
+        --   title = "Troubles",
+        --   filter = function(_buf, win)
+        --     return vim.w[win].trouble.mode == "diagnostics"
+        --   end,
+        --   open = "Trouble diagnostics focus=false min.severity=vim.diagnostic.severity.ERROR",
+        --   size = { height = 0.4 },
+        -- },
       },
     },
   },
