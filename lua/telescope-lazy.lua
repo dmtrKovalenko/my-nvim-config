@@ -5,7 +5,6 @@ local function telescope(options)
     dependencies = {
       "nvim-lua/plenary.nvim",
       "kkharji/sqlite.lua",
-      "prochri/telescope-all-recent.nvim",
       "nvim-telescope/telescope-ui-select.nvim",
       -- Fuzzy Finder Algorithm which requires local dependencies to be built.
       -- Only load if `make` is available. Make sure you have the system
@@ -23,11 +22,19 @@ local function telescope(options)
         "nvim-telescope/telescope-live-grep-args.nvim",
         version = "^1.0.0",
       },
+      {
+        dir = "~/dev/smart-open.nvim",
+        branch = "0.2.x",
+        dependencies = {
+          "kkharji/sqlite.lua",
+        },
+      },
     },
     config = function()
       pcall(require("telescope").load_extension, "ui-select")
       pcall(require("telescope").load_extension, "live_grep_args")
       pcall(require("telescope").load_extension, "projects")
+      require("telescope").load_extension "smart_open"
 
       -- Enable telescope fzf native, if installed
       if not options.onlyLocalSearch then
@@ -41,13 +48,25 @@ local function telescope(options)
           }
         end
 
+        local function find_recent_files()
+          require("telescope").extensions.smart_open.smart_open {
+            cwd_only = true,
+            prompt_prefix = "🔭 ",
+            __locations_input = true,
+            previewer = require("telescope.config").values.grep_previewer {},
+            wrap_results = true,
+            find_command = { "rg", "--files", "--no-require-git" },
+          }
+        end
+
         local function live_grep()
           require("telescope").extensions.live_grep_args.live_grep_args {
             wrap_results = true,
           }
         end
 
-        vim.keymap.set("n", "<D-k>", find_files, { desc = "Search Files" })
+        vim.keymap.set("n", "<D-k>", find_recent_files, { desc = "Search recent Files" })
+        vim.keymap.set("n", "<D-A-k>", find_files, { desc = "Search Files" })
         vim.keymap.set("n", "<D-S-f>", live_grep, { desc = "Live Grep" })
         vim.keymap.set("n", "<D-m>", require("telescope.builtin").diagnostics, { desc = "Diagnostics" })
         vim.keymap.set("n", "<D-l>", require("telescope.builtin").lsp_document_symbols, { desc = "LSP symbols" })
@@ -81,6 +100,12 @@ local function telescope(options)
       vim.keymap.set("n", "<leader>sh", require("telescope.builtin").help_tags, { desc = "Search help" })
 
       require("telescope").setup {
+        extensions = {
+          smart_open = {
+            match_algorithm = "fzf",
+            disable_devicons = false,
+          },
+        },
         defaults = {
           mappings = {
             i = {

@@ -141,7 +141,7 @@ require("lazy").setup({
   {
     "bkad/CamelCaseMotion",
     init = function()
-      vim.g.camelcasemotion_key = "="
+      vim.g.camelcasemotion_key = "m"
     end,
   },
   -- Allows correctly opening and closing nested nvims in the terminal
@@ -192,7 +192,7 @@ require("lazy").setup({
       terminals = {
         type_opts = {
           horizontal = {
-            split_ratio = ((IS_STREAMING or vim.api.nvim_get_option_value("lines", {}) < 60) and 0.5) or 0.3,
+            split_ratio = ((IS_STREAMING or vim.api.nvim_get_option_value("lines", {}) < 60) and 0.5) or 0.35,
           },
         },
       },
@@ -310,7 +310,7 @@ require("lazy").setup({
     priority = 1000,
     -- Set lualine as statusline
     "nvim-lualine/lualine.nvim",
-    -- See `:help lualine.txt`
+    dependencies = { "nvim-tree/nvim-web-devicons" },
     cond = function()
       return os.getenv "PRESENTATION" ~= "true"
     end,
@@ -338,11 +338,15 @@ require("lazy").setup({
       require("lualine").setup {
         options = {
           disabled_filetypes = {
-            statusline = { "NvimTree" },
+            statusline = { "alpha", "NvimTree", "trouble" },
           },
           theme = custom_catppuccin_theme,
           component_separators = "|",
           section_separators = "",
+        },
+        sections = {
+          lualine_c = {},
+          lualine_z = { "os.date('🕙 %H:%M')" },
         },
       }
     end,
@@ -711,7 +715,7 @@ require("lazy").setup({
     opts = {
       log_level = "error",
       auto_session_suppress_dirs = { "~/", "~/Downloads", "/" },
-      bypass_session_save_file_types = { "help", "alpha", "trouble", "telescope" },
+      bypass_session_save_file_types = { "help", "alpha", "telescope" },
     },
     init = function()
       vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
@@ -837,6 +841,7 @@ local servers = {
   },
   pylsp = {},
   astro = {},
+  -- dhall = {},
 }
 
 -- Setup neovim lua configuration
@@ -1066,6 +1071,9 @@ vim.api.nvim_set_keymap("n", "<D-A-j>", "<C-w>j", { silent = true })
 vim.api.nvim_set_keymap("n", "<D-A-k>", "<C-w>k", { silent = true })
 
 vim.keymap.set({ "n" }, "<D-s>", ":w<CR>", { silent = true, desc = "Save file" })
+
+vim.keymap.set({ "n" }, "p", "P", { noremap = true, silent = true })
+vim.keymap.set({ "n" }, "P", "p", { noremap = true, silent = true })
 
 -- Exit terminal mode with Esc
 vim.api.nvim_set_keymap("t", "<Esc>", "<C-\\><C-n>", { nowait = true })
