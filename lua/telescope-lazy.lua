@@ -34,7 +34,7 @@ local function telescope(options)
       pcall(require("telescope").load_extension, "ui-select")
       pcall(require("telescope").load_extension, "live_grep_args")
       pcall(require("telescope").load_extension, "projects")
-      require("telescope").load_extension "smart_open"
+      pcall(require("telescope").load_extension, "smart_open")
 
       -- Enable telescope fzf native, if installed
       if not options.onlyLocalSearch then
@@ -59,13 +59,19 @@ local function telescope(options)
           }
         end
 
+        local function find_recent_files_or_files()
+          if not pcall(find_recent_files) then
+            find_files()
+          end
+        end
+
         local function live_grep()
           require("telescope").extensions.live_grep_args.live_grep_args {
             wrap_results = true,
           }
         end
 
-        vim.keymap.set("n", "<D-k>", find_recent_files, { desc = "Search recent Files" })
+        vim.keymap.set("n", "<D-k>", find_recent_files_or_files, { desc = "Search recent Files" })
         vim.keymap.set("n", "<D-A-k>", find_files, { desc = "Search Files" })
         vim.keymap.set("n", "<D-S-f>", live_grep, { desc = "Live Grep" })
         vim.keymap.set("n", "<D-m>", require("telescope.builtin").diagnostics, { desc = "Diagnostics" })

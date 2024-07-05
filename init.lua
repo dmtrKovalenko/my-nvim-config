@@ -1072,8 +1072,10 @@ vim.api.nvim_set_keymap("n", "<D-A-k>", "<C-w>k", { silent = true })
 
 vim.keymap.set({ "n" }, "<D-s>", ":w<CR>", { silent = true, desc = "Save file" })
 
-vim.keymap.set({ "n" }, "p", "P", { noremap = true, silent = true })
-vim.keymap.set({ "n" }, "P", "p", { noremap = true, silent = true })
+-- Swap the p and P to not mess up the clipbard with replaced text
+-- but leave the ability to paste the text
+vim.keymap.set("x", "p", "P", {})
+vim.keymap.set("x", "P", "p", {})
 
 -- Exit terminal mode with Esc
 vim.api.nvim_set_keymap("t", "<Esc>", "<C-\\><C-n>", { nowait = true })
