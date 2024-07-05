@@ -30,7 +30,14 @@ return {
             desc = "Location List (Trouble)",
           },
         },
-        opts = {}, -- for default options, refer to the configuration section for custom setup.
+        opts = {
+          restore = false,
+          auto_close = true,
+          auto_preview = true,
+          open_no_results = true,
+          pinned = true,
+          multiline = false,
+        }, -- for default options, refer to the configuration section for custom setup.
         init = function()
           vim.api.nvim_create_autocmd("BufReadPost", {
             pattern = "*",
@@ -47,10 +54,9 @@ return {
           size = 35,
         },
       },
-      close_when_all_hidden = true,
+      exit_when_last = true,
+      close_when_all_hidden = false,
       left = {
-
-        -- Neo-tree filesystem always takes half the screen height
         {
           ft = "trouble",
           pinned = true,
@@ -61,16 +67,16 @@ return {
           open = "Trouble symbols position=left focus=false filter.buf=0",
           size = { height = 0.6 },
         },
-        -- {
-        --   ft = "trouble",
-        --   pinned = true,
-        --   title = "Troubles",
-        --   filter = function(_buf, win)
-        --     return vim.w[win].trouble.mode == "diagnostics"
-        --   end,
-        --   open = "Trouble diagnostics focus=false min.severity=vim.diagnostic.severity.ERROR",
-        --   size = { height = 0.4 },
-        -- },
+        {
+          ft = "trouble",
+          pinned = true,
+          title = "Troubles",
+          filter = function(_buf, win)
+            return vim.w[win].trouble.mode == "diagnostics"
+          end,
+          open = "Trouble diagnostics focus=false min.severity=vim.diagnostic.severity.ERROR",
+          size = { height = 0.4 },
+        },
       },
     },
   },
