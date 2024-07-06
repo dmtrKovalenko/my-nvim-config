@@ -73,10 +73,7 @@ require("lazy").setup {
   },
   {
     -- Set lualine as statusline
-    "nvim-lualine/lualine.nvim",
-    dependencies = {
-      "archibate/lualine-time",
-    },
+
     cond = function()
       return not is_kitty
     end,
@@ -84,10 +81,6 @@ require("lazy").setup {
       options = {
         theme = "auto",
         icons_enabled = true,
-      },
-      sections = {
-        lualine_c = {},
-        lualine_z = { "ctime" },
       },
     },
   },
