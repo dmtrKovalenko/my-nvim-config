@@ -32,7 +32,7 @@ return {
         },
         opts = {
           restore = false,
-          auto_close = true,
+          auto_close = false,
           auto_preview = true,
           open_no_results = true,
           pinned = true,

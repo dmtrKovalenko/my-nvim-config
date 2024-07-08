@@ -72,8 +72,8 @@ require("lazy").setup {
     end,
   },
   {
-    -- Set lualine as statusline
-
+    priority = 1000,
+    "nvim-lualine/lualine.nvim",
     cond = function()
       return not is_kitty
     end,

@@ -62,7 +62,7 @@ vim.opt.swapfile = false
 
 -- Set terminal tab title to `filename (cwd)`
 vim.opt.title = true
-vim.opt.titlestring = '%t%( (%{fnamemodify(getcwd(), ":~:.")})%)'
+vim.o.titlestring = '∀ %{fnamemodify(getcwd(), ":t")}->>%{expand("%:t")}'
 
 local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -308,7 +308,6 @@ require("lazy").setup({
   },
   {
     priority = 1000,
-    -- Set lualine as statusline
     "nvim-lualine/lualine.nvim",
     dependencies = { "nvim-tree/nvim-web-devicons" },
     cond = function()
@@ -346,7 +345,7 @@ require("lazy").setup({
         },
         sections = {
           lualine_c = {},
-          lualine_z = { "os.date('🕙 %H:%M')" },
+          lualine_z = { { "os.date('🕙 %H:%M')", color = { fg = "#363a4f", gui = "bold" } } },
         },
       }
     end,
@@ -590,7 +589,13 @@ require("lazy").setup({
   {
     "saecki/crates.nvim",
     event = "BufRead Cargo.toml",
-    opts = {},
+    opts = {
+      completion = {
+        cmp = {
+          enabled = true,
+        },
+      },
+    },
     dependencies = { "nvim-lua/plenary.nvim" },
   },
 
@@ -826,7 +831,12 @@ local servers = {
       telemetry = { enable = false },
     },
   },
-  typos_lsp = {},
+  typos_lsp = {
+    root_dir = function(fname)
+      return require("lspconfig.util").root_pattern("typos.toml", "_typos.toml", ".typos.toml")(fname)
+        or vim.fn.getcwd()
+    end,
+  },
   grammarly = {
     -- Grammarly language server requires node js 16.4 ¯\_(ツ)_/¯
     -- https://github.com/neovim/nvim-lspconfig/issues/2007
@@ -994,7 +1004,6 @@ cmp.setup {
   sources = {
     { name = "nvim_lsp" },
     { name = "luasnip" },
-    { name = "crates" },
   },
 }
 
