@@ -1123,6 +1123,7 @@ vim.api.nvim_set_keymap("n", "<D-C-Down>", "Vy`<p`>", { silent = true })
 
 -- Map default <C-w> to the cmd+alt
 vim.api.nvim_set_keymap("n", "<D-A-v>", "<C-w>v<C-w>w", { silent = true })
+vim.api.nvim_set_keymap("n", "<D-A-s>", "<C-w>s<C-w>j", { silent = true })
 vim.api.nvim_set_keymap("n", "<D-A-l>", "<C-w>l", { silent = true })
 vim.api.nvim_set_keymap("n", "<D-A-h>", "<C-w>h", { silent = true })
 vim.api.nvim_set_keymap("n", "<D-A-q>", "<C-w>q", { silent = true })
