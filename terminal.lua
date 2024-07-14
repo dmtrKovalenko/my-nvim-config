@@ -143,10 +143,10 @@ vim.api.nvim_set_keymap("t", "<Esc>", "<C-\\><C-n>", { nowait = true })
 vim.api.nvim_set_keymap("n", "<C-c>", "i<C-c>", {})
 
 -- Rebinds the splits to immediately open the the new terminal on the right/bottom.
-vim.api.nvim_set_keymap("n", "<C-w>v", ":vsplit<CR><C-w>w:terminal<CR>", { silent = true })
+vim.api.nvim_set_keymap("n", "<C-w>v", "<cmd>vsplit<CR><C-w>w:terminal<CR>", { silent = true })
 vim.keymap.set({ "n", "t" }, "<A-D-v>", "<C-\\><C-n>:vsplit<CR><C-w>w:terminal<CR>", { silent = true })
 
-vim.api.nvim_set_keymap("n", "<C-w>s", ":split<CR><C-w>w:terminal<CR>", { silent = true })
+vim.api.nvim_set_keymap("n", "<C-w>s", "<cmd>split<CR><C-w>w:terminal<CR>", { silent = true })
 vim.keymap.set({ "n", "t" }, "<A-D-s>", "<C-\\><C-n>:split<CR><C-w>w:terminal<CR>", { silent = true })
 
 vim.api.nvim_set_keymap("n", "<D-A-l>", "<C-w>l", { silent = true })

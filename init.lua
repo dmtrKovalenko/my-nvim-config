@@ -318,11 +318,11 @@ require("lazy").setup({
         opts = {
           format = function(client_messages)
             local api = require "lsp-progress.api"
+            local lsp_clients = #api.lsp_clients()
             if #client_messages > 0 then
               return table.concat(client_messages, " ")
-            end
-            if #api.lsp_clients() > 0 then
-              return "󰄳 LSP"
+            elseif lsp_clients > 0 then
+              return "󰄳 LSP " .. lsp_clients .. " clients"
             end
             return ""
           end,
@@ -377,7 +377,7 @@ require("lazy").setup({
           },
           lualine_x = { "filetype" },
           lualine_y = {},
-          lualine_z = { { "os.date('🕙 %H:%M')", color = { fg = "#363a4f", gui = "bold" } } },
+          lualine_z = { { "os.date('󱑈 %H:%M')", color = { fg = "#363a4f", gui = "bold" } } },
         },
       }
     end,
@@ -845,9 +845,12 @@ local on_lsp_attach = function(client, bufnr)
     vim.cmd "LspRestart"
   end, "Lsp [R]eload")
   lsp_map("<leader>li", function()
+    vim.cmd "LspInfo"
+  end, "Lsp [R]eload")
+  lsp_map("<leader>lh", function()
     local bufFitler = { bufnr }
     vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled(filter), filter)
-  end, "Lsp toggle [I]nlay hints")
+  end, "Lsp toggle inlay [h]ints")
 end
 
 -- Enable the following language servers
@@ -1040,7 +1043,7 @@ cmp.setup {
         fallback()
       end
     end, { "i", "s" }),
-    ["<S-Tab>"] = cmp.mapping(function(fallback)
+    ["<S-Tab>"] = cmp.mapping(function(falljack)
       if luasnip.locally_jumpable(-1) then
         luasnip.jump(-1)
       else
@@ -1061,17 +1064,17 @@ vim.keymap.set("n", "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = tr
 vim.keymap.set("n", "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
 -- My lovely vertical navigation speedups (do not add them to the jumplist)
-vim.keymap.set("n", "<C-j>", ":keepjumps normal! }<CR>", { silent = true, remap = true })
+vim.keymap.set("n", "<C-j>", "<cmd>keepjumps normal! }<CR>", { silent = true, remap = true })
 vim.keymap.set("v", "<C-j>", "}", { silent = true, remap = true })
-vim.keymap.set("n", "<C-k>", ":keepjumps normal! {<CR>", { silent = true, remap = true })
+vim.keymap.set("n", "<C-k>", "<cmd>keepjumps normal! {<CR>", { silent = true, remap = true })
 vim.keymap.set("v", "<C-k>", "{", { silent = true, remap = true })
 vim.keymap.set({ "n", "v" }, "-", "$", { silent = true })
 
 -- Move lines up and down
 vim.api.nvim_set_keymap("n", "<A-j>", "V:move '>+1<CR>gv", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("x", "<A-j>", ":move '>+1<CR>gv", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("x", "<A-j>", "<cmd>move '>+1<CR>gv", { noremap = true, silent = true })
 vim.api.nvim_set_keymap("n", "<A-k>", "V:move '>-2<CR>gv", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("x", "<A-k>", ":move '<-2<CR>gv", { noremap = true, silent = true })
+vim.api.nvim_set_keymap("x", "<A-k>", "<cmd>move '<-2<CR>gv", { noremap = true, silent = true })
 
 -- Make backspace work as black hole cut
 vim.api.nvim_set_keymap("n", "<backspace>", '"_dh', { noremap = true })
@@ -1080,8 +1083,8 @@ vim.api.nvim_set_keymap("v", "<backspace>", '"_d', { noremap = true })
 -- Write file on cmd+s
 vim.api.nvim_set_keymap("n", "<D-s>", "w<CR>", { silent = true })
 -- Open git
-vim.api.nvim_set_keymap("n", "<A-g>", ":Git<CR>", { silent = true })
-vim.api.nvim_set_keymap("n", "<D-S-g>", ":Git<CR>", { silent = true })
+vim.api.nvim_set_keymap("n", "<A-g>", "<cmd>Git<CR>", { silent = true })
+vim.api.nvim_set_keymap("n", "<D-S-g>", "<cmd>Git<CR>", { silent = true })
 
 -- Move to next occurrence with multi cursor
 vim.api.nvim_set_keymap("n", "<D-d>", "<C-n>", { silent = true })
@@ -1106,8 +1109,8 @@ vim.api.nvim_set_keymap("v", "<D-/>", "gc", {})
 vim.api.nvim_set_keymap("n", "cd", "0D", {})
 
 -- Switch between buffers
-vim.keymap.set("n", "H", ":bprevious<CR>", { silent = true })
-vim.keymap.set("n", "L", ":bnext<CR>", { silent = true })
+vim.keymap.set("n", "H", "<cmd>bprevious<CR>", { silent = true })
+vim.keymap.set("n", "L", "<cmd>bnext<CR>", { silent = true })
 
 vim.keymap.set({ "n", "v" }, "<C-h>", "b", { silent = true })
 vim.keymap.set({ "n", "v" }, "<C-l>", "w", { silent = true })
@@ -1126,7 +1129,10 @@ vim.api.nvim_set_keymap("n", "<D-A-q>", "<C-w>q", { silent = true })
 vim.api.nvim_set_keymap("n", "<D-A-j>", "<C-w>j", { silent = true })
 vim.api.nvim_set_keymap("n", "<D-A-k>", "<C-w>k", { silent = true })
 
-vim.keymap.set({ "n" }, "<D-s>", ":w<CR>", { silent = true, desc = "Save file" })
+vim.keymap.set({ "n" }, "<D-s>", "<cmd>w<CR>", { silent = true, desc = "Save file" })
+
+-- map <cd> to clear the current line
+vim.api.nvim_set_keymap("n", "<cd>", "0d$", { noremap = true })
 
 -- Swap the p and P to not mess up the clipbard with replaced text
 -- but leave the ability to paste the text
@@ -1137,8 +1143,8 @@ vim.keymap.set("x", "P", "p", {})
 vim.api.nvim_set_keymap("t", "<Esc>", "<C-\\><C-n>", { nowait = true })
 
 -- A bunch of useful shortcuts for one-time small actions bound on leader
-vim.api.nvim_set_keymap("n", "<leader>n", ":nohlsearch<CR>", { silent = true })
-vim.api.nvim_set_keymap("n", "<D-o>", ":Oil<CR>", { silent = true })
+vim.api.nvim_set_keymap("n", "<leader>n", "<cmd>nohlsearch<CR>", { silent = true })
+vim.api.nvim_set_keymap("n", "<D-o>", "<cmd>Oil<CR>", { silent = true })
 
 --  Pull one line down useful rempaps from the numeric line
 vim.keymap.set("n", "<C-t>", "%", { remap = true })

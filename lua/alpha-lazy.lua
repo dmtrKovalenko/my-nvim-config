@@ -56,18 +56,17 @@ local function lazy(opts)
       end
 
       dashboard.section.buttons.val = {
-        dashboard.button("l", "󱐋 LightSource", ":e ~/dev/lightsource<CR>:SessionRestore<cr>"),
-        dashboard.button("f", " FFrames", ":e ~/dev/fframes<CR>:SessionRestore<cr>"),
+        dashboard.button("l", "󱐋 LightSource", "<cmd>e ~/dev/lightsource<CR>:SessionRestore<CR>"),
+        dashboard.button("f", " FFrames", "<cmd>e ~/dev/fframes<CR>:SessionRestore<CR>"),
         dashboard.button(
           "--------------------------------------------------",
           " ",
           ":echo 'do the work you lazy ass'<CR>"
         ),
-        -- dashboard.button("r", "  Projects", ":Telescope projects <CR>"),
-        dashboard.button("p", "  Projects", ":Telescope projects<cr>"),
-        dashboard.button("a", "  New file", ":ene <BAR> startinsert <CR>"),
-        dashboard.button("c", "󰢻  Configuration", ":e ~/.config/nvim/init.lua<CR>"),
-        dashboard.button("q", "󰩈  Quit Neovim", ":qa<CR>"),
+        dashboard.button("p", "  Projects", "<cmd>Telescope projects<CR>"),
+        dashboard.button("a", "  New file", "<cmd>ene <BAR> startinsert <CR>"),
+        dashboard.button("c", "󰢻  Configuration", "<cmd>e ~/.config/nvim/init.lua<CR>"),
+        dashboard.button("q", "󰩈  Quit Neovim", "<cmd>qa<CR>"),
       }
 
       local function footer()
