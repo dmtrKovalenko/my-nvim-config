@@ -303,24 +303,49 @@ require("lazy").setup({
       },
     },
     init = function()
+      local catpuccin = require "catppuccin.palettes.mocha"
       vim.cmd.colorscheme "catppuccin"
+      vim.api.nvim_set_hl(0, "LspInlayHint", { bg = catpuccin.base, fg = catpuccin.overlay0 })
     end,
   },
   {
     priority = 1000,
     "nvim-lualine/lualine.nvim",
-    dependencies = { "nvim-tree/nvim-web-devicons" },
+    dependencies = {
+      "nvim-tree/nvim-web-devicons",
+      {
+        "linrongbin16/lsp-progress.nvim",
+        opts = {
+          format = function(client_messages)
+            local api = require "lsp-progress.api"
+            if #client_messages > 0 then
+              return table.concat(client_messages, " ")
+            end
+            if #api.lsp_clients() > 0 then
+              return "󰄳 LSP"
+            end
+            return ""
+          end,
+        },
+      },
+    },
     cond = function()
       return os.getenv "PRESENTATION" ~= "true"
     end,
     config = function()
+      vim.api.nvim_create_augroup("lualine_augroup", { clear = true })
+      vim.api.nvim_create_autocmd("User", {
+        group = "lualine_augroup",
+        pattern = "LspProgressStatusUpdated",
+        callback = require("lualine").refresh,
+      })
       local catpuccin = require "catppuccin.palettes.mocha"
 
       local custom_catppuccin_theme = {
         normal = {
           a = { fg = catpuccin.crust, bg = catpuccin.mauve },
           b = { fg = catpuccin.mauve, bg = catpuccin.base },
-          c = { fg = catpuccin.text, bg = catpuccin.base },
+          c = { fg = catpuccin.subtext0, bg = catpuccin.base },
         },
 
         insert = { a = { fg = catpuccin.base, bg = catpuccin.peach, gui = "bold" } },
@@ -344,7 +369,14 @@ require("lazy").setup({
           section_separators = "",
         },
         sections = {
-          lualine_c = {},
+          lualine_c = {
+            function()
+              -- invoke `progress` here.
+              return require("lsp-progress").progress()
+            end,
+          },
+          lualine_x = { "filetype" },
+          lualine_y = {},
           lualine_z = { { "os.date('🕙 %H:%M')", color = { fg = "#363a4f", gui = "bold" } } },
         },
       }
@@ -638,12 +670,21 @@ require("lazy").setup({
         lsp_doc_border = false,
       },
       lsp = {
-        hover = {
+        progress = {
           enabled = false,
         },
       },
-      progress = {
-        max_width = 0.3,
+      notify = {
+        view = "mini",
+      },
+      routes = {
+        {
+          filter = {
+            event = "notify",
+            find = "No information available",
+          },
+          opts = { skip = true },
+        },
       },
     },
     dependencies = {
@@ -690,11 +731,7 @@ require("lazy").setup({
     "folke/which-key.nvim",
     event = "VeryLazy",
     opts = {
-      plugins = {
-        spelling = {
-          enabled = false,
-        },
-      },
+      preset = "modern",
       motions = {
         count = false,
       },
@@ -800,10 +837,17 @@ local on_lsp_attach = function(client, bufnr)
   lsp_map("<D-g>", "<C-]>", "[G]oto [D]efinition")
   lsp_map("<D-A-g>", vim.lsp.buf.type_definition, "Type [D]efinition")
 
-  lsp_map("<leader>ds", require("telescope.builtin").lsp_document_symbols, "[D]ocument [S]ymbols")
-
   lsp_map("<D-i>", vim.lsp.buf.hover, "Hover Documentation")
   lsp_map("<D-u>", vim.lsp.buf.signature_help, "Signature Documentation")
+
+  lsp_map("<leader>ls", require("telescope.builtin").lsp_document_symbols, "[D]ocument [S]ymbols")
+  lsp_map("<leader>lr", function()
+    vim.cmd "LspRestart"
+  end, "Lsp [R]eload")
+  lsp_map("<leader>li", function()
+    local bufFitler = { bufnr }
+    vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled(filter), filter)
+  end, "Lsp toggle [I]nlay hints")
 end
 
 -- Enable the following language servers
@@ -820,7 +864,19 @@ local servers = {
   eslint = {
     filetypes = { "javascript", "typescript", "javascriptreact", "typescriptreact" },
   },
-  tsserver = {},
+  tsserver = {
+    typescript = {
+      inlayHints = {
+        includeInlayEnumMemberValueHints = false,
+        includeInlayFunctionLikeReturnTypeHints = true,
+        includeInlayFunctionParameterTypeHints = true,
+        includeInlayParameterNameHints = "literals", -- 'none' | 'literals' | 'all';
+        includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+        includeInlayPropertyDeclarationTypeHints = false,
+        includeInlayVariableTypeHints = true,
+      },
+    },
+  },
   html = { filetypes = { "html", "twig", "hbs" } },
   lua_ls = {
     Lua = {
@@ -832,10 +888,8 @@ local servers = {
     },
   },
   typos_lsp = {
-    root_dir = function(fname)
-      return require("lspconfig.util").root_pattern("typos.toml", "_typos.toml", ".typos.toml")(fname)
-        or vim.fn.getcwd()
-    end,
+    single_file_support = false,
+    init_options = { diagnosticSeverity = "WARN" },
   },
   grammarly = {
     -- Grammarly language server requires node js 16.4 ¯\_(ツ)_/¯
@@ -906,23 +960,16 @@ mason_lspconfig.setup {
   ensure_installed = vim.tbl_keys(servers),
 }
 
-vim.lsp.handlers["textDocument/publishDiagnostics"] = vim.lsp.with(vim.lsp.diagnostic.on_publish_diagnostics, {
-  underline = true,
-  virtual_text = {
-    spacing = 5,
-    severity_limit = "Warning",
-  },
-  update_in_insert = true,
-})
-
 mason_lspconfig.setup_handlers {
   function(server_name)
     require("lspconfig")[server_name].setup {
       capabilities = capabilities,
       on_attach = on_lsp_attach,
       settings = servers[server_name],
+      single_file_support = (servers[server_name] or {}).single_file_support,
       filetypes = (servers[server_name] or {}).filetypes,
       cmd = (servers[server_name] or {}).cmd,
+      init_options = (servers[server_name] or {}).init_options,
     }
   end,
 }
@@ -1091,7 +1138,6 @@ vim.api.nvim_set_keymap("t", "<Esc>", "<C-\\><C-n>", { nowait = true })
 
 -- A bunch of useful shortcuts for one-time small actions bound on leader
 vim.api.nvim_set_keymap("n", "<leader>n", ":nohlsearch<CR>", { silent = true })
-vim.api.nvim_set_keymap("n", "<leader>l", ":EslintFixAll<CR>", { silent = true })
 vim.api.nvim_set_keymap("n", "<D-o>", ":Oil<CR>", { silent = true })
 
 --  Pull one line down useful rempaps from the numeric line
