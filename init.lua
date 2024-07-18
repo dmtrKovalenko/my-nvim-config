@@ -99,6 +99,7 @@ require("lazy").setup({
   {
     -- A better code actions menu
     "weilbith/nvim-code-action-menu",
+    event = "BufWinEnter",
     config = function()
       require("actions-preview").setup {
         diff = {
@@ -108,7 +109,7 @@ require("lazy").setup({
       }
     end,
   },
-  { "chentoast/marks.nvim", opts = {} },
+  { "chentoast/marks.nvim", event = "VeryLazy", opts = {} },
   { "luckasRanarison/tailwind-tools.nvim", opts = {
     custom_filetypes = {
       "rescript",
@@ -116,6 +117,11 @@ require("lazy").setup({
   } },
   {
     "stevearc/oil.nvim",
+    lazy = true,
+    cmd = "Oil",
+    keys = {
+      { "<D-o>", "<cmd>Oil<CR>", silent = true, desc = "Open Oil" },
+    },
     opts = {
       keymaps = {
         ["<D-i>"] = "actions.select",
@@ -141,7 +147,7 @@ require("lazy").setup({
   {
     "bkad/CamelCaseMotion",
     init = function()
-      vim.g.camelcasemotion_key = "m"
+      vim.g.camelcasemotion_key = "q"
     end,
   },
   -- Allows correctly opening and closing nested nvims in the terminal
@@ -732,10 +738,6 @@ require("lazy").setup({
     event = "VeryLazy",
     opts = {
       preset = "modern",
-      motions = {
-        count = false,
-      },
-      triggers_nowait = { '"' },
     },
   },
 
@@ -762,6 +764,12 @@ require("lazy").setup({
     init = function()
       vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
     end,
+  },
+
+  {
+    "folke/ts-comments.nvim",
+    event = "VeryLazy",
+    opts = {},
   },
 
   -- Follow up with the custom reusable configuration for plugins located in ~/lua folder
@@ -1132,20 +1140,18 @@ vim.api.nvim_set_keymap("n", "<D-A-k>", "<C-w>k", { silent = true })
 
 vim.keymap.set({ "n" }, "<D-s>", "<cmd>w<CR>", { silent = true, desc = "Save file" })
 
--- map <cd> to clear the current line
-vim.api.nvim_set_keymap("n", "<cd>", "0d$", { noremap = true })
-
 -- Swap the p and P to not mess up the clipbard with replaced text
 -- but leave the ability to paste the text
 vim.keymap.set("x", "p", "P", {})
 vim.keymap.set("x", "P", "p", {})
+
+vim.keymap.set("n", "sg", "G")
 
 -- Exit terminal mode with Esc
 vim.api.nvim_set_keymap("t", "<Esc>", "<C-\\><C-n>", { nowait = true })
 
 -- A bunch of useful shortcuts for one-time small actions bound on leader
 vim.api.nvim_set_keymap("n", "<leader>n", "<cmd>nohlsearch<CR>", { silent = true })
-vim.api.nvim_set_keymap("n", "<D-o>", "<cmd>Oil<CR>", { silent = true })
 
 --  Pull one line down useful rempaps from the numeric line
 vim.keymap.set("n", "<C-t>", "%", { remap = true })
