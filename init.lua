@@ -146,6 +146,7 @@ require("lazy").setup({
   -- Camel case motion plugin
   {
     "bkad/CamelCaseMotion",
+    event = "VeryLazy",
     init = function()
       vim.g.camelcasemotion_key = "q"
     end,
@@ -655,16 +656,19 @@ require("lazy").setup({
   -- Global search and replace within cwd
   {
     "nvim-pack/nvim-spectre",
-    config = function()
-      local spectre = require "spectre"
-
-      vim.keymap.set("n", "<D-S-r>", spectre.toggle, {
-        desc = "Toggle Spectre",
-      })
-      vim.keymap.set("v", "<D-S-r>", spectre.open_visual, {
-        desc = "Toggle Spectre",
-      })
-    end,
+    opts = {},
+    keys = {
+      {
+        mode = "n",
+        "<D-S-r>",
+        "<cmd>lua require('spectre').toggle()<CR>",
+      },
+      {
+        mode = "v",
+        "<D-S-r>",
+        ":lua require('spectre').open_visual()<CR>",
+      },
+    },
   },
 
   -- Better notifications and messagess
@@ -1144,8 +1148,6 @@ vim.keymap.set({ "n" }, "<D-s>", "<cmd>w<CR>", { silent = true, desc = "Save fil
 -- but leave the ability to paste the text
 vim.keymap.set("x", "p", "P", {})
 vim.keymap.set("x", "P", "p", {})
-
-vim.keymap.set("n", "sg", "G")
 
 -- Exit terminal mode with Esc
 vim.api.nvim_set_keymap("t", "<Esc>", "<C-\\><C-n>", { nowait = true })
