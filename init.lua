@@ -168,6 +168,7 @@ require("lazy").setup({
   -- Handy rename in a floating method
   {
     "filipdutescu/renamer.nvim",
+    event = "VeryLazy",
     dependencies = { "nvim-lua/plenary.nvim" },
     opts = {},
   },
@@ -313,6 +314,9 @@ require("lazy").setup({
       local catpuccin = require "catppuccin.palettes.mocha"
       vim.cmd.colorscheme "catppuccin"
       vim.api.nvim_set_hl(0, "LspInlayHint", { bg = catpuccin.base, fg = catpuccin.overlay0 })
+      vim.api.nvim_set_hl(0, "WinSeparator", { bg = catpuccin.mantle, fg = catpuccin.surface1 })
+      vim.api.nvim_set_hl(0, "TreesitterContextBottom", { sp = catpuccin.surface2, underline = false })
+      vim.api.nvim_set_hl(0, "TreesitterContextLineNumberBottom", { sp = catpuccin.surface2, underline = false })
     end,
   },
   {
@@ -416,6 +420,7 @@ require("lazy").setup({
   -- Automatically fill/change/remove xml-like tags
   {
     "windwp/nvim-ts-autotag",
+    event = "InsertEnter",
     opts = {
       opts = {
         -- Defaults

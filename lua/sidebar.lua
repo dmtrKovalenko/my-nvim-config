@@ -4,7 +4,12 @@ return {
     event = "VeryLazy",
     init = function()
       local edgy = require "edgy"
+      local catpuccin = require "catppuccin.palettes.mocha"
+
       vim.opt.splitkeep = "screen"
+
+      vim.api.nvim_set_hl(0, "EdgyWinBar", { bg = catpuccin.mantle })
+      vim.api.nvim_set_hl(0, "EdgyNormal", { bg = catpuccin.mantle })
 
       vim.keymap.set("n", "<D-b>", function()
         edgy.toggle "left"
