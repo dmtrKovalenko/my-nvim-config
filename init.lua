@@ -785,7 +785,14 @@ require("lazy").setup({
     "dmtrKovalenko/caps-word.nvim",
     -- dir = "~/dev/caps-word.nvim",
     lazy = true,
-    opts = {},
+    opts = {
+      enter_callback = function()
+        vim.notify("On", "info", { title = "Caps Word:" })
+      end,
+      exit_callback = function()
+        vim.notify("Off", "info", { title = "Caps Word:" })
+      end,
+    },
     keys = {
       {
         mode = { "i", "n" },

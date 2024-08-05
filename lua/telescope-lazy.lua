@@ -72,10 +72,9 @@ local function telescope(options)
         end
 
         vim.keymap.set("n", "<D-k>", find_recent_files_or_files, { desc = "Search recent Files" })
-        vim.keymap.set("n", "<D-A-k>", find_files, { desc = "Search Files" })
+        vim.keymap.set("n", "<D-l>", find_files, { desc = "Search Files" })
         vim.keymap.set("n", "<D-S-f>", live_grep, { desc = "Live Grep" })
         vim.keymap.set("n", "<D-m>", require("telescope.builtin").diagnostics, { desc = "Diagnostics" })
-        vim.keymap.set("n", "<D-l>", require("telescope.builtin").lsp_document_symbols, { desc = "LSP symbols" })
         vim.keymap.set("n", "<leader>sg", require("telescope.builtin").git_files, { desc = "Search by git files" })
         vim.keymap.set("n", "<leader>sw", require("telescope.builtin").grep_string, { desc = "Search word" })
 
