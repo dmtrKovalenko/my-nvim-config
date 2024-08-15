@@ -787,10 +787,10 @@ require("lazy").setup({
     lazy = true,
     opts = {
       enter_callback = function()
-        vim.notify("On", "info", { title = "Caps Word:" })
+        vim.notify("On", vim.log.levels.INFO, { title = "Caps Word:" })
       end,
       exit_callback = function()
-        vim.notify("Off", "info", { title = "Caps Word:" })
+        vim.notify("Off", vim.log.levels.INFO, { title = "Caps Word:" })
       end,
     },
     keys = {
@@ -828,6 +828,14 @@ vim.api.nvim_create_autocmd("FileType", {
   pattern = { "typescript", "typescriptreact", "javascript", "css", "html", "json", "yaml", "markdown" },
   callback = function()
     vim.opt.iskeyword:append { "-", "#", "$" }
+  end,
+})
+
+vim.api.nvim_create_autocmd("FileType", {
+  pattern = { "ocaml" },
+  callback = function()
+    vim.keymap.set("i", ";", " in")
+    vim.keymap.set("i", ";;", ";")
   end,
 })
 
