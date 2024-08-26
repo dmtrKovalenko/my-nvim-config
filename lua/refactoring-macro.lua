@@ -14,9 +14,9 @@ local macros = {
   },
   {
     filetypoes = { "fugitive" },
-    binding = "gaap",
-    desc = "Push stack",
-    keys = "<cmd>git add --all && git commit --amend --no-edit && git push --force-with-lease<cr>",
+    binding = "gap",
+    desc = "Amend lateest commit and force push",
+    keys = "<cmd> terminal fish --command 'git commit --amend --no-edit && git push --force-with-lease'<cr>",
   },
 }
 

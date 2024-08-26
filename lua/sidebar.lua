@@ -60,7 +60,7 @@ return {
         },
       },
       exit_when_last = true,
-      close_when_all_hidden = false,
+      close_when_all_hidden = true,
       left = {
         {
           ft = "trouble",

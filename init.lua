@@ -82,6 +82,11 @@ local if_not_vscode = function()
   return not vim.g.vscode
 end
 
+function _G.close_floating_wins()
+  require("edgy").close()
+  require("nvterm.terminal").close_all_terms()
+end
+
 require("lazy").setup({
   "github/copilot.vim",
   -- Git management
@@ -717,18 +722,19 @@ require("lazy").setup({
           c = { "clang-format" },
           cpp = { "clang-format" },
           python = { "isort", "black" },
-          javascript = { { "prettierd", "prettier" } },
-          markdown = { { "prettierd", "prettier" } },
-          typescript = { { "prettierd", "prettier" } },
-          typescriptreact = { { "prettierd", "prettier" } },
-          css = { { "prettierd", "prettier" } },
-          svg = { { "xmlformat" } },
-          json = { { "prettierd", "prettier" } },
-          yaml = { { "prettierd", "prettier" } },
-          graphql = { { "prettierd", "prettier" } },
+          javascript = { "prettier" },
+          markdown = { "prettier" },
+          typescript = { "prettier" },
+          typescriptreact = { "prettier" },
+          css = { "prettier" },
+          svg = { "xmlformat" },
+          json = { "prettier" },
+          yaml = { "prettier" },
+          graphql = { "prettier" },
           rescript = { "rescript-format" },
           ocaml = { "ocamlformat" },
           sql = { "pg_format" },
+          proto = { "clang-format" },
         },
       }
 
@@ -768,10 +774,13 @@ require("lazy").setup({
     opts = {
       log_level = "error",
       auto_session_suppress_dirs = { "~/", "~/Downloads", "/" },
-      bypass_session_save_file_types = { "help", "alpha", "telescope" },
+      bypass_session_save_file_types = { "help", "alpha", "telescope", "trouble" },
+      pre_save_cmds = { _G.close_floating_wins },
     },
     init = function()
       vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
+
+      vim.api.nvim_create_user_command("CloseFloats", close_floating_wins, {})
     end,
   },
 
@@ -828,14 +837,6 @@ vim.api.nvim_create_autocmd("FileType", {
   pattern = { "typescript", "typescriptreact", "javascript", "css", "html", "json", "yaml", "markdown" },
   callback = function()
     vim.opt.iskeyword:append { "-", "#", "$" }
-  end,
-})
-
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = { "ocaml" },
-  callback = function()
-    vim.keymap.set("i", ";", " in")
-    vim.keymap.set("i", ";;", ";")
   end,
 })
 

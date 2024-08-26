@@ -118,6 +118,9 @@ local function telescope(options)
               ["<D-i>"] = require("telescope-live-grep-args.actions").quote_prompt {
                 postfix = " --iglob ",
               },
+              ["<D-e>"] = require("telescope-live-grep-args.actions").quote_prompt {
+                postfix = " --fixed-strings",
+              },
               ["<C-Down>"] = require("telescope.actions").cycle_history_next,
               ["<C-Up>"] = require("telescope.actions").cycle_history_prev,
               ["<A-Bs>"] = function()
