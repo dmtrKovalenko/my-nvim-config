@@ -38,7 +38,7 @@ return {
         opts = {
           restore = false,
           auto_close = false,
-          auto_preview = true,
+          auto_preview = false,
           open_no_results = true,
           pinned = true,
           multiline = false,
@@ -59,8 +59,8 @@ return {
           size = 35,
         },
       },
-      exit_when_last = true,
-      close_when_all_hidden = true,
+      exit_when_last = false,
+      close_when_all_hidden = false,
       left = {
         {
           ft = "trouble",

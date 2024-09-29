@@ -21,13 +21,19 @@
       "#[derive(Debug, Clone$1)]"
     ]
   },
-  "Juniper mutation": { 
+  "Collect": {
+    "prefix": "col",
+    "body": [
+      ".collect::<$1<_>>();"
+    ]
+  },
+  "Juniper mutation": {
     "prefix": "junipermutation",
-    "body": [ 
+    "body": [
       "#[derive(GraphQLInputObject, Debug)]",
       "#[graphql(context = Context)]",
       "pub struct $1Input {",
-      "    $3", 
+      "    $3",
       "    client_mutation_id: Option<ClientMutationId>,",
       "}",
       "",

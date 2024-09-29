@@ -18,6 +18,7 @@ vim.wo.relativenumber = true
 -- Enale mouse mode
 vim.o.mouse = "a"
 vim.o.foldmethod = "manual"
+vim.o.autochdir = true
 
 -- Sync clipboard between OS and Neovim.
 --  move this option if you want your OS clipboard to remain independent.
@@ -95,8 +96,6 @@ require("lazy").setup({
   "lewis6991/fileline.nvim",
   -- Code actions preview using telescope
   "aznhe21/actions-preview.nvim",
-  -- Multi cursor support
-  "mg979/vim-visual-multi",
   --  Automatically jump to the last cursor position
   "farmergreg/vim-lastplace",
   -- Turn off some of the feature on big buffers
@@ -227,7 +226,14 @@ require("lazy").setup({
       "williamboman/mason-lspconfig.nvim",
       -- Additional lua configuration, makes nvim stuff amazing!
       "folke/neodev.nvim",
+      "ocaml-mlx/ocaml_mlx.nvim",
     },
+  },
+
+  {
+    "pmizio/typescript-tools.nvim",
+    dependencies = { "nvim-lua/plenary.nvim" },
+    opts = {},
   },
 
   {
@@ -564,6 +570,7 @@ require("lazy").setup({
               ["is"] = "@statement.inner",
               ["av"] = "@assignment.outer",
               ["iv"] = "@assignment.inner",
+              ["lv"] = "@assignment.lhs",
             },
           },
           move = {
@@ -735,6 +742,7 @@ require("lazy").setup({
           ocaml = { "ocamlformat" },
           sql = { "pg_format" },
           proto = { "clang-format" },
+          ocaml_mlx = { "ocamlformat_mlx" },
         },
       }
 
@@ -816,6 +824,7 @@ require("lazy").setup({
   require("alpha-lazy").lazy {},
   require("dap-lazy").lazy {},
   require("hop-lazy").lazy {},
+  require("multicursor-lazy").lazy {},
   require "sidebar",
 }, {})
 
@@ -914,19 +923,6 @@ local servers = {
   eslint = {
     filetypes = { "javascript", "typescript", "javascriptreact", "typescriptreact" },
   },
-  tsserver = {
-    typescript = {
-      inlayHints = {
-        includeInlayEnumMemberValueHints = false,
-        includeInlayFunctionLikeReturnTypeHints = true,
-        includeInlayFunctionParameterTypeHints = true,
-        includeInlayParameterNameHints = "literals", -- 'none' | 'literals' | 'all';
-        includeInlayParameterNameHintsWhenArgumentMatchesName = false,
-        includeInlayPropertyDeclarationTypeHints = false,
-        includeInlayVariableTypeHints = true,
-      },
-    },
-  },
   html = { filetypes = { "html", "twig", "hbs" } },
   lua_ls = {
     Lua = {
@@ -1003,6 +999,7 @@ vim.g.rustaceanvim = {
   },
 }
 
+require "ocaml_mlx"
 -- Ensure the servers above are installed
 local mason_lspconfig = require "mason-lspconfig"
 
@@ -1133,10 +1130,6 @@ vim.api.nvim_set_keymap("n", "<D-s>", "w<CR>", { silent = true })
 vim.api.nvim_set_keymap("n", "<A-g>", "<cmd>Git<CR>", { silent = true })
 vim.api.nvim_set_keymap("n", "<D-S-g>", "<cmd>Git<CR>", { silent = true })
 
--- Move to next occurrence with multi cursor
-vim.api.nvim_set_keymap("n", "<D-d>", "<C-n>", { silent = true })
-vim.api.nvim_set_keymap("v", "<D-d>", "<C-n>", { silent = true })
-
 -- Move to next occurrence using native search
 vim.api.nvim_set_keymap("n", "<D-n>", "*", { silent = true })
 vim.api.nvim_set_keymap("n", "<D-S-n>", "#", { silent = true })
@@ -1194,7 +1187,7 @@ vim.api.nvim_set_keymap("n", "<leader>n", "<cmd>nohlsearch<CR>", { silent = true
 vim.keymap.set("n", "<C-t>", "%", { remap = true })
 
 local function open_file_under_cursor_in_the_panel_above()
-  local telescope = require "telescope.builtin"
+  local has_telescope, telescope = pcall(require, "telescope.builtin")
 
   local filename = vim.fn.expand "<cfile>"
   local full_path_with_suffix = vim.fn.expand "<cWORD>"
@@ -1203,7 +1196,7 @@ local function open_file_under_cursor_in_the_panel_above()
 
   if vim.loop.fs_stat(filename) then
     vim.api.nvim_command(string.format("e %s", full_path_with_suffix))
-  elseif telescope then
+  elseif has_telescope then
     telescope.find_files {
       prompt_prefix = "🪿 ",
       default_text = full_path_with_suffix,
