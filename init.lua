@@ -270,37 +270,20 @@ require("lazy").setup({
         untracked = { text = "┆" },
       },
       on_attach = function(bufnr)
-        vim.keymap.set(
-          "n",
-          "<leader>gp",
-          require("gitsigns").prev_hunk,
-          { buffer = bufnr, desc = "[G]o to [P]revious Hunk" }
-        )
-        vim.keymap.set(
-          "n",
-          "<leader>gn",
-          require("gitsigns").next_hunk,
-          { buffer = bufnr, desc = "[G]it go to [N]ext Hunk" }
-        )
-        vim.keymap.set(
-          "n",
-          "<leader>gd",
-          require("gitsigns").preview_hunk,
-          { buffer = bufnr, desc = "[G]it [D]iff Hunk" }
-        )
+        local gitsigns = require "gitsigns"
+        local function gsmap(mode, l, r, opts)
+          opts = opts or {}
+          opts.buffer = bufnr
+          vim.keymap.set(mode, l, r, opts)
+        end
 
-        vim.keymap.set(
-          "n",
-          "<leader>gr",
-          require("gitsigns").reset_hunk,
-          { buffer = bufnr, desc = "[G]it [R]eset hunk" }
-        )
-        vim.keymap.set(
-          "n",
-          "<leader>gb",
-          require("gitsigns").toggle_current_line_blame,
-          { buffer = bufnr, desc = "[G]it [B]lame" }
-        )
+        gsmap("n", "<leader>gp", gitsigns.prev_hunk, { desc = "[G]o to [P]revious Hunk" })
+        gsmap("n", "<leader>gn", gitsigns.next_hunk, { desc = "[G]it go to [N]ext Hunk" })
+        gsmap("n", "<leader>gd", gitsigns.preview_hunk, { desc = "[G]it [D]iff Hunk" })
+        gsmap("n", "<leader>gr", gitsigns.reset_hunk, { desc = "[G]it [R]eset hunk" })
+        gsmap("n", "<leader>gu", gitsigns.undo_stage_hunk, { desc = "[G]it [U]nstage hunk" })
+        gsmap("n", "<leader>gs", gitsigns.stage_hunk, { desc = "[G]it [S]tage hunk" })
+        gsmap("n", "<leader>gb", gitsigns.toggle_current_line_blame, { desc = "[G]it [B]lame" })
       end,
     },
   },
@@ -570,7 +553,7 @@ require("lazy").setup({
               ["is"] = "@statement.inner",
               ["av"] = "@assignment.outer",
               ["iv"] = "@assignment.inner",
-              ["lv"] = "@assignment.lhs",
+              ["in"] = "@assignment.lhs",
             },
           },
           move = {
