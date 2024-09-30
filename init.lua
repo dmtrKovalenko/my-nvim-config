@@ -801,6 +801,11 @@ require("lazy").setup({
       },
     },
   },
+  {
+    "MeanderingProgrammer/render-markdown.nvim",
+    opts = {},
+    dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" }, -- if you prefer nvim-web-devicons
+  },
 
   -- Follow up with the custom reusable configuration for plugins located in ~/lua folder
   require("telescope-lazy").lazy {},
@@ -934,7 +939,8 @@ local servers = {
   },
   pylsp = {},
   astro = {},
-  -- dhall = {},
+  dhall_lsp_server = {},
+  marksman = {},
 }
 
 -- Setup neovim lua configuration
