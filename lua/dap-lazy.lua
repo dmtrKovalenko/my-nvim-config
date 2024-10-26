@@ -65,6 +65,12 @@ local function lazy(_options)
         types = true,
       },
       "nvim-neotest/nvim-nio",
+      {
+        "theHamsta/nvim-dap-virtual-text",
+        opts = {
+          enabled = true,
+        },
+      },
     },
     config = function()
       local dap = require "dap"
@@ -83,16 +89,16 @@ local function lazy(_options)
       end
 
       define_colors()
-      vim.keymap.set("n", "<F6>", function()
+      vim.keymap.set("n", "<F3>", function()
         dap.step_over()
       end)
-      vim.keymap.set("n", "<F7>", function()
+      vim.keymap.set("n", "<F4>", function()
         dap.step_into()
       end)
       vim.keymap.set("n", "<F8>", function()
         dap.step_out()
       end)
-      vim.keymap.set("n", "<F9>", function()
+      vim.keymap.set("n", "<F2>", function()
         dap.toggle_breakpoint()
       end)
       vim.keymap.set("n", "<F10>", function()
