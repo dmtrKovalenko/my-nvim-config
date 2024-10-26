@@ -11,6 +11,19 @@ local function lazy(opts)
 
       local dashboard = require "alpha.themes.dashboard"
 
+      local function pickRandomElement(table)
+        -- Check if the table is empty
+        if #table == 0 then
+          return nil
+        end
+
+        -- Generate a random index
+        local randomIndex = math.random(1, #table)
+
+        -- Return the element at the random index
+        return table[randomIndex]
+      end
+
       if opts.header == "pikachu" then
         dashboard.section.header.val = {
           [[          ▀████▀▄▄              ▄█ ]],
@@ -70,7 +83,16 @@ local function lazy(opts)
       }
 
       local function footer()
-        return "Software is like sex: it’s better when it’s free."
+        return pickRandomElement {
+          "Programming isn't about what you know; it's about what you can figure out.",
+          "Code is like humor. When you have to explain it, it's bad.",
+          "First, solve the problem. Then, write the code.",
+          "Software is like sex: it’s better when it’s free.",
+          "Talk is cheap. Show me the code.",
+          "Theory and practice sometimes clash. And when that happens, theory loses.",
+          "Intelligence is the ability to avoid doing work, yet getting the work done.",
+          "The function of good software is to make the complex appear to be simple."
+        }
       end
 
       dashboard.section.footer.val = footer()
