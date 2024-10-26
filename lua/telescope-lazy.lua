@@ -23,8 +23,7 @@ local function telescope(options)
         version = "^1.0.0",
       },
       {
-        dir = "~/dev/smart-open.nvim",
-        branch = "0.2.x",
+        "danielfalk/smart-open.nvim",
         dependencies = {
           "kkharji/sqlite.lua",
         },
