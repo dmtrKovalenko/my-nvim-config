@@ -154,6 +154,8 @@ vim.api.nvim_set_keymap("n", "<D-A-h>", "<C-w>h", { silent = true })
 vim.api.nvim_set_keymap("n", "<D-A-q>", "<C-w>q", { silent = true })
 vim.api.nvim_set_keymap("n", "<D-A-j>", "<C-w>j", { silent = true })
 vim.api.nvim_set_keymap("n", "<D-A-k>", "<C-w>k", { silent = true })
+vim.api.nvim_set_keymap("n", "<D-A-.>", "<C-w>>", { silent = true })
+vim.api.nvim_set_keymap("n", "<D-A-,>", "<C-w><", { silent = true })
 
 vim.api.nvim_set_keymap("t", "<D-A-l>", "<Esc><C-w>l", { silent = true })
 vim.api.nvim_set_keymap("t", "<D-A-h>", "<Esc><C-w>h", { silent = true })
@@ -172,18 +174,18 @@ end
 vim.keymap.set("n", "gf", OpenInNewTabEditor, { silent = true })
 
 function Lightsource_setup()
-  vim.cmd "86 vsplit | terminal fish -C 'just fe-dev'"
+  vim.opt.titlestring = "⚡︎LightSource"
+  vim.cmd "vsplit | terminal fish -C 'just fe-dev'"
+  vim.cmd "28 split | terminal fish -C 'btop --preset 2'"
+  vim.cmd "wincmd h"
+  vim.cmd "6 split | terminal fish -C 'SPICEDB_SCHEMA_FILE=./spicedb/schema.zed SPICEDB_GRPC_PRESHARED_KEY=insecure-key SPICEDB_DATASTORE_CONN_URI=postgresql://postgres@127.0.0.1/lightsource_spicedb docker/spicedb/entrypoint.sh'"
 
-  vim.cmd "24 split | terminal fish -C 'btop --preset 2'"
   vim.opt_local.number = false
   vim.opt_local.relativenumber = false
 
-  if vim.api.nvim_get_option_value("lines", {}) > 60 then
-    vim.cmd "wincmd ="
-  end
-
   -- Navigate to the third window (second terminal)
   vim.cmd "wincmd w"
+  vim.cmd "wincmd h"
   vim.api.nvim_feedkeys("i", "n", false)
 end
 

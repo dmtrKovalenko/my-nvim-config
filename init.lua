@@ -67,14 +67,14 @@ vim.opt.swapfile = false
 
 -- Set terminal tab title to `filename (cwd)`
 vim.opt.title = true
--- Add this to your config
-function Get_file_icon()
+
+function GetCurrentIconFile()
   local filename = vim.fn.expand "%:t"
   local icon = require("nvim-web-devicons").get_icon(filename)
-  return icon or "->"
+  return icon or "✌️"
 end
 
-vim.o.titlestring = '%{fnamemodify(getcwd(), ":t")} %{v:lua.Get_file_icon()} %{expand("%:t")}'
+vim.o.titlestring = '%{fnamemodify(getcwd(), ":t")} %{v:lua.GetCurrentIconFile()} %{expand("%:t")}'
 
 local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
