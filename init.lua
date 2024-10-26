@@ -15,6 +15,10 @@ vim.g.loaded_netrwPlugin = 1
 vim.wo.number = true
 vim.wo.relativenumber = true
 
+-- Default value for tabstop
+vim.o.shiftwidth = 4
+vim.o.tabstop = 4
+
 -- Enale mouse mode
 vim.o.mouse = "a"
 vim.o.foldmethod = "manual"
@@ -63,7 +67,14 @@ vim.opt.swapfile = false
 
 -- Set terminal tab title to `filename (cwd)`
 vim.opt.title = true
-vim.o.titlestring = '∀ %{fnamemodify(getcwd(), ":t")}->>%{expand("%:t")}'
+-- Add this to your config
+function Get_file_icon()
+  local filename = vim.fn.expand "%:t"
+  local icon = require("nvim-web-devicons").get_icon(filename)
+  return icon or "->"
+end
+
+vim.o.titlestring = '%{fnamemodify(getcwd(), ":t")} %{v:lua.Get_file_icon()} %{expand("%:t")}'
 
 local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -683,6 +694,11 @@ require("lazy").setup({
         progress = {
           enabled = false,
         },
+        override = {
+          ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
+          ["vim.lsp.util.stylize_markdown"] = true,
+          ["cmp.entry.get_documentation"] = true, -- requires hrsh7th/nvim-cmp
+        },
       },
       notify = {
         view = "mini",
@@ -807,6 +823,59 @@ require("lazy").setup({
     dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" }, -- if you prefer nvim-web-devicons
   },
 
+  {
+    "lewis6991/hover.nvim",
+    config = function()
+      local border = {
+        { "╭", "FloatBorder" },
+        { "─", "FloatBorder" },
+        { "╮", "FloatBorder" },
+        { "│", "FloatBorder" },
+        { "╯", "FloatBorder" },
+        { "─", "FloatBorder" },
+        { "╰", "FloatBorder" },
+        { "│", "FloatBorder" },
+      }
+
+      require("hover").setup {
+        init = function()
+          require "hover.providers.lsp"
+          require "hover.providers.dap"
+          require "hover.providers.gh"
+          require "hover.providers.dictionary"
+        end,
+        preview_opts = {
+          border = border,
+        },
+        preview_window = true,
+        title = true,
+        mouse_providers = {
+          "LSP",
+        },
+        mouse_delay = 1000,
+      }
+
+      vim.keymap.set("n", "<D-i>", function(opts)
+        local api = vim.api
+        local hover_win = vim.b.hover_preview
+        if hover_win and api.nvim_win_is_valid(hover_win) then
+          api.nvim_set_current_win(hover_win)
+        else
+          require("hover").hover(opts)
+        end
+      end, { desc = "hover.nvim" })
+
+      vim.keymap.set("n", "gi", require("hover").hover_select, { desc = "hover.nvim (select)" })
+      vim.keymap.set("n", "<C-p>", function()
+        require("hover").hover_switch "previous"
+      end, { desc = "hover.nvim (previous source)" })
+      vim.keymap.set("n", "<C-n>", function()
+        require("hover").hover_switch "next"
+      end, { desc = "hover.nvim (next source)" })
+    end,
+    event = "VeryLazy",
+  },
+
   -- Follow up with the custom reusable configuration for plugins located in ~/lua folder
   require("telescope-lazy").lazy {},
   require("alpha-lazy").lazy {},
@@ -881,7 +950,7 @@ local on_lsp_attach = function(client, bufnr)
   lsp_map("<D-g>", "<C-]>", "[G]oto [D]efinition")
   lsp_map("<D-A-g>", vim.lsp.buf.type_definition, "Type [D]efinition")
 
-  lsp_map("<D-i>", vim.lsp.buf.hover, "Hover Documentation")
+  -- lsp_map("<D-i>", vim.lsp.buf.hover, "Hover Documentation")
   lsp_map("<D-u>", vim.lsp.buf.signature_help, "Signature Documentation")
 
   lsp_map("<leader>ls", require("telescope.builtin").lsp_document_symbols, "[D]ocument [S]ymbols")
@@ -937,10 +1006,16 @@ local servers = {
     },
     filetypes = { "markdown", "text", "hgcommit", "gitcommit" },
   },
+  bashls = {
+    settings = {
+      includeAllWorkspaceSymbols = true,
+    },
+  },
   pylsp = {},
   astro = {},
   dhall_lsp_server = {},
   marksman = {},
+  taplo = {},
 }
 
 -- Setup neovim lua configuration
