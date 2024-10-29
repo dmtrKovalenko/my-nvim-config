@@ -248,26 +248,6 @@ require("lazy").setup({
   },
 
   {
-    -- Autocompletion
-    "hrsh7th/nvim-cmp",
-    event = "InsertEnter",
-    dependencies = {
-      -- Snippet Engine & its associated nvim-cmp source
-      {
-        "L3MON4D3/LuaSnip",
-        build = "make install_jsregexp",
-      },
-      "saadparwaiz1/cmp_luasnip",
-
-      -- Adds LSP completion capabilities
-      "hrsh7th/cmp-nvim-lsp",
-
-      -- Adds a number of user-friendly snippets
-      -- 'rafamadriz/friendly-snippets',
-    },
-  },
-
-  {
     -- Adds git related signs to the gutter, as well as utilities for managing changes
     "lewis6991/gitsigns.nvim",
     opts = {
@@ -305,6 +285,7 @@ require("lazy").setup({
     priority = 1000,
     opts = {
       integrations = {
+        cmp = true,
         treesitter = true,
         telescope = true,
         notify = true,
@@ -313,6 +294,8 @@ require("lazy").setup({
         dap = true,
         dap_ui = true,
         nvimtree = true,
+        markdown = true,
+        mason = true,
       },
     },
     init = function()
@@ -521,7 +504,6 @@ require("lazy").setup({
           "python",
           "rust",
           "tsx",
-          "typescript",
           "vimdoc",
           "vim",
           "rescript",
@@ -823,65 +805,13 @@ require("lazy").setup({
     dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" }, -- if you prefer nvim-web-devicons
   },
 
-  {
-    "lewis6991/hover.nvim",
-    config = function()
-      local border = {
-        { "╭", "FloatBorder" },
-        { "─", "FloatBorder" },
-        { "╮", "FloatBorder" },
-        { "│", "FloatBorder" },
-        { "╯", "FloatBorder" },
-        { "─", "FloatBorder" },
-        { "╰", "FloatBorder" },
-        { "│", "FloatBorder" },
-      }
-
-      require("hover").setup {
-        init = function()
-          require "hover.providers.lsp"
-          require "hover.providers.dap"
-          require "hover.providers.gh"
-          require "hover.providers.dictionary"
-        end,
-        preview_opts = {
-          border = border,
-        },
-        preview_window = true,
-        title = true,
-        mouse_providers = {
-          "LSP",
-        },
-        mouse_delay = 1000,
-      }
-
-      vim.keymap.set("n", "<D-i>", function(opts)
-        local api = vim.api
-        local hover_win = vim.b.hover_preview
-        if hover_win and api.nvim_win_is_valid(hover_win) then
-          api.nvim_set_current_win(hover_win)
-        else
-          require("hover").hover(opts)
-        end
-      end, { desc = "hover.nvim" })
-
-      vim.keymap.set("n", "gi", require("hover").hover_select, { desc = "hover.nvim (select)" })
-      vim.keymap.set("n", "<C-p>", function()
-        require("hover").hover_switch "previous"
-      end, { desc = "hover.nvim (previous source)" })
-      vim.keymap.set("n", "<C-n>", function()
-        require("hover").hover_switch "next"
-      end, { desc = "hover.nvim (next source)" })
-    end,
-    event = "VeryLazy",
-  },
-
   -- Follow up with the custom reusable configuration for plugins located in ~/lua folder
   require("telescope-lazy").lazy {},
   require("alpha-lazy").lazy {},
   require("dap-lazy").lazy {},
   require("hop-lazy").lazy {},
   require("multicursor-lazy").lazy {},
+  require "cmp-lazy",
   require "sidebar",
 }, {})
 
@@ -929,7 +859,7 @@ local on_lsp_attach = function(client, bufnr)
       desc = "LSP: " .. desc
     end
 
-    vim.keymap.set("n", keys, func, { buffer = bufnr, desc = desc, silent = true })
+    vim.keymap.set("n", keys, func, { remap = true, buffer = bufnr, desc = desc, silent = true })
   end
 
   -- if vim.bo.filetype == "rust" then
@@ -950,7 +880,7 @@ local on_lsp_attach = function(client, bufnr)
   lsp_map("<D-g>", "<C-]>", "[G]oto [D]efinition")
   lsp_map("<D-A-g>", vim.lsp.buf.type_definition, "Type [D]efinition")
 
-  -- lsp_map("<D-i>", vim.lsp.buf.hover, "Hover Documentation")
+  lsp_map("<D-i>", vim.lsp.buf.hover, "Hover Documentation")
   lsp_map("<D-u>", vim.lsp.buf.signature_help, "Signature Documentation")
 
   lsp_map("<leader>ls", require("telescope.builtin").lsp_document_symbols, "[D]ocument [S]ymbols")
@@ -1036,9 +966,34 @@ for type, icon in pairs(signs) do
   vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
 end
 
+local border = {
+  { "╭", "FloatBorder" },
+  { "─", "FloatBorder" },
+  { "╮", "FloatBorder" },
+  { "│", "FloatBorder" },
+  { "╯", "FloatBorder" },
+  { "─", "FloatBorder" },
+  { "╰", "FloatBorder" },
+  { "│", "FloatBorder" },
+}
+
+local handlers = {
+  ["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = border }),
+  ["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = border }),
+}
+
+require("typescript-tools").setup {
+  on_attach = on_lsp_attach,
+  handlers = handlers,
+}
+
 vim.g.rustaceanvim = {
-  -- Plugin configuration
-  tools = {},
+  handlers = handlers,
+  tools = {
+    float_win_config = {
+      border = "rounded",
+    },
+  },
   -- LSP configuration
   server = {
     on_attach = on_lsp_attach,
@@ -1063,7 +1018,6 @@ vim.g.rustaceanvim = {
   },
 }
 
-require "ocaml_mlx"
 -- Ensure the servers above are installed
 local mason_lspconfig = require "mason-lspconfig"
 
@@ -1074,6 +1028,7 @@ mason_lspconfig.setup {
 mason_lspconfig.setup_handlers {
   function(server_name)
     require("lspconfig")[server_name].setup {
+      handlers = handlers,
       capabilities = capabilities,
       on_attach = on_lsp_attach,
       settings = servers[server_name],
@@ -1090,79 +1045,16 @@ mason_lspconfig.setup_handlers {
 require("lspconfig").ocamllsp.setup {
   capabilities = capabilities,
   on_attach = on_lsp_attach,
+  handlers = handlers,
   settings = {},
 }
 
 require("lspconfig").relay_lsp.setup {
+  handlers = handlers,
   capabilities = capabilities,
   on_attach = on_lsp_attach,
   cmd = { "yarn", "relay-compiler", "lsp" },
   settings = {},
-}
-
--- [[ Configure nvim-cmp ]]
--- See `:help cmp`
-local cmp = require "cmp"
-local luasnip = require "luasnip"
-
--- Loads all the snippets installed by extensions in vscode.
--- require('luasnip.loaders.from_vscode').lazy_load()
-require("luasnip.loaders.from_vscode").load { paths = "~/.config/nvim/snippets" }
-
-luasnip.config.set_config {
-  region_check_events = "InsertEnter",
-  delete_check_events = "InsertLeave",
-}
-
-luasnip.config.setup {}
-
--- Make sure that we can work with luasnip and copilot at the same time
-vim.g.copilot_no_tab_map = true
-vim.g.copilot_assume_mapped = true
-
-cmp.setup {
-  snippet = {
-    expand = function(args)
-      luasnip.lsp_expand(args.body)
-    end,
-  },
-  performance = { max_view_entries = 15 },
-  mapping = cmp.mapping.preset.insert {
-    ["<C-n>"] = cmp.mapping.select_next_item(),
-    ["<C-p>"] = cmp.mapping.select_prev_item(),
-    ["<C-Enter>"] = cmp.mapping.confirm {
-      behavior = cmp.ConfirmBehavior.Insert,
-      select = true,
-    },
-    ["<CR>"] = cmp.mapping.confirm {
-      behavior = cmp.ConfirmBehavior.Insert,
-      select = true,
-    },
-    ["<Tab>"] = cmp.mapping(function(fallback)
-      -- provide a value for copilot to fallback if there is no suggestion to accept. If no suggestion accept mimic normal tab behavior.
-      local tab_shift_width = vim.opt.shiftwidth:get()
-      local copilot_keys = vim.fn["copilot#Accept"](string.rep(" ", tab_shift_width))
-
-      if luasnip.expand_or_locally_jumpable() then
-        luasnip.expand_or_jump()
-      elseif copilot_keys ~= "" and type(copilot_keys) == "string" then
-        vim.api.nvim_feedkeys(copilot_keys, "i", true)
-      else
-        fallback()
-      end
-    end, { "i", "s" }),
-    ["<S-Tab>"] = cmp.mapping(function(falljack)
-      if luasnip.locally_jumpable(-1) then
-        luasnip.jump(-1)
-      else
-        fallback()
-      end
-    end, { "i", "s" }),
-  },
-  sources = {
-    { name = "nvim_lsp" },
-    { name = "luasnip" },
-  },
 }
 
 -- Set all the overrides and the extensions for the things that are available in native vim
@@ -1205,7 +1097,7 @@ vim.api.nvim_set_keymap("n", "<A-BS>", "db", { noremap = true })
 -- Select whole buffer
 vim.api.nvim_set_keymap("n", "<D-a>", "ggVG", {})
 
--- FIXME Comment out lines
+-- Comment out lines
 vim.api.nvim_set_keymap("n", "<D-/>", "gcc", {})
 vim.api.nvim_set_keymap("v", "<D-/>", "gc", {})
 
@@ -1246,6 +1138,8 @@ vim.api.nvim_set_keymap("t", "<Esc>", "<C-\\><C-n>", { nowait = true })
 
 -- A bunch of useful shortcuts for one-time small actions bound on leader
 vim.api.nvim_set_keymap("n", "<leader>n", "<cmd>nohlsearch<CR>", { silent = true })
+
+vim.api.nvim_set_keymap("n", "<leader><leader>", "<cmd>wqa<cr>", { silent = true })
 
 --  Pull one line down useful rempaps from the numeric line
 vim.keymap.set("n", "<C-t>", "%", { remap = true })

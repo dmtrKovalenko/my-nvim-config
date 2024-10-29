@@ -163,16 +163,6 @@ vim.api.nvim_set_keymap("t", "<D-A-q>", "<Esc><C-w>q", { silent = true })
 vim.api.nvim_set_keymap("t", "<D-A-j>", "<Esc><C-w>j", { silent = true })
 vim.api.nvim_set_keymap("t", "<D-A-k>", "<Esc><C-w>k", { silent = true })
 
-function OpenInNewTabEditor()
-  local target = vim.fn.expand "<cfile>"
-  local current_dir = vim.api.nvim_exec("pwd", true)
-  local command = "kitty @ launch --type=tab --cwd=" .. current_dir .. " fish --command 'nvim" .. " " .. target .. "'"
-
-  vim.fn.system(command)
-end
-
-vim.keymap.set("n", "gf", OpenInNewTabEditor, { silent = true })
-
 function Lightsource_setup()
   vim.opt.titlestring = "⚡︎LightSource"
   vim.cmd "vsplit | terminal fish -C 'just fe-dev'"
