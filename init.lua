@@ -978,9 +978,21 @@ local border = {
 }
 
 local handlers = {
-  ["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, { border = border }),
-  ["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, { border = border }),
+  ["textDocument/hover"] = vim.lsp.with(vim.lsp.handlers.hover, {
+    border = border,
+  }),
+  ["textDocument/signatureHelp"] = vim.lsp.with(vim.lsp.handlers.signature_help, {
+    border = border,
+  }),
 }
+
+-- Your existing floating preview override
+local orig_util_open_floating_preview = vim.lsp.util.open_floating_preview
+function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
+  opts = opts or {}
+  opts.border = opts.border or border
+  return orig_util_open_floating_preview(contents, syntax, opts, ...)
+end
 
 require("typescript-tools").setup {
   on_attach = on_lsp_attach,
@@ -989,11 +1001,6 @@ require("typescript-tools").setup {
 
 vim.g.rustaceanvim = {
   handlers = handlers,
-  tools = {
-    float_win_config = {
-      border = "rounded",
-    },
-  },
   -- LSP configuration
   server = {
     on_attach = on_lsp_attach,
@@ -1138,8 +1145,7 @@ vim.api.nvim_set_keymap("t", "<Esc>", "<C-\\><C-n>", { nowait = true })
 
 -- A bunch of useful shortcuts for one-time small actions bound on leader
 vim.api.nvim_set_keymap("n", "<leader>n", "<cmd>nohlsearch<CR>", { silent = true })
-
-vim.api.nvim_set_keymap("n", "<leader><leader>", "<cmd>wqa<cr>", { silent = true })
+vim.api.nvim_set_keymap("n", "<leader><leader>", "zz", { silent = true })
 
 --  Pull one line down useful rempaps from the numeric line
 vim.keymap.set("n", "<C-t>", "%", { remap = true })
