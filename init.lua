@@ -254,7 +254,7 @@ require("lazy").setup({
       -- See `:help gitsigns.txt`
       signs = {
         add = { text = "┃" },
-        change = { text = "┃" },
+        chage = { text = "┃" },
         delete = { text = "_" },
         topdelete = { text = "‾" },
         changedelete = { text = "~" },
@@ -368,6 +368,27 @@ require("lazy").setup({
           section_separators = "",
         },
         sections = {
+          lualine_a = {
+            {
+              "mode",
+              fmt = function(str)
+                -- Define single-letter mode mappings
+                local mode_map = {
+                  ["NORMAL"] = "NR",
+                  ["INSERT"] = "IN",
+                  ["VISUAL"] = "VV",
+                  ["V-LINE"] = "VL",
+                  ["V-BLOCK"] = "VB",
+                  ["REPLACE"] = "RP",
+                  ["COMMAND"] = "CM",
+                  ["TERMINAL"] = "TR",
+                  ["SELECT"] = "SL",
+                }
+                -- Return the mapped single letter or first letter if not found
+                return mode_map[str] or str:sub(1, 1)
+              end,
+            },
+          },
           lualine_c = {
             function()
               -- invoke `progress` here.
@@ -670,16 +691,19 @@ require("lazy").setup({
     event = "VeryLazy",
     opts = {
       presets = {
-        lsp_doc_border = false,
+        lsp_doc_border = true,
       },
       lsp = {
         progress = {
           enabled = false,
         },
+        hover = {
+          enabled = false,
+        },
         override = {
           ["vim.lsp.util.convert_input_to_markdown_lines"] = true,
           ["vim.lsp.util.stylize_markdown"] = true,
-          ["cmp.entry.get_documentation"] = true, -- requires hrsh7th/nvim-cmp
+          ["cmp.entry.get_documentation"] = true,
         },
       },
       notify = {
@@ -694,9 +718,6 @@ require("lazy").setup({
           opts = { skip = true },
         },
       },
-    },
-    dependencies = {
-      "MunifTanjim/nui.nvim",
     },
   },
 
@@ -1000,7 +1021,6 @@ require("typescript-tools").setup {
 }
 
 vim.g.rustaceanvim = {
-  handlers = handlers,
   -- LSP configuration
   server = {
     on_attach = on_lsp_attach,
@@ -1035,7 +1055,6 @@ mason_lspconfig.setup {
 mason_lspconfig.setup_handlers {
   function(server_name)
     require("lspconfig")[server_name].setup {
-      handlers = handlers,
       capabilities = capabilities,
       on_attach = on_lsp_attach,
       settings = servers[server_name],
