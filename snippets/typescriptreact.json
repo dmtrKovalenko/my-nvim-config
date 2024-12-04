@@ -5,11 +5,31 @@
   },
   "imt": {
     "prefix": "imt",
-    "body": ["import { $2 } from '$1'"]
+    "body": [
+      "import { $2 } from '$1'"
+    ]
   },
   "useState": {
     "prefix": "useState",
-    "body": ["const [$1, set${1/(.*)/${1:/capitalize}/}] = React.useState($2)"]
+    "body": [
+      "const [$1, set${1/(.*)/${1:/capitalize}/}] = React.useState($2)"
+    ]
+  },
+  "useMemo": {
+    "prefix": "useMemo",
+    "body": [
+      "const $1 = React.useMemo(() => {",
+      "  return $2",
+      "}, [$3])"
+    ]
+  },
+  "useEffect": {
+    "prefix": "useEffect",
+    "body": [
+      "React.useEffect(() => {",
+      "  $1",
+      "}, [$2])"
+    ]
   },
   "React component": {
     "prefix": "tsrsfc",
@@ -38,7 +58,7 @@
       "})"
     ]
   },
-  "React-realy ragment componet": {
+  "React-relay fragment componet": {
     "prefix": "tsrsfcrelayfragment",
     "body": [
       "import * as React from 'react';",
@@ -49,7 +69,7 @@
       "  $3$key: ${TM_FILENAME_BASE:Component}Fragment\\$key",
       "}",
       "",
-      "export const ${TM_FILENAME_BASE:Component}: React.FC<${TM_FILENAME_BASE:Component}Props> = ({ $3$key }) => {",
+      "export function ${TM_FILENAME_BASE:Component} ({ $3$key }: ${TM_FILENAME_BASE:Component}Props) {",
       "  const data = useFragment(graphql`",
       "    fragment ${TM_FILENAME_BASE:Component}Fragment on $2 {",
       "      $5",
@@ -62,7 +82,29 @@
       "}"
     ]
   },
-  "Relay mutaion": {
+  "React-relay query componet": {
+    "prefix": "tsrsfcrelayquery",
+    "body": [
+      "import * as React from 'react';",
+      "import { useLazyLoadQuery, graphql } from 'react-relay';",
+      "import { ${TM_FILENAME_BASE:Component}Query\\$key } from 'src/__generated__/${TM_FILENAME_BASE:Component}Query.graphql';",
+      "",
+      "type ${TM_FILENAME_BASE:Component}Props = {}",
+      "",
+      "export function ${TM_FILENAME_BASE:Component} ({ }: ${TM_FILENAME_BASE:Component}Props) {",
+      "  const data = useLazyLoadQuery(graphql`",
+      "    query ${TM_FILENAME_BASE:Component}Query {",
+      "      $1",
+      "    }",
+      "  `, $2)",
+      "  ",
+      "  return (",
+      "   $3",
+      "  )",
+      "}"
+    ]
+  },
+  "Relay mutation": {
     "prefix": "relaymutation",
     "body": [
       "const $1Mutation = graphql`",
