@@ -122,10 +122,6 @@ local function telescope(options)
               },
               ["<C-Down>"] = require("telescope.actions").cycle_history_next,
               ["<C-Up>"] = require("telescope.actions").cycle_history_prev,
-              ["<A-Bs>"] = function()
-                local keys = vim.api.nvim_replace_termcodes("<C-w>", true, false, true)
-                vim.api.nvim_feedkeys(keys, "i", true)
-              end,
             },
           },
         },

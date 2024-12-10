@@ -3,7 +3,8 @@
         "missing-fields",
         "undefined-global",
         "unused-local",
-        "inject-field"
+        "inject-field",
+        "duplicate-set-field"
     ],
     "diagnostics.globals": [
         "setup"

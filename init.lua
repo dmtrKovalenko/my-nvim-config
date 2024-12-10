@@ -42,10 +42,12 @@ vim.o.smartcase = true
 
 -- Keep signcolumn on by default
 vim.wo.signcolumn = "yes"
-
---  Set timeout for key sequences
+-- Set timeout for key sequences
 vim.o.timeout = true
 vim.o.timeoutlen = 250
+
+-- Improve default search behavior
+vim.o.incsearch = true
 
 -- Set the scolloff
 vim.o.scrolloff = 10
@@ -64,16 +66,13 @@ vim.opt.listchars = vim.opt.listchars + "space:·"
 
 -- Do not create swap files as this config autosaving everything on disk
 vim.opt.swapfile = false
-
 -- Set terminal tab title to `filename (cwd)`
 vim.opt.title = true
-
 function GetCurrentIconFile()
   local filename = vim.fn.expand "%:t"
   local icon = require("nvim-web-devicons").get_icon(filename)
   return icon or "✌️"
 end
-
 vim.o.titlestring = '%{fnamemodify(getcwd(), ":t")} %{v:lua.GetCurrentIconFile()} %{expand("%:t")}'
 
 local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
@@ -199,7 +198,7 @@ require("lazy").setup({
     },
     config = function()
       require("gitlinker").setup()
-      vim.api.nvim_set_keymap(
+      vim.keymap.set(
         "n",
         "<leader>gg",
         '<cmd>lua require"gitlinker".get_buf_range_url("n", {action_callback = require"gitlinker.actions".open_in_browser})<cr>',
@@ -246,12 +245,10 @@ require("lazy").setup({
     dependencies = { "nvim-lua/plenary.nvim" },
     opts = {},
   },
-
   {
-    -- Adds git related signs to the gutter, as well as utilities for managing changes
     "lewis6991/gitsigns.nvim",
+    event = "BufRead",
     opts = {
-      -- See `:help gitsigns.txt`
       signs = {
         add = { text = "┃" },
         chage = { text = "┃" },
@@ -268,8 +265,12 @@ require("lazy").setup({
           vim.keymap.set(mode, l, r, opts)
         end
 
-        gsmap("n", "<leader>gp", gitsigns.prev_hunk, { desc = "[G]o to [P]revious Hunk" })
-        gsmap("n", "<leader>gn", gitsigns.next_hunk, { desc = "[G]it go to [N]ext Hunk" })
+        gsmap("n", "[g", function()
+          gitsigns.nav_hunk "prev"
+        end, { desc = "[G]o to [P]revious Hunk" })
+        gsmap("n", "]g", function()
+          gitsigns.nav_hunk "next"
+        end, { desc = "[G]it go to [N]ext Hunk" })
         gsmap("n", "<leader>gd", gitsigns.preview_hunk, { desc = "[G]it [D]iff Hunk" })
         gsmap("n", "<leader>gr", gitsigns.reset_hunk, { desc = "[G]it [R]eset hunk" })
         gsmap("n", "<leader>gu", gitsigns.undo_stage_hunk, { desc = "[G]it [U]nstage hunk" })
@@ -826,6 +827,31 @@ require("lazy").setup({
     dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" }, -- if you prefer nvim-web-devicons
   },
 
+  {
+    "NeogitOrg/neogit",
+    dependencies = {
+      "nvim-lua/plenary.nvim", -- required
+      "sindrets/diffview.nvim", -- optional - Diff integration
+
+      -- Only one of these is needed.
+      "nvim-telescope/telescope.nvim", -- optional
+      "ibhagwan/fzf-lua", -- optional
+      "echasnovski/mini.pick", -- optional
+    },
+    config = true,
+  },
+
+  {
+    "mbbill/undotree",
+    keys = {
+      {
+        mode = "n",
+        "<leader>u",
+        "<cmd>UndotreeToggle<CR>",
+      },
+    },
+  },
+
   -- Follow up with the custom reusable configuration for plugins located in ~/lua folder
   require("telescope-lazy").lazy {},
   require("alpha-lazy").lazy {},
@@ -861,6 +887,7 @@ vim.api.nvim_create_autocmd("TermOpen", {
   pattern = "*",
   callback = function()
     vim.opt_local.wrap = false
+    vim.opt.linebreak = true
   end,
 })
 
@@ -1097,38 +1124,40 @@ vim.keymap.set("v", "<C-k>", "{", { silent = true, remap = true })
 vim.keymap.set({ "n", "v" }, "-", "$", { silent = true })
 
 -- Move lines up and down
-vim.api.nvim_set_keymap("n", "<A-j>", "V:move '>+1<CR>gv", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("x", "<A-j>", "<cmd>move '>+1<CR>gv", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("n", "<A-k>", "V:move '>-2<CR>gv", { noremap = true, silent = true })
-vim.api.nvim_set_keymap("x", "<A-k>", "<cmd>move '<-2<CR>gv", { noremap = true, silent = true })
+-- Normal mode
+vim.keymap.set("n", "<A-j>", ":m .+1<CR>==", { noremap = true, silent = true })
+vim.keymap.set("n", "<A-k>", ":m .-2<CR>==", { noremap = true, silent = true })
+-- Visual mode
+vim.keymap.set("x", "<A-j>", ":move '>+1<CR>gv=gv", { noremap = true, silent = true })
+vim.keymap.set("x", "<A-k>", ":move '<-2<CR>gv=gv", { noremap = true, silent = true })
 
 -- Make backspace work as black hole cut
-vim.api.nvim_set_keymap("n", "<backspace>", '"_dh', { noremap = true })
-vim.api.nvim_set_keymap("v", "<backspace>", '"_d', { noremap = true })
+vim.keymap.set("n", "<backspace>", '"_dh', { noremap = true })
+vim.keymap.set("v", "<backspace>", '"_d', { noremap = true })
 
 -- Write file on cmd+s
-vim.api.nvim_set_keymap("n", "<D-s>", "w<CR>", { silent = true })
+vim.keymap.set("n", "<D-s>", "w<CR>", { silent = true })
 -- Open git
-vim.api.nvim_set_keymap("n", "<A-g>", "<cmd>Git<CR>", { silent = true })
-vim.api.nvim_set_keymap("n", "<D-S-g>", "<cmd>Git<CR>", { silent = true })
+vim.keymap.set("n", "<A-g>", "<cmd>Git<CR>", { silent = true })
+vim.keymap.set("n", "<D-S-g>", "<cmd>Git<CR>", { silent = true })
 
 -- Move to next occurrence using native search
-vim.api.nvim_set_keymap("n", "<D-n>", "*", { silent = true })
-vim.api.nvim_set_keymap("n", "<D-S-n>", "#", { silent = true })
+vim.keymap.set("n", "<D-n>", "*", { silent = true })
+vim.keymap.set("n", "<D-S-n>", "#", { silent = true })
 
 -- Delete a word by alt+backspace
-vim.api.nvim_set_keymap("i", "<A-BS>", "<C-w>", { noremap = true })
-vim.api.nvim_set_keymap("n", "<A-BS>", "db", { noremap = true })
+vim.keymap.set({ "i", "c" }, "<A-BS>", "<C-w>", { noremap = true })
+vim.keymap.set("n", "<A-BS>", "db", { noremap = true })
 
 -- Select whole buffer
-vim.api.nvim_set_keymap("n", "<D-a>", "ggVG", {})
+vim.keymap.set("n", "<D-a>", "ggVG", {})
 
 -- Comment out lines
-vim.api.nvim_set_keymap("n", "<D-/>", "gcc", {})
-vim.api.nvim_set_keymap("v", "<D-/>", "gc", {})
+vim.keymap.set("n", "<D-/>", "gcc", {})
+vim.keymap.set("v", "<D-/>", "gc", {})
 
 -- Clear line with cd
-vim.api.nvim_set_keymap("n", "cd", "0D", {})
+vim.keymap.set("n", "cd", "0D", {})
 
 -- Switch between buffers
 vim.keymap.set("n", "H", "<cmd>bprevious<CR>", { silent = true })
@@ -1138,19 +1167,23 @@ vim.keymap.set({ "n", "v" }, "<C-h>", "b", { silent = true })
 vim.keymap.set({ "n", "v" }, "<C-l>", "w", { silent = true })
 
 -- Duplicate lines
-vim.api.nvim_set_keymap("v", "<D-C-Up>", "y`>p`<", { silent = true })
-vim.api.nvim_set_keymap("n", "<D-C-Up>", "Vy`>p`<", { silent = true })
-vim.api.nvim_set_keymap("v", "<D-C-Down>", "y`<kp`>", { silent = true })
-vim.api.nvim_set_keymap("n", "<D-C-Down>", "Vy`<p`>", { silent = true })
+vim.keymap.set("v", "<D-C-Up>", "y`>p`<", { silent = true })
+vim.keymap.set("n", "<D-C-Up>", "Vy`>p`<", { silent = true })
+vim.keymap.set("v", "<D-C-Down>", "y`<kp`>", { silent = true })
+vim.keymap.set("n", "<D-C-Down>", "Vy`<p`>", { silent = true })
 
 -- Map default <C-w> to the cmd+alt
-vim.api.nvim_set_keymap("n", "<D-A-v>", "<C-w>v<C-w>w", { silent = true })
-vim.api.nvim_set_keymap("n", "<D-A-s>", "<C-w>s<C-w>j", { silent = true })
-vim.api.nvim_set_keymap("n", "<D-A-l>", "<C-w>l", { silent = true })
-vim.api.nvim_set_keymap("n", "<D-A-h>", "<C-w>h", { silent = true })
-vim.api.nvim_set_keymap("n", "<D-A-q>", "<C-w>q", { silent = true })
-vim.api.nvim_set_keymap("n", "<D-A-j>", "<C-w>j", { silent = true })
-vim.api.nvim_set_keymap("n", "<D-A-k>", "<C-w>k", { silent = true })
+vim.keymap.set("n", "<D-A-v>", "<C-w>v<C-w>w", { silent = true })
+vim.keymap.set("n", "<D-A-s>", "<C-w>s<C-w>j", { silent = true })
+vim.keymap.set("n", "<D-A-l>", "<C-w>l", { silent = true })
+vim.keymap.set("n", "<D-A-h>", "<C-w>h", { silent = true })
+vim.keymap.set("n", "<D-A-q>", "<C-w>q", { silent = true })
+vim.keymap.set("n", "<D-A-j>", "<C-w>j", { silent = true })
+vim.keymap.set("n", "<D-A-k>", "<C-w>k", { silent = true })
+
+vim.keymap.set("n", "J", "mzJ`z")
+vim.keymap.set("n", "<C-d>", "<C-d>zz")
+vim.keymap.set("n", "<C-u>", "<C-u>zz")
 
 vim.keymap.set({ "n" }, "<D-s>", "<cmd>w<CR>", { silent = true, desc = "Save file" })
 
@@ -1160,11 +1193,18 @@ vim.keymap.set("x", "p", "P", {})
 vim.keymap.set("x", "P", "p", {})
 
 -- Exit terminal mode with Esc
-vim.api.nvim_set_keymap("t", "<Esc>", "<C-\\><C-n>", { nowait = true })
+vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", { nowait = true })
 
 -- A bunch of useful shortcuts for one-time small actions bound on leader
-vim.api.nvim_set_keymap("n", "<leader>n", "<cmd>nohlsearch<CR>", { silent = true })
-vim.api.nvim_set_keymap("n", "<leader><leader>", "zz", { silent = true })
+vim.keymap.set("n", "<leader>n", "<cmd>nohlsearch<CR>", { silent = true })
+vim.keymap.set("n", "<leader><leader>", "zz", { silent = true })
+vim.keymap.set("n", "<A-s>", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
+vim.keymap.set("v", "<A-s>", [[y:%s/<C-r>"/<C-r>"/gI<Left><Left><Left>]])
+
+-- A bunch of remaps for the command lilne mode
+vim.keymap.set({ "c", "i" }, "<C-a>", "<Home>", { silent = true })
+vim.keymap.set({ "c", "i" }, "<C-e>", "<End>", { silent = true })
+vim.keymap.set({ "c", "i" }, "<A-Bs>", "<C-w>", { noremap = true })
 
 --  Pull one line down useful rempaps from the numeric line
 vim.keymap.set("n", "<C-t>", "%", { remap = true })
