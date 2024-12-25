@@ -30,32 +30,7 @@ return {
       "rescript",
     },
   } },
-  {
-    "stevearc/oil.nvim",
-    lazy = true,
-    cmd = "Oil",
-    keys = {
-      { "<D-o>", "<cmd>Oil<CR>", silent = true, desc = "Open Oil" },
-    },
-    opts = {
-      keymaps = {
-        ["<D-i>"] = "actions.select",
-        ["yp"] = {
-          desc = "Copy filepath to system clipboard",
-          callback = function()
-            require("oil.actions").copy_entry_path.callback()
-            vim.fn.setreg("+", vim.fn.getreg(vim.v.register))
-            vim.notify("Copied full path", "info", { title = "Oil" })
-          end,
-        },
-      },
-      default_file_explorer = false,
-      delete_to_trash = true,
-      lsp_file_methods = {
-        autosave_changes = true,
-      },
-    },
-  },
+
   -- Detect tabstop and shiftwidth automatically
   "tpope/vim-sleuth",
   -- Camel case motion plugin
@@ -126,26 +101,7 @@ return {
       end, {})
     end,
   },
-  -- NOTE: This is here your plugins related to LSP can be installed.
-  --  The configuration is done below. Search for lspconfig to find it below.
-  {
-    -- LSP Configuration & Plugins
-    "neovim/nvim-lspconfig",
-    dependencies = {
-      -- Automatically install LSPs to stdpath for neovim
-      { "williamboman/mason.nvim", config = true },
-      "williamboman/mason-lspconfig.nvim",
-      -- Additional lua configuration, makes nvim stuff amazing!
-      "folke/neodev.nvim",
-      "ocaml-mlx/ocaml_mlx.nvim",
-    },
-  },
 
-  {
-    "pmizio/typescript-tools.nvim",
-    dependencies = { "nvim-lua/plenary.nvim" },
-    opts = {},
-  },
   {
     "lewis6991/gitsigns.nvim",
     event = "BufRead",

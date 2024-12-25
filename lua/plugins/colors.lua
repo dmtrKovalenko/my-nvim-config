@@ -70,6 +70,9 @@ return {
     priority = 1000,
     opts = {
       borderless_telescope = false,
+      theme = {
+        saturation = 0.93,
+      },
     },
     init = function()
       vim.cmd "colorscheme cyberdream"

@@ -58,6 +58,7 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 require("lazy").setup {
+  "nvim-tree/nvim-web-devicons",
   {
     "projekt0n/github-nvim-theme",
     lazy = false, -- make sure we load this during startup if it is your main colorscheme
@@ -98,16 +99,9 @@ require("lazy").setup {
       }
     end,
   },
-  {
-    "stevearc/oil.nvim",
-    opts = {
-      default_file_explorer = false,
-      delete_to_trash = true,
-    },
-  },
-
-  require("hop-lazy").lazy {},
-  require("telescope-lazy").lazy { onlyLocalSearch = true },
+  require "plugins/oil",
+  require "plugins/hop",
+  require "plugins/telescope",
 }
 
 -- Keymaps for better default experience
@@ -164,7 +158,7 @@ vim.api.nvim_set_keymap("t", "<D-A-j>", "<Esc><C-w>j", { silent = true })
 vim.api.nvim_set_keymap("t", "<D-A-k>", "<Esc><C-w>k", { silent = true })
 
 function Lightsource_setup()
-  vim.opt.titlestring = "⚡︎LightSource"
+  vim.opt.titlestring = "󱐋 LightSource"
   vim.cmd "vsplit | terminal fish -C 'just fe-dev'"
   vim.cmd "28 split | terminal fish -C 'btop --preset 2'"
   vim.cmd "wincmd h"
