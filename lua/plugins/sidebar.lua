@@ -66,6 +66,9 @@ return {
           open_no_results = true,
           pinned = true,
           multiline = false,
+          highlights = {
+            normal = { guibg = "none", ctermbg = "none" },
+          },
         }, -- for default options, refer to the configuration section for custom setup.
         init = function()
           vim.api.nvim_create_autocmd("BufReadPost", {
@@ -83,8 +86,14 @@ return {
           size = 35,
         },
       },
+      animate = {
+        enabled = false,
+      },
       exit_when_last = false,
       close_when_all_hidden = false,
+      wo = {
+        winhighlight = "Normal:Normal",
+      },
       left = {
         {
           ft = "trouble",

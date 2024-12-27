@@ -9,7 +9,7 @@ vim.o.scrollback = 100000
 vim.g.kitty_fast_forwarded_modifiers = "super"
 
 vim.o.mouse = "a"
-
+vim.opt.termguicolors = true
 -- Sync clipboard between OS and Neovim.
 --  Remove this option if you want your OS clipboard to remain independent.
 --  See `:help 'clipboard'`
@@ -101,16 +101,7 @@ require("lazy").setup {
   },
   require "plugins/oil",
   require "plugins/hop",
-  require "plugins/telescope",
 }
-
--- Keymaps for better default experience
--- See `:help vim.keymap.set()`
-vim.keymap.set({ "n", "v" }, "<Space>", "<Nop>", { silent = true })
-
--- Remap for dealing with word wrap
-vim.keymap.set("n", "k", "v:count == 0 ? 'gk' : 'k'", { expr = true, silent = true })
-vim.keymap.set("n", "j", "v:count == 0 ? 'gj' : 'j'", { expr = true, silent = true })
 
 -- [[ Highlight on yank ]]
 -- See `:help vim.highlight.on_yank()`
@@ -123,39 +114,18 @@ vim.api.nvim_create_autocmd("TextYankPost", {
   pattern = "*",
 })
 
-vim.opt.termguicolors = true
+require "keymap"
 
 vim.api.nvim_set_keymap("n", "<C-j>", "10j", { silent = true })
 vim.api.nvim_set_keymap("v", "<C-j>", "10j", { silent = true })
-
 vim.api.nvim_set_keymap("n", "<C-k>", "10k", { silent = true })
 vim.api.nvim_set_keymap("v", "<C-k>", "10k", { silent = true })
-
--- Exit terminal mode with Esc
-vim.api.nvim_set_keymap("t", "<Esc>", "<C-\\><C-n>", { nowait = true })
--- Close inner command with Ctrl-C i normal mode
-vim.api.nvim_set_keymap("n", "<C-c>", "i<C-c>", {})
 
 -- Rebinds the splits to immediately open the the new terminal on the right/bottom.
 vim.api.nvim_set_keymap("n", "<C-w>v", "<cmd>vsplit<CR><C-w>w:terminal<CR>", { silent = true })
 vim.keymap.set({ "n", "t" }, "<A-D-v>", "<C-\\><C-n>:vsplit<CR><C-w>w:terminal<CR>", { silent = true })
-
 vim.api.nvim_set_keymap("n", "<C-w>s", "<cmd>split<CR><C-w>w:terminal<CR>", { silent = true })
 vim.keymap.set({ "n", "t" }, "<A-D-s>", "<C-\\><C-n>:split<CR><C-w>w:terminal<CR>", { silent = true })
-
-vim.api.nvim_set_keymap("n", "<D-A-l>", "<C-w>l", { silent = true })
-vim.api.nvim_set_keymap("n", "<D-A-h>", "<C-w>h", { silent = true })
-vim.api.nvim_set_keymap("n", "<D-A-q>", "<C-w>q", { silent = true })
-vim.api.nvim_set_keymap("n", "<D-A-j>", "<C-w>j", { silent = true })
-vim.api.nvim_set_keymap("n", "<D-A-k>", "<C-w>k", { silent = true })
-vim.api.nvim_set_keymap("n", "<D-A-.>", "<C-w>>", { silent = true })
-vim.api.nvim_set_keymap("n", "<D-A-,>", "<C-w><", { silent = true })
-
-vim.api.nvim_set_keymap("t", "<D-A-l>", "<Esc><C-w>l", { silent = true })
-vim.api.nvim_set_keymap("t", "<D-A-h>", "<Esc><C-w>h", { silent = true })
-vim.api.nvim_set_keymap("t", "<D-A-q>", "<Esc><C-w>q", { silent = true })
-vim.api.nvim_set_keymap("t", "<D-A-j>", "<Esc><C-w>j", { silent = true })
-vim.api.nvim_set_keymap("t", "<D-A-k>", "<Esc><C-w>k", { silent = true })
 
 function Lightsource_setup()
   vim.opt.titlestring = "󱐋 LightSource"

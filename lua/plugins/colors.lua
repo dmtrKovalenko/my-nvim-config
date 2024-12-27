@@ -71,12 +71,12 @@ return {
     opts = {
       borderless_telescope = false,
       theme = {
-        saturation = 0.93,
+        saturation = 0.95,
       },
     },
     init = function()
       vim.cmd "colorscheme cyberdream"
-      vim.api.nvim_set_hl(0, "Whitespace", { fg = "#444444" })
+      vim.api.nvim_set_hl(0, "Whitespace", { fg = "#3c4048" })
     end,
   },
 }
