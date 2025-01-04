@@ -48,6 +48,7 @@ local function setup_default_configurations()
   dap.configurations.c = lldb_configuration
   dap.configurations.cpp = lldb_configuration
   dap.configurations.rust = lldb_configuration
+  dap.configurations.asm = lldb_configuration
 end
 
 return {
@@ -111,6 +112,7 @@ return {
     }
 
     vim.keymap.set("n", "<F5>", function()
+      setup_default_configurations()
       -- when debug is called firstly try to read and/or update launch.json configuration
       -- from the local project which will override all the default configurations
       if vim.fn.filereadable ".vscode/launch.json" then

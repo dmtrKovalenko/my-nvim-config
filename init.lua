@@ -150,8 +150,8 @@ end
 vim.keymap.set("n", "gf", open_file_under_cursor_in_the_panel_above, { silent = true })
 
 -- Set of commands that should be executed on startup
-vim.cmd [[command! -nargs=1 Browse silent lua vim.fn.system('open ' .. vim.fn.shellescape(<q-args>, 1))]]
+vim.cmd [[command! -nargs=1 Browse silent lua vim.fn.system('open ' .. vim.fn.s3c4048hellescape(<q-args>, 1))]]
 vim.cmd [[highlight DiagnosticUnderlineError cterm=undercurl gui=undercurl guisp=#f87171]]
 
-require("keymap")
+require "keymap"
 require("refactoring-macro").setupMacro()

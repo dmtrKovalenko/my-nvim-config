@@ -1,0 +1,37 @@
+{
+  "print": {
+    "prefix": "print",
+    "body": [
+      "sub sp, sp, #16",
+      "str x0, [sp]",
+      "adrp x0, $1@PAGE",
+      "add x0, x0, $1@PAGEOFF",
+      "bl _printf",
+      "add sp, sp, #16"
+    ]
+  },
+  "const string": {
+    "prefix": "constring",
+    "body": ["adrp x$2, $1@PAGE", "add x$2, x$2, $1@PAGEOFF"]
+  },
+  "Relay mutaion": {
+    "prefix": "relaymutation",
+    "body": [
+      "const $1Mutation = graphql`",
+      "  mutation ${TM_FILENAME_BASE:file_name}${2:$1}Mutation(",
+      "    \\$input: ${2:$1}Input!",
+      "  ) {",
+      "    $1(input: \\$input) {",
+      "      id",
+      "    }",
+      "  }",
+      "`;",
+      "",
+      "export const use${2:$1}Mutation = () =>",
+      "  useMutation<${TM_FILENAME_BASE:Component}${2:$1}Mutation>(",
+      "    $1Mutation",
+      "  );",
+      ""
+    ]
+  }
+}

@@ -1,4 +1,4 @@
-local theme = "cyberdream"
+local theme = "tokyonight"
 
 function GetGooseLuaLineTheme()
   if theme == "catppuccin" then
@@ -64,6 +64,19 @@ return {
     opts = {},
   },
   {
+    "folke/tokyonight.nvim",
+    lazy = false,
+    priority = 1000,
+    enabled = theme == "tokyonight",
+    opts = {
+      transparent = true,
+      sidebars = "transparent",
+    },
+    init = function()
+      vim.cmd "colorscheme tokyonight"
+    end,
+  },
+  {
     "scottmckendry/cyberdream.nvim",
     enabled = theme == "cyberdream",
     lazy = false,
@@ -76,7 +89,13 @@ return {
     },
     init = function()
       vim.cmd "colorscheme cyberdream"
-      vim.api.nvim_set_hl(0, "Whitespace", { fg = "#3c4048" })
+      vim.api.nvim_set_hl(0, "TroubleNormal", { bg = "none", ctermbg = "none" })
+      vim.api.nvim_set_hl(0, "TroubleNormalNC", { bg = "none", ctermbg = "none" })
+      vim.api.nvim_set_hl(0, "WinSeparator", { fg = "#3c4048", bg = "none" })
+      vim.api.nvim_set_hl(0, "IndentBlanklineChar", { fg = "#7b8496" })
+      vim.api.nvim_set_hl(0, "TreesitterContext", { bg = "#232429" })
+      vim.api.nvim_set_hl(0, "TreesitterContextLineNumber", { bg = "#232429" })
+      vim.api.nvim_set_hl(0, "TreesitterContextBottom", { bg = "#232429", underline = true })
     end,
   },
 }

@@ -11,6 +11,7 @@ return {
   -- Turn off some of the feature on big buffers
   "LunarVim/bigfile.nvim",
   "gpanders/editorconfig.nvim",
+  "HealsCodes/vim-gas",
   {
     -- A better code actions menu
     "weilbith/nvim-code-action-menu",
@@ -208,7 +209,7 @@ return {
           },
           lualine_x = { "filetype" },
           lualine_y = {},
-          lualine_z = { { "os.date('󱑈 %H:%M')", color = { fg = "#363a4f", gui = "bold" } } },
+          lualine_z = { { "os.date('󰅐 %H:%M')" } },
         },
       }
     end,
@@ -220,14 +221,20 @@ return {
     main = "ibl",
     opts = {
       indent = {
+        highlight = {
+          "WhiteSpace",
+        },
         char = "┊",
       },
       scope = {
         show_start = false,
         show_end = false,
+        char = "│",
+        highlight = {
+          "IndentBlanklineChar",
+        },
       },
     },
-    -- cond = function() return false end
   },
 
   -- Surround text objects with quotes, brackets, etc
@@ -318,7 +325,7 @@ return {
       {
         "nvim-treesitter/nvim-treesitter-context",
         opts = {
-          max_lines = IS_STREAMING and 1 or 3,
+          max_lines = 1,
         },
       },
     },
@@ -543,15 +550,15 @@ return {
           c = { "clang-format" },
           cpp = { "clang-format" },
           python = { "isort", "black" },
-          javascript = { "prettier" },
-          markdown = { "prettier" },
-          typescript = { "prettier" },
-          typescriptreact = { "prettier" },
-          css = { "prettier" },
+          javascript = { "prettierd", "prettier", stop_after_first = true },
+          markdown = { "prettierd", "prettier", stop_after_first = true },
+          typescript = { "prettierd", "prettier", stop_after_first = true },
+          typescriptreact = { "prettierd", "prettier", stop_after_first = true },
+          css = { "prettierd", "prettier", stop_after_first = true },
           svg = { "xmlformat" },
-          json = { "prettier" },
-          yaml = { "prettier" },
-          graphql = { "prettier" },
+          json = { "prettierd", "prettier", stop_after_first = true },
+          yaml = { "prettierd", "prettier", stop_after_first = true },
+          graphql = { "prettierd", "prettier", stop_after_first = true },
           rescript = { "rescript-format" },
           ocaml = { "ocamlformat" },
           sql = { "pg_format" },

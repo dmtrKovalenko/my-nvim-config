@@ -55,7 +55,7 @@ return {
 
     dashboard.section.buttons.val = {
       dashboard.button("l", "󱐋 LightSource", "<cmd>e ~/dev/lightsource<CR>:SessionRestore<CR>"),
-      dashboard.button("f", " FFrames", "<cmd>e ~/dev/fframes<CR>:SessionRestore<CR>"),
+      dashboard.button("f", "󱔮 FFrames", "<cmd>e ~/dev/fframes<CR>:SessionRestore<CR>"),
       dashboard.button(
         "--------------------------------------------------",
         " ",
