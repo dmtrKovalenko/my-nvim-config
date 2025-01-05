@@ -1,4 +1,4 @@
-local theme = "tokyonight"
+local theme = "cyberdream"
 
 function GetGooseLuaLineTheme()
   if theme == "catppuccin" then
