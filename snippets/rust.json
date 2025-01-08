@@ -1,14 +1,4 @@
 {
-  "tonicmethod": {
-    "prefix": "tonicmethod",
-    "body": [
-      "async fn $1 (&self, request: Request<proto::$2Request>) -> GrpcResult<Response<proto::$2Response>> {",
-      "    let proto::$2Request {$3} = request.into_inner();",
-      "    ",
-      "    Ok(Response::new(proto::$2Response {}))",
-      "}"
-    ]
-  },
   "Derive debug": {
     "prefix": "drdb",
     "body": [
@@ -21,10 +11,26 @@
       "#[derive(Debug, Clone$1)]"
     ]
   },
-  "Collect": {
-    "prefix": "col",
+  "Collect to Vec": {
+    "prefix": ".colv",
     "body": [
-      ".collect::<$1<_>>();"
+      ".collect::<Vec<_>>()$2"
+    ]
+  },
+  "Collect to Hashmap": {
+    "prefix": ".colh",
+    "body": [
+      ".collect::<HashMap<_>>()$2"
+    ]
+  },
+  "tonicmethod": {
+    "prefix": "tonicmethod",
+    "body": [
+      "async fn $1 (&self, request: Request<proto::$2Request>) -> GrpcResult<Response<proto::$2Response>> {",
+      "    let proto::$2Request {$3} = request.into_inner();",
+      "    ",
+      "    Ok(Response::new(proto::$2Response {}))",
+      "}"
     ]
   },
   "Juniper mutation": {

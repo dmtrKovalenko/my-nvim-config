@@ -80,7 +80,7 @@ return {
     "scottmckendry/cyberdream.nvim",
     enabled = theme == "cyberdream",
     lazy = false,
-    priority = 1000,
+    priority = 1000000,
     opts = {
       borderless_telescope = false,
       theme = {
@@ -89,6 +89,8 @@ return {
     },
     init = function()
       vim.cmd "colorscheme cyberdream"
+      vim.api.nvim_set_hl(0, "TroubleNormal", { bg = "none", ctermbg = "none" })
+      vim.api.nvim_set_hl(0, "TroubleNormalNC", { bg = "none", ctermbg = "none" })
       vim.api.nvim_set_hl(0, "TroubleNormal", { bg = "none", ctermbg = "none" })
       vim.api.nvim_set_hl(0, "TroubleNormalNC", { bg = "none", ctermbg = "none" })
       vim.api.nvim_set_hl(0, "WinSeparator", { fg = "#3c4048", bg = "none" })

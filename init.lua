@@ -154,4 +154,4 @@ vim.cmd [[command! -nargs=1 Browse silent lua vim.fn.system('open ' .. vim.fn.s3
 vim.cmd [[highlight DiagnosticUnderlineError cterm=undercurl gui=undercurl guisp=#f87171]]
 
 require "keymap"
-require("refactoring-macro").setupMacro()
+require("language-specific-macro").setupMacro()
