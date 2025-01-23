@@ -49,7 +49,7 @@ vim.o.incsearch = true
 
 -- Set the scolloff
 vim.o.scrolloff = 10
--- Highlight current line as cursor
+-- No highlight current line as cursor
 vim.o.cursorline = true
 
 -- Set completeopt to have a better completion experience

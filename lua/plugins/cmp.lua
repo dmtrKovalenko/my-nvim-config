@@ -41,7 +41,7 @@ return {
         { name = "nvim_lua" },
         { name = "nvim_lsp" },
         { name = "path" },
-        { name = "buffer", keyword_length = 5 },
+        { name = "buffer" },
       },
       preselect = cmp.PreselectMode.None,
       sorting = {

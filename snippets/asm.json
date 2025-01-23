@@ -1,6 +1,38 @@
 {
+  "stack_array": {
+    "prefix": "stackarray",
+    "body": [
+      "sub sp, sp, #($1 * 16)",
+      "mov x$2, sp"
+    ]
+  },
+  "function": {
+    "prefix": "func",
+    "body": [
+      ".global _$1",
+      ".p2align 2",
+      "_$1:",
+      "    stp x29, x30, [sp, #-16]!",
+      "    mov x29, sp",
+      "    $2",
+      "    ldp x29, x30, [sp], #16",
+      "    ret"
+    ]
+  },
+  "reg_save": {
+    "prefix": "stores register on stack",
+    "body": [
+      "str x$1, [sp, #-16]!"
+    ]
+  },
+  "reg_rerstore": {
+    "prefix": "restores register on stack",
+    "body": [
+      "ldr x$1, [sp], #16"
+    ]
+  },
   "print": {
-    "prefix": "print",
+    "prefix": "printf",
     "body": [
       "sub sp, sp, #16",
       "str x0, [sp]",
@@ -12,26 +44,9 @@
   },
   "const string": {
     "prefix": "constring",
-    "body": ["adrp x$2, $1@PAGE", "add x$2, x$2, $1@PAGEOFF"]
-  },
-  "Relay mutaion": {
-    "prefix": "relaymutation",
     "body": [
-      "const $1Mutation = graphql`",
-      "  mutation ${TM_FILENAME_BASE:file_name}${2:$1}Mutation(",
-      "    \\$input: ${2:$1}Input!",
-      "  ) {",
-      "    $1(input: \\$input) {",
-      "      id",
-      "    }",
-      "  }",
-      "`;",
-      "",
-      "export const use${2:$1}Mutation = () =>",
-      "  useMutation<${TM_FILENAME_BASE:Component}${2:$1}Mutation>(",
-      "    $1Mutation",
-      "  );",
-      ""
+      "adrp x$2, $1@PAGE",
+      "add x$2, x$2, $1@PAGEOFF"
     ]
   }
 }

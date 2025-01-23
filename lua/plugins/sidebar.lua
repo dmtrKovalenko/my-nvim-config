@@ -62,7 +62,7 @@ return {
         opts = {
           restore = false,
           auto_close = false,
-          auto_preview = false,
+          auto_preview = true,
           open_no_results = true,
           pinned = true,
           multiline = false,
@@ -93,6 +93,7 @@ return {
       close_when_all_hidden = false,
       wo = {
         winhighlight = "",
+        winbar = false
       },
       left = {
         {

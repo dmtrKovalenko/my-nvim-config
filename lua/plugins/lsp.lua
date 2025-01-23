@@ -35,7 +35,6 @@ return {
 
       lsp_map("<D-r>", require("renamer").rename, "[R]e[n]ame")
 
-      lsp_map("gd", vim.lsp.buf.definition, "[G]oto [D]efinition")
       lsp_map("gD", vim.lsp.buf.definition, "[G]oto [D]eclaration")
       lsp_map("gi", vim.lsp.buf.implementation, "[G]oto [I]mplementation")
       lsp_map("gr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
@@ -86,18 +85,6 @@ return {
       typos_lsp = {
         single_file_support = false,
         init_options = { diagnosticSeverity = "WARN" },
-      },
-      grammarly = {
-        -- Grammarly language server requires node js 16.4 ¯\_(ツ)_/¯
-        -- https://github.com/neovim/nvim-lspconfig/issues/2007
-        cmd = {
-          "n",
-          "run",
-          "16.4",
-          "/Users/dmtrkovalenko/.local/share/nvim/mason/bin/grammarly-languageserver",
-          "--stdio",
-        },
-        filetypes = { "markdown", "text", "hgcommit", "gitcommit" },
       },
       bashls = {
         settings = {
@@ -169,6 +156,9 @@ return {
         default_settings = {
           -- rust-analyzer language server configuration
           ["rust-analyzer"] = {
+            cargo = {
+              features = "all",
+            },
             check = {
               allTargets = false,
             },

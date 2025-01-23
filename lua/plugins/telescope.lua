@@ -109,7 +109,7 @@ return {
       defaults = {
         mappings = {
           i = {
-            ["<D-'>"] = require("telescope-live-grep-args.actions").quote_prompt(),
+            ["<S-D-'>"] = require("telescope-live-grep-args.actions").quote_prompt(),
             ["<D-i>"] = require("telescope-live-grep-args.actions").quote_prompt {
               postfix = " --iglob ",
             },

@@ -19,6 +19,14 @@
           "rust"
         ],
         "path": "./rust.json"
+      },
+      {
+        "language": [
+          "rust",
+          "c",
+          "asm"
+        ], 
+        "path": "./asm.json"
       }
     ]
   }

@@ -35,13 +35,46 @@ return {
   -- Detect tabstop and shiftwidth automatically
   "tpope/vim-sleuth",
   -- Camel case motion plugin
+  -- {
+  --   "bkad/CamelCaseMotion",
+  --   event = "VeryLazy",
+  --   init = function()
+  --     vim.g.camelcasemotion_key = "q"
+  --   end,
+  -- },
   {
-    "bkad/CamelCaseMotion",
-    event = "VeryLazy",
-    init = function()
-      vim.g.camelcasemotion_key = "q"
+    "chrisgrieser/nvim-spider",
+    keys = {
+      { "qw", "<cmd>lua require('spider').motion('w')<CR>", mode = { "n", "o", "x" } },
+      { "qe", "<cmd>lua require('spider').motion('e')<CR>", mode = { "n", "o", "x" } },
+      { "qb", "<cmd>lua require('spider').motion('b')<CR>", mode = { "n", "o", "x" } },
+    },
+    opts = {
+      skipInsignificantPunctuation = true,
+      subwordMovement = true,
+    },
+  },
+
+  {
+    "chrisgrieser/nvim-various-textobjs",
+    config = function()
+      require("various-textobjs").setup {
+        keymaps = {
+          -- Disable all default mappings
+          useDefaults = false,
+        },
+      }
+
+      -- Custom keymappings for subword text objects
+      vim.keymap.set({ "o", "x" }, "iqw", function()
+        require("various-textobjs").subword "inner"
+      end)
+      vim.keymap.set({ "o", "x" }, "aqw", function()
+        require("various-textobjs").subword "outer"
+      end)
     end,
   },
+
   -- Allows correctly opening and closing nested nvims in the terminal
   {
     "samjwill/nvim-unception",
@@ -647,7 +680,6 @@ return {
     opts = {},
     dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" }, -- if you prefer nvim-web-devicons
   },
-
   {
     "mbbill/undotree",
     keys = {
@@ -655,6 +687,16 @@ return {
         mode = "n",
         "<leader>u",
         "<cmd>UndotreeToggle<CR>",
+      },
+    },
+    {
+      "mistricky/codesnap.nvim",
+      build = "make build_generator",
+      command = "CodeSnap",
+      opts = {
+        save_path = "~/Pictures",
+        has_breadcrumbs = true,
+        bg_theme = "bamboo",
       },
     },
   },

@@ -86,6 +86,8 @@ vim.keymap.set("x", "P", "p", {})
 
 -- Exit terminal mode with Esc
 vim.keymap.set("t", "<Esc>", "<C-\\><C-n>", { nowait = true })
+-- Exit insert mode with jj when using normal keyboard
+vim.keymap.set("i", "jj", "<Esc>", { nowait = true })
 
 -- A bunch of useful shortcuts for one-time small actions bound on leader
 vim.keymap.set("n", "<leader>n", "<cmd>nohlsearch<CR>", { silent = true })
@@ -103,10 +105,33 @@ vim.keymap.set({ "c", "i" }, "<A-Bs>", "<C-w>", { noremap = true })
 
 --  Pull one line down useful rempaps from the numeric line
 vim.keymap.set("n", "<C-t>", "%", { remap = true })
--- Simulate netrw gx without netrw
---
+
 -- Map 'gx' to open the file or URL under cursor
 vim.keymap.set("n", "gx", function()
   local target = vim.fn.expand "<cfile>"
   vim.fn.system(string.format("open '%s'", target))
 end, { silent = false })
+
+vim.keymap.set("n", "gd", function()
+  local status, err = pcall(function()
+    local word = vim.fn.expand "<cword>"
+    local search_pattern = "\\<" .. word .. "\\>:"
+
+    if vim.fn.searchpos(search_pattern, "n")[1] ~= 0 then
+      vim.fn.setreg("/", search_pattern)
+      vim.cmd "normal! n"
+      vim.cmd "normal! zz"
+    elseif vim.fn.searchpos("\\<" .. word .. "\\>", "n")[1] ~= 0 then
+      local basic_pattern = "\\<" .. word .. "\\>"
+      vim.fn.setreg("/", basic_pattern)
+      vim.cmd "normal! n"
+      vim.cmd "normal! zz"
+    else
+      vim.notify(string.format("Pattern '%s' not found", word), "warn", { title = "Search failed" })
+    end
+  end)
+
+  if not status then
+    vim.api.nvim_echo({ { string.format("Search failed: %s", err), "ErrorMsg" } }, false, {})
+  end
+end, { remap = true, desc = "Naive file local jump to definition attempt" })
