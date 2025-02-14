@@ -96,7 +96,7 @@ return {
       })
     end, { desc = "] Fuzzily search in current buffer" })
 
-    vim.keymap.set("n", "<leader>:", require("telescope.builtin").commands, { desc = "Search commands" })
+    vim.keymap.set("n", "<D-s-;>", require("telescope.builtin").commands, { desc = "Search commands" })
     vim.keymap.set("n", "<leader>sh", require("telescope.builtin").help_tags, { desc = "Search help" })
 
     require("telescope").setup {

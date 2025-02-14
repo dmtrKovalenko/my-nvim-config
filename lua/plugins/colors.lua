@@ -82,10 +82,9 @@ return {
     lazy = false,
     priority = 1000000,
     opts = {
-      borderless_telescope = false,
-      theme = {
-        saturation = 0.95,
-      },
+      borderless_pickers = false,
+      saturation = 0.95,
+      cache = true,
     },
     init = function()
       vim.cmd "colorscheme cyberdream"

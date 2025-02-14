@@ -168,13 +168,7 @@ return {
           },
         },
       },
-      dap = {
-        adapter = {
-          type = "executable",
-          command = "/opt/homebrew/opt/llvm/bin/lldb-vscode", -- adjust as needed, must be absolute path
-          name = "lldb",
-        },
-      },
+      dap = {},
     }
 
     -- Ensure the servers above are installed

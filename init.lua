@@ -19,6 +19,7 @@ vim.wo.relativenumber = true
 vim.o.shiftwidth = 4
 vim.o.tabstop = 4
 
+vim.o.tags = "./tags;"
 -- Enale mouse mode
 vim.o.mouse = "a"
 vim.o.foldmethod = "manual"
@@ -50,7 +51,7 @@ vim.o.incsearch = true
 -- Set the scolloff
 vim.o.scrolloff = 10
 -- No highlight current line as cursor
-vim.o.cursorline = true
+vim.o.cursorline = false
 
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = "menuone,noselect"
