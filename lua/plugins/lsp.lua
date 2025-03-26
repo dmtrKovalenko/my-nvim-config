@@ -14,6 +14,11 @@ return {
       dependencies = { "nvim-lua/plenary.nvim" },
       opts = {},
     },
+    {
+      "mrcjkb/rustaceanvim",
+      lazy = false,
+      version = "^5",
+    },
   },
   config = function()
     local on_lsp_attach = function(client, bufnr)
@@ -153,12 +158,10 @@ return {
       -- LSP configuration
       server = {
         on_attach = on_lsp_attach,
+        logfile = "/tmp/rustaceanvim.log",
         default_settings = {
           -- rust-analyzer language server configuration
           ["rust-analyzer"] = {
-            cargo = {
-              features = "all",
-            },
             check = {
               allTargets = false,
             },
@@ -179,16 +182,19 @@ return {
     }
 
     mason_lspconfig.setup_handlers {
+      ["rust_analyzer"] = function() end,
       function(server_name)
-        require("lspconfig")[server_name].setup {
-          capabilities = capabilities,
-          on_attach = on_lsp_attach,
-          settings = servers[server_name],
-          single_file_support = (servers[server_name] or {}).single_file_support,
-          filetypes = (servers[server_name] or {}).filetypes,
-          cmd = (servers[server_name] or {}).cmd,
-          init_options = (servers[server_name] or {}).init_options,
-        }
+        if server_name ~= "rust-analyzer" then
+          require("lspconfig")[server_name].setup {
+            capabilities = capabilities,
+            on_attach = on_lsp_attach,
+            settings = servers[server_name],
+            single_file_support = (servers[server_name] or {}).single_file_support,
+            filetypes = (servers[server_name] or {}).filetypes,
+            cmd = (servers[server_name] or {}).cmd,
+            init_options = (servers[server_name] or {}).init_options,
+          }
+        end
       end,
     }
 

@@ -96,10 +96,7 @@ return {
     dependencies = { "nvim-lua/plenary.nvim" },
     opts = {},
   },
-  {
-    "mrcjkb/rustaceanvim",
-    lazy = false,
-  },
+
   { "akinsho/git-conflict.nvim", version = "*", config = true },
   {
     "ruifm/gitlinker.nvim",
@@ -689,15 +686,17 @@ return {
         "<cmd>UndotreeToggle<CR>",
       },
     },
-    {
-      "mistricky/codesnap.nvim",
-      build = "make build_generator",
-      command = "CodeSnap",
-      opts = {
-        save_path = "~/Pictures",
-        has_breadcrumbs = true,
-        bg_theme = "bamboo",
-      },
+  },
+  {
+    "dmtrkovalenko/codesnap.nvim",
+    build = "make build_generator",
+    command = "CodeSnap",
+    opts = {
+      save_path = "~/Pictures",
+      has_breadcrumbs = false,
+      editor_font_family = "JetBrains Mono",
+      bg_theme = "summer",
+      watermark = "neogoose",
     },
   },
 }
