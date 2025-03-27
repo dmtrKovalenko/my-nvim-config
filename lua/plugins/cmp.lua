@@ -1,112 +1,72 @@
--- Autocompletion and snippets configuration
 return {
-  "hrsh7th/nvim-cmp",
-  event = "InsertEnter",
+  "saghen/blink.cmp",
+  -- optional: provides snippets for the snippet source
   dependencies = {
     {
       "L3MON4D3/LuaSnip",
       build = "make install_jsregexp",
+      config = function()
+        local luasnip = require "luasnip"
+
+        -- Loads all the snippets installed by extensions in vscode.
+        -- require('luasnip.loaders.from_vscode').lazy_load()
+        require("luasnip.loaders.from_vscode").load { paths = "~/.config/nvim/snippets" }
+
+        luasnip.config.set_config {
+          region_check_events = "InsertEnter",
+          delete_check_events = "InsertLeave",
+        }
+
+        luasnip.config.setup {}
+      end,
     },
-    "saadparwaiz1/cmp_luasnip",
-    "hrsh7th/cmp-nvim-lsp",
-    "hrsh7th/cmp-nvim-lua",
   },
-  config = function()
-    local cmp = require "cmp"
-    local luasnip = require "luasnip"
 
-    -- Loads all the snippets installed by extensions in vscode.
-    -- require('luasnip.loaders.from_vscode').lazy_load()
-    require("luasnip.loaders.from_vscode").load { paths = "~/.config/nvim/snippets" }
+  -- use a release tag to download pre-built binaries
+  version = "1.*",
+  -- AND/OR build from source, requires nightly: https://rust-lang.github.io/rustup/concepts/channels.html#working-with-nightly-rust
+  -- build = 'cargo build --release',
+  -- If you use nix, you can build from source using latest nightly rust with:
+  -- build = 'nix run .#build-plugin',
 
-    luasnip.config.set_config {
-      region_check_events = "InsertEnter",
-      delete_check_events = "InsertLeave",
-    }
+  ---@module 'blink.cmp'
+  ---@type blink.cmp.Config
+  opts = {
+    -- 'default' (recommended) for mappings similar to built-in completions (C-y to accept)
+    -- 'super-tab' for mappings similar to vscode (tab to accept)
+    -- 'enter' for enter to accept
+    -- 'none' for no mappings
+    --
+    -- All presets have the following mappings:
+    -- C-space: Open menu or open docs if already open
+    -- C-n/C-p or Up/Down: Select next/previous item
+    -- C-e: Hide menu
+    -- C-k: Toggle signature help (if signature.enabled = true)
+    --
+    -- See :h blink-cmp-config-keymap for defining your own keymap
+    keymap = { preset = "enter" },
+    snippets = { preset = "luasnip" },
+    appearance = {
+      -- 'mono' (default) for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
+      -- Adjusts spacing to ensure icons are aligned
+      nerd_font_variant = "mono",
+    },
 
-    luasnip.config.setup {}
+    -- (Default) Only show the documentation popup when manually triggered
+    completion = { documentation = { auto_show = false } },
 
-    -- Make sure that we can work with luasnip and copilot at the same time
-    vim.g.copilot_no_tab_map = true
-    vim.g.copilot_assume_mapped = true
+    -- Default list of enabled providers defined so that you can extend it
+    -- elsewhere in your config, without redefining it, due to `opts_extend`
+    sources = {
+      default = { "snippets", "lsp", "path", "buffer" },
+    },
 
-    cmp.setup {
-      snippet = {
-        expand = function(args)
-          luasnip.lsp_expand(args.body)
-        end,
-      },
-      sources = cmp.config.sources {
-        { name = "luasnip" },
-        { name = "nvim_lua" },
-        { name = "nvim_lsp" },
-        { name = "path" },
-        { name = "buffer" },
-      },
-      preselect = cmp.PreselectMode.None,
-      sorting = {
-        priority_weight = 2,
-        comparators = {
-          cmp.config.compare.offset,
-          cmp.config.compare.exact,
-          cmp.config.compare.score,
-          -- copied from cmp-under, but I don't think I need the plugin for this.
-          -- I might add some more of my own.
-          function(entry1, entry2)
-            local _, entry1_under = entry1.completion_item.label:find "^_+"
-            local _, entry2_under = entry2.completion_item.label:find "^_+"
-            entry1_under = entry1_under or 0
-            entry2_under = entry2_under or 0
-            if entry1_under > entry2_under then
-              return false
-            elseif entry1_under < entry2_under then
-              return true
-            end
-          end,
-          cmp.config.compare.sort_text,
-          cmp.config.compare.recently_used,
-          cmp.config.compare.kind,
-          cmp.config.compare.length,
-          cmp.config.compare.order,
-        },
-      },
-      window = {
-        completion = cmp.config.window.bordered(),
-        documentation = cmp.config.window.bordered(),
-      },
-      performance = { max_view_entries = 15 },
-      mapping = cmp.mapping.preset.insert {
-        ["<C-n>"] = cmp.mapping.select_next_item(),
-        ["<C-p>"] = cmp.mapping.select_prev_item(),
-        ["<C-Enter>"] = cmp.mapping.confirm {
-          behavior = cmp.ConfirmBehavior.Insert,
-          select = true,
-        },
-        ["<CR>"] = cmp.mapping.confirm {
-          behavior = cmp.ConfirmBehavior.Insert,
-          select = true,
-        },
-        ["<Tab>"] = cmp.mapping(function(fallback)
-          -- provide a value for copilot to fallback if there is no suggestion to accept. If no suggestion accept mimic normal tab behavior.
-          local tab_shift_width = vim.opt.shiftwidth:get()
-          local copilot_keys = vim.fn["copilot#Accept"](string.rep(" ", tab_shift_width))
-
-          if luasnip.expand_or_locally_jumpable() then
-            luasnip.expand_or_jump()
-          elseif copilot_keys ~= "" and type(copilot_keys) == "string" then
-            vim.api.nvim_feedkeys(copilot_keys, "i", true)
-          else
-            fallback()
-          end
-        end, { "i", "s" }),
-        ["<S-Tab>"] = cmp.mapping(function(falljack)
-          if luasnip.locally_jumpable(-1) then
-            luasnip.jump(-1)
-          else
-            fallback()
-          end
-        end, { "i", "s" }),
-      },
-    }
-  end,
+    -- (Default) Rust fuzzy matcher for typo resistance and significantly better performance
+    -- You may use a lua implementation instead by using `implementation = "lua"` or fallback to the lua implementation,
+    -- when the Rust fuzzy matcher is not available, by using `implementation = "prefer_rust"`
+    --
+    -- See the fuzzy documentation for more information
+    fuzzy = { implementation = "prefer_rust_with_warning" },
+  },
+  opts_extend = { "sources.default" },
 }
