@@ -515,22 +515,25 @@ return {
     end,
   },
 
-  -- Global search and replace within cwd
   {
-    "nvim-pack/nvim-spectre",
-    opts = {},
+    "MagicDuck/grug-far.nvim",
     keys = {
       {
         mode = "n",
         "<D-S-r>",
-        "<cmd>lua require('spectre').toggle()<CR>",
-      },
-      {
-        mode = "v",
-        "<D-S-r>",
-        ":lua require('spectre').open_visual()<CR>",
+        "<cmd>GrugFar<CR>",
       },
     },
+    config = function()
+      -- optional setup call to override plugin options
+      -- alternatively you can set options with vim.g.grug_far = { ... }
+      require("grug-far").setup {
+        -- options, see Configuration section below
+        -- there are no required options atm
+        -- engine = 'ripgrep' is default, but 'astgrep' or 'astgrep-rules' can
+        -- be specified
+      }
+    end,
   },
 
   -- Better notifications and messagess
@@ -635,8 +638,8 @@ return {
     "rmagatti/auto-session",
     opts = {
       log_level = "error",
-      auto_session_suppress_dirs = { "~/", "~/Downloads", "/" },
-      bypass_session_save_file_types = { "help", "alpha", "telescope", "trouble" },
+      suppressed_dirs = { "~/", "~/Downloads", "/" },
+      bypass_save_filetypes = { "help", "alpha", "telescope", "trouble" },
       pre_save_cmds = { _G.close_floating_wins },
     },
     init = function()
