@@ -58,7 +58,7 @@ local macros = {
       mode = "n",
       keys = function()
         local word = vim.fn.expand "<cword>"
-        local search_pattern =  word .. ":"
+        local search_pattern = word .. ":"
 
         -- Store current position
         local initial_pos = vim.fn.getcurpos()

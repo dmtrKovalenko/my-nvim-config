@@ -1,47 +1,44 @@
 return {
-  "github/copilot.vim",
   -- Git management
   "tpope/vim-fugitive",
   -- Allows cursor locations in the :e
   "lewis6991/fileline.nvim",
-  -- Code actions preview using telescope
-  "aznhe21/actions-preview.nvim",
   --  Automatically jump to the last cursor position
   "farmergreg/vim-lastplace",
   -- Turn off some of the feature on big buffers
   "LunarVim/bigfile.nvim",
+  -- Respects .editorconfig file
   "gpanders/editorconfig.nvim",
+  -- Syntax highlighting for at&t assembly
   "HealsCodes/vim-gas",
-  {
-    -- A better code actions menu
-    "weilbith/nvim-code-action-menu",
-    event = "BufWinEnter",
-    config = function()
-      require("actions-preview").setup {
-        diff = {
-          algorithm = "minimal",
-          ignore_whitespace = true,
-        },
-      }
-    end,
-  },
-  { "chentoast/marks.nvim", event = "VeryLazy", opts = {} },
-  { "luckasRanarison/tailwind-tools.nvim", opts = {
-    custom_filetypes = {
-      "rescript",
-    },
-  } },
-
   -- Detect tabstop and shiftwidth automatically
   "tpope/vim-sleuth",
-  -- Camel case motion plugin
-  -- {
-  --   "bkad/CamelCaseMotion",
-  --   event = "VeryLazy",
-  --   init = function()
-  --     vim.g.camelcasemotion_key = "q"
-  --   end,
-  -- },
+  "github/copilot.vim",
+  {
+    "mbbill/undotree",
+    keys = {
+      {
+        mode = "n",
+        "<leader>u",
+        "<cmd>UndotreeToggle<CR>",
+      },
+    },
+  },
+  { "chentoast/marks.nvim", event = "VeryLazy", opts = {} },
+  {
+    "luckasRanarison/tailwind-tools.nvim",
+    name = "tailwind-tools",
+    build = ":UpdateRemotePlugins",
+    event = "BufWinEnter",
+    dependencies = {
+      "nvim-treesitter/nvim-treesitter",
+      "nvim-telescope/telescope.nvim", -- optional
+      "neovim/nvim-lspconfig", -- optional
+    },
+    opts = {
+      custom_filetypes = "rescript",
+    },
+  },
   {
     "chrisgrieser/nvim-spider",
     keys = {
@@ -54,7 +51,6 @@ return {
       subwordMovement = true,
     },
   },
-
   {
     "chrisgrieser/nvim-various-textobjs",
     config = function()
@@ -74,65 +70,73 @@ return {
       end)
     end,
   },
-
-  -- Allows correctly opening and closing nested nvims in the terminal
-  {
-    "samjwill/nvim-unception",
-    event = "VeryLazy",
-    init = function()
-      vim.g.unception_delete_replaced_buffer = true
-      vim.api.nvim_create_autocmd("User", {
-        pattern = "UnceptionEditRequestReceived",
-        callback = function()
-          require("nvterm.terminal").hide "horizontal"
-        end,
-      })
-    end,
-  },
-  -- Handy rename in a floating method
-  {
-    "filipdutescu/renamer.nvim",
-    event = "VeryLazy",
-    dependencies = { "nvim-lua/plenary.nvim" },
-    opts = {},
-  },
-
   { "akinsho/git-conflict.nvim", version = "*", config = true },
   {
     "ruifm/gitlinker.nvim",
     dependencies = {
       "nvim-lua/plenary.nvim",
     },
-    config = function()
-      require("gitlinker").setup()
-      vim.keymap.set(
-        "n",
+    opts = {},
+    keys = {
+      {
         "<leader>gg",
-        '<cmd>lua require"gitlinker".get_buf_range_url("n", {action_callback = require"gitlinker.actions".open_in_browser})<cr>',
-        { silent = true, desc = "Open git link in the browser" }
-      )
-    end,
-  },
-  -- Toggle terminal plugin
-  {
-    "NvChad/nvterm",
-    event = "BufWinEnter",
-    opts = {
-      terminals = {
-        type_opts = {
-          horizontal = {
-            split_ratio = ((IS_STREAMING or vim.api.nvim_get_option_value("lines", {}) < 60) and 0.5) or 0.35,
-          },
-        },
+        function()
+          require("gitlinker").get_buf_range_url("n", {
+            action_callback = require("gitlinker.actions").open_in_browser,
+          })
+        end,
+        desc = "Open git link in the browser",
+        silent = true,
+        mode = "n",
+      },
+      {
+        "<leader>gy",
+        function()
+          require("gitlinker").get_buf_range_url("n", {
+            action_callback = require("gitlinker.actions").copy_to_clipboard,
+          })
+        end,
+        desc = "Copy git link to clipboard",
+        silent = true,
+        mode = "n",
       },
     },
-    init = function()
-      vim.keymap.set({ "n", "t" }, "<D-S-c>", function()
-        require("nvterm.terminal").toggle "horizontal"
-      end, {})
-    end,
   },
-
+  {
+    "akinsho/toggleterm.nvim",
+    keys = {
+      {
+        "<D-S-c>",
+        function()
+          require("toggleterm").toggle()
+        end,
+        desc = "Toggle Terminal (Floating)",
+      },
+    },
+    opts = {
+      open_mapping = [[<D-S-c>]],
+      size = function(term)
+        if term.direction == "float" then
+          return 20 -- Height for floating terminal
+        end
+      end,
+      float_opts = {
+        border = "curved",
+        width = function()
+          return math.floor(vim.o.columns * 0.8)
+        end,
+        height = function()
+          return math.floor(vim.o.lines * 0.8)
+        end,
+        winblend = 3,
+      },
+      direction = "float",
+      shade_terminals = true,
+      start_in_insert = true,
+      insert_mappings = true,
+      terminal_mappings = true,
+    },
+  },
   {
     "lewis6991/gitsigns.nvim",
     event = "BufRead",
@@ -169,83 +173,6 @@ return {
   },
 
   {
-    priority = 1000,
-    "nvim-lualine/lualine.nvim",
-    dependencies = {
-      "nvim-tree/nvim-web-devicons",
-      {
-        "linrongbin16/lsp-progress.nvim",
-        opts = {
-          format = function(client_messages)
-            local api = require "lsp-progress.api"
-            local lsp_clients = #api.lsp_clients()
-            if #client_messages > 0 then
-              return table.concat(client_messages, " ")
-            elseif lsp_clients > 0 then
-              return "󰄳 LSP " .. lsp_clients .. " clients"
-            end
-            return ""
-          end,
-        },
-      },
-    },
-    cond = function()
-      return os.getenv "PRESENTATION" ~= "true"
-    end,
-    config = function()
-      vim.api.nvim_create_augroup("lualine_augroup", { clear = true })
-      vim.api.nvim_create_autocmd("User", {
-        group = "lualine_augroup",
-        pattern = "LspProgressStatusUpdated",
-        callback = require("lualine").refresh,
-      })
-
-      require("lualine").setup {
-        options = {
-          disabled_filetypes = {
-            statusline = { "alpha", "NvimTree", "trouble" },
-          },
-          theme = GetGooseLuaLineTheme(),
-          component_separators = "|",
-          section_separators = "",
-        },
-        sections = {
-          lualine_a = {
-            {
-              "mode",
-              fmt = function(str)
-                -- Define single-letter mode mappings
-                local mode_map = {
-                  ["NORMAL"] = "NR",
-                  ["INSERT"] = "IN",
-                  ["VISUAL"] = "VV",
-                  ["V-LINE"] = "VL",
-                  ["V-BLOCK"] = "VB",
-                  ["REPLACE"] = "RP",
-                  ["COMMAND"] = "CM",
-                  ["TERMINAL"] = "TR",
-                  ["SELECT"] = "SL",
-                }
-                -- Return the mapped single letter or first letter if not found
-                return mode_map[str] or str:sub(1, 1)
-              end,
-            },
-          },
-          lualine_c = {
-            function()
-              -- invoke `progress` here.
-              return require("lsp-progress").progress()
-            end,
-          },
-          lualine_x = { "filetype" },
-          lualine_y = {},
-          lualine_z = { { "os.date('󰅐 %H:%M')" } },
-        },
-      }
-    end,
-  },
-
-  {
     -- Add indentation guides even on blank lines
     "lukas-reineke/indent-blankline.nvim",
     main = "ibl",
@@ -267,14 +194,12 @@ return {
     },
   },
 
-  -- Surround text objects with quotes, brackets, etc
   {
     "kylechui/nvim-surround",
     version = "*", -- Use for stability; omit to use `main` branch for the latest features
     opts = {},
   },
 
-  -- Automatically fill/change/remove xml-like tags
   {
     "windwp/nvim-ts-autotag",
     event = "InsertEnter",
@@ -288,7 +213,6 @@ return {
     },
   },
 
-  -- Project specific marks for most editable files
   {
     "ThePrimeagen/harpoon",
     branch = "harpoon2",
@@ -344,7 +268,6 @@ return {
   },
 
   {
-    -- Highlight, edit, and navigate code
     "nvim-treesitter/nvim-treesitter",
     dependencies = {
       "nvim-treesitter/nvim-treesitter-textobjects",
@@ -361,8 +284,6 @@ return {
     },
     build = ":TSUpdate",
     config = function()
-      -- [[ Configure Treesitter ]]
-      -- See `:help nvim-treesitter`
       require("nvim-treesitter.configs").setup {
         -- Add languages to be installed here that you want installed for treesitter
         ensure_installed = {
@@ -572,47 +493,6 @@ return {
       },
     },
   },
-
-  {
-    "stevearc/conform.nvim",
-    config = function()
-      require("conform").setup {
-        formatters_by_ft = {
-          lua = { "stylua" },
-          rust = { "rustfmt" },
-          c = { "clang-format" },
-          cpp = { "clang-format" },
-          python = { "isort", "black" },
-          javascript = { "prettierd", "prettier", stop_after_first = true },
-          markdown = { "prettierd", "prettier", stop_after_first = true },
-          typescript = { "prettierd", "prettier", stop_after_first = true },
-          typescriptreact = { "prettierd", "prettier", stop_after_first = true },
-          css = { "prettierd", "prettier", stop_after_first = true },
-          svg = { "xmlformat" },
-          json = { "prettierd", "prettier", stop_after_first = true },
-          yaml = { "prettierd", "prettier", stop_after_first = true },
-          graphql = { "prettierd", "prettier", stop_after_first = true },
-          rescript = { "rescript-format" },
-          ocaml = { "ocamlformat" },
-          sql = { "pg_format" },
-          proto = { "clang-format" },
-          ocaml_mlx = { "ocamlformat_mlx" },
-        },
-      }
-
-      local function format()
-        require("conform").format {
-          lsp_fallback = true,
-        }
-      end
-
-      vim.keymap.set({ "n", "i" }, "<F12>", format, { desc = "Format", silent = true })
-      vim.keymap.set({ "n", "i" }, "<C-f>", format, { desc = "Format", silent = true })
-
-      vim.api.nvim_create_user_command("Format", format, { desc = "Format current buffer with LSP" })
-    end,
-  },
-
   {
     "folke/which-key.nvim",
     event = "VeryLazy",
@@ -620,7 +500,6 @@ return {
       preset = "modern",
     },
   },
-
   {
     "dmtrkovalenko/project.nvim",
     config = function()
@@ -633,7 +512,6 @@ return {
       }
     end,
   },
-
   {
     "rmagatti/auto-session",
     opts = {
@@ -648,13 +526,11 @@ return {
       vim.api.nvim_create_user_command("CloseFloats", close_floating_wins, {})
     end,
   },
-
   {
     "folke/ts-comments.nvim",
     event = "VeryLazy",
     opts = {},
   },
-
   {
     "dmtrKovalenko/caps-word.nvim",
     -- dir = "~/dev/caps-word.nvim",
@@ -678,17 +554,7 @@ return {
   {
     "MeanderingProgrammer/render-markdown.nvim",
     opts = {},
-    dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" }, -- if you prefer nvim-web-devicons
-  },
-  {
-    "mbbill/undotree",
-    keys = {
-      {
-        mode = "n",
-        "<leader>u",
-        "<cmd>UndotreeToggle<CR>",
-      },
-    },
+    dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
   },
   {
     "dmtrkovalenko/codesnap.nvim",
