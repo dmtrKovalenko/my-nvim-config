@@ -144,12 +144,9 @@ function Lightsource_setup()
 end
 
 -- Register the command
-vim.api.nvim_exec(
-  [[
+vim.cmd [[
   command! LightSourceSetup lua Lightsource_setup()
-]],
-  false
-)
+]]
 
 -- Remove background color from the theme to avoid color difference with you terminal emulators
 -- (may look bad depends on the different tty app and themes)

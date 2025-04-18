@@ -120,6 +120,14 @@ return {
           return 20 -- Height for floating terminal
         end
       end,
+      highlights = {
+        NormalFloat = {
+          guibg = "#16181a",
+        },
+        FloatBorder = {
+          guibg = "#16181a",
+        },
+      },
       float_opts = {
         border = "curved",
         width = function()
@@ -128,7 +136,7 @@ return {
         height = function()
           return math.floor(vim.o.lines * 0.8)
         end,
-        winblend = 3,
+        winblend = 0,
       },
       direction = "float",
       shade_terminals = true,
@@ -412,10 +420,11 @@ return {
     "saecki/crates.nvim",
     event = "BufRead Cargo.toml",
     opts = {
-      completion = {
-        cmp = {
-          enabled = true,
-        },
+      lsp = {
+        enabled = true,
+        actions = true,
+        completion = true,
+        hover = true,
       },
     },
     dependencies = { "nvim-lua/plenary.nvim" },
