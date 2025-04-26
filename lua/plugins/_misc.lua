@@ -87,7 +87,7 @@ return {
         end,
         desc = "Open git link in the browser",
         silent = true,
-        mode = "n",
+        mode = { "n", "x" },
       },
       {
         "<leader>gy",
@@ -98,7 +98,7 @@ return {
         end,
         desc = "Copy git link to clipboard",
         silent = true,
-        mode = "n",
+        mode = { "n", "x" },
       },
     },
   },
