@@ -38,12 +38,12 @@ local macros = {
     {
       binding = "ls",
       desc = "last command status",
-      keys = "<cmd>Gedit -<cr>",
+      keys = "<cmd>Git! --paginate<cr>",
     },
     {
       binding = "<leader>p",
       desc = "FUS-RO-DAH",
-      keys = "<cmd>Git push<cr>"
+      keys = "<cmd>Git! push<cr>",
     },
   },
   rust = {
