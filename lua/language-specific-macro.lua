@@ -3,7 +3,12 @@ local macros = {
     {
       desc = "Wraps string under cursor with clsx and spreads down className",
       binding = "<F1>",
-      keys = 'ysa"{ysi{(itwMerge<Esc>l%i,className<Esc><F12>',
+      keys = 'ysa"{ysi{(itwMerge<Esc>l%i,className<Esc><cmd>Format<cr>',
+    },
+    {
+      desc = "Wraps string under cursor with clsx and spreads down className",
+      binding = "<F2>",
+      keys = 'ysa"{ysi{(itwJoin<Esc>l%i,className<Esc><cmd>Format<cr>',
     },
   },
   fugitive = {
@@ -11,11 +16,34 @@ local macros = {
       binding = "spu",
       desc = "Push stack",
       keys = "<cmd>terminal fish --command 'git spr update'<cr>",
+      remap = true,
+    },
+    {
+      binding = "sps",
+      desc = "stack status",
+      keys = function()
+        if vim.api.nvim_win_get_width(0) > 100 then
+          vim.cmd "rightbelow vsplit | terminal fish --command 'git spr status'"
+        else
+          vim.cmd "rightbelow split | terminal fish --command 'git spr status'"
+        end
+      end,
+      remap = true,
     },
     {
       binding = "gap",
       desc = "Amend lateest commit and force push",
       keys = "<cmd>terminal fish --command 'git commit --amend --no-edit && git push --force-with-lease'<cr>",
+    },
+    {
+      binding = "ls",
+      desc = "last command status",
+      keys = "<cmd>Gedit -<cr>",
+    },
+    {
+      binding = "<leader>p",
+      desc = "FUS-RO-DAH",
+      keys = "<cmd>Git push<cr>"
     },
   },
   rust = {
@@ -24,6 +52,26 @@ local macros = {
       binding = "<F1>",
       mode = "x",
       keys = "S)iSome<Esc>",
+    },
+    {
+      binding = "<F49>",
+      mode = "v",
+      keys = "S>iOption<Esc>",
+    },
+    {
+      binding = "<F49>",
+      mode = "n",
+      keys = "ysiw>iOption<Esc>",
+    },
+    {
+      binding = "<F50>",
+      mode = "v",
+      keys = "S>iResult<Esc>",
+    },
+    {
+      binding = "<F50>",
+      mode = "n",
+      keys = "ysiw>iOption<Esc>",
     },
     {
       binding = "<F1>",
@@ -35,6 +83,7 @@ local macros = {
       mode = "i",
       keys = "Some()<Left>",
     },
+
     {
       desc = "Wrap the thing in Ok(_)",
       binding = "<F2>",
@@ -50,6 +99,11 @@ local macros = {
       binding = "<F2>",
       mode = "i",
       keys = "Ok()<Left>",
+    },
+    {
+      binding = "<S-F2>",
+      mode = "x",
+      keys = "S>iResult<Esc>",
     },
   },
   asm = {
@@ -87,9 +141,14 @@ return {
       vim.api.nvim_create_autocmd("FileType", {
         pattern = filetype,
         callback = function()
-          print("Setting up macros for " .. filetype)
+          print("Setting " .. #bindings .. " local macros for " .. filetype)
           for _, macro in ipairs(bindings) do
-            vim.keymap.set(macro.mode or "n", macro.binding, macro.keys, { desc = macro.desc, remap = true })
+            vim.keymap.set(
+              macro.mode or "n",
+              macro.binding,
+              macro.keys,
+              { desc = macro.desc, remap = true, buffer = true }
+            )
           end
         end,
       })
