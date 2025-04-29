@@ -28,14 +28,13 @@ end
 return {
   {
     "uga-rosa/ccc.nvim",
-    lazy = false,
     keys = {
       { mode = "n", "<leader>cc", "<cmd>CccPick<cr>" },
     },
     opts = {
       highlighter = {
         auto_enable = true,
-        lsp = true,
+        lsp = false,
       },
     },
   },
