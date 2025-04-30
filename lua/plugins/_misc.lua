@@ -72,37 +72,6 @@ return {
   },
   { "akinsho/git-conflict.nvim", version = "*", config = true },
   {
-    "ruifm/gitlinker.nvim",
-    dependencies = {
-      "nvim-lua/plenary.nvim",
-    },
-    opts = {},
-    keys = {
-      {
-        "<leader>gg",
-        function()
-          require("gitlinker").get_buf_range_url("n", {
-            action_callback = require("gitlinker.actions").open_in_browser,
-          })
-        end,
-        desc = "Open git link in the browser",
-        silent = true,
-        mode = { "n", "x" },
-      },
-      {
-        "<leader>gy",
-        function()
-          require("gitlinker").get_buf_range_url("n", {
-            action_callback = require("gitlinker.actions").copy_to_clipboard,
-          })
-        end,
-        desc = "Copy git link to clipboard",
-        silent = true,
-        mode = { "n", "x" },
-      },
-    },
-  },
-  {
     "akinsho/toggleterm.nvim",
     keys = {
       {
@@ -175,7 +144,7 @@ return {
         gsmap("n", "<leader>gr", gitsigns.reset_hunk, { desc = "[G]it [R]eset hunk" })
         gsmap("n", "<leader>gu", gitsigns.undo_stage_hunk, { desc = "[G]it [U]nstage hunk" })
         gsmap("n", "<leader>gs", gitsigns.stage_hunk, { desc = "[G]it [S]tage hunk" })
-        gsmap("n", "<leader>gb", gitsigns.toggle_current_line_blame, { desc = "[G]it [B]lame" })
+        gsmap("n", "<leader>gl", gitsigns.toggle_current_line_blame, { desc = "[G]it [B]lame" })
       end,
     },
   },

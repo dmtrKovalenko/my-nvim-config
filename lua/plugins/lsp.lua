@@ -91,7 +91,6 @@ return {
 
         lsp_map("gD", vim.lsp.buf.definition, "[G]oto [D]eclaration")
         lsp_map("gi", vim.lsp.buf.implementation, "[G]oto [I]mplementation")
-        lsp_map("gr", require("telescope.builtin").lsp_references, "[G]oto [R]eferences")
 
         lsp_map("<D-g>", "<C-]>", "[G]oto [D]efinition")
         lsp_map("<D-A-g>", vim.lsp.buf.type_definition, "Type [D]efinition")
@@ -99,7 +98,12 @@ return {
         lsp_map("<D-i>", vim.lsp.buf.hover, "Hover Documentation")
         lsp_map("<D-u>", vim.lsp.buf.signature_help, "Signature Documentation")
 
-        lsp_map("<leader>ls", require("telescope.builtin").lsp_document_symbols, "[D]ocument [S]ymbols")
+        -- Various picker for lsp related stuff
+        lsp_map("gr", Snacks.picker.lsp_references, "[G]oto [R]eferences")
+        lsp_map("gi", Snacks.picker.lsp_implementations, "[G]oto [I]mplementations")
+        lsp_map("gt", Snacks.picker.lsp_type_definitions, "[G]oto [T]ype Definitions")
+        lsp_map("<leader>ss", Snacks.picker.lsp_symbols, "[S]earch [S]ymbols")
+
         lsp_map("<leader>lr", function()
           vim.cmd "LspRestart"
         end, "Lsp [R]eload")
@@ -264,5 +268,5 @@ return {
         settings = {},
       }
     end,
-  }
+  },
 }

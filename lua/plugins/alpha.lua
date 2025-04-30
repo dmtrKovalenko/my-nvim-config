@@ -61,7 +61,43 @@ return {
         " ",
         ":echo 'do the work you lazy ass'<CR>"
       ),
-      dashboard.button("p", "  Projects", "<cmd>Telescope projects<CR>"),
+      dashboard.button("p", "  Projects", function()
+        Snacks.picker.projects {
+          finder = "recent_projects",
+          format = "file",
+          dev = { "~/dev" },
+          patterns = { ".git" },
+          recent = true,
+          matcher = {
+            frecency = true, -- use frecency boosting
+            sort_empty = true, -- sort even when the filter is empty
+            cwd_bonus = false,
+          },
+          sort = { fields = { "score:desc", "idx" } },
+          win = {
+            preview = { minimal = true },
+            input = {
+              keys = {
+                -- every action will always first change the cwd of the current tabpage to the project
+                ["<c-e>"] = { { "tcd", "picker_explorer" }, mode = { "n", "i" } },
+                ["<c-f>"] = { { "tcd", "picker_files" }, mode = { "n", "i" } },
+                ["<c-g>"] = { { "tcd", "picker_grep" }, mode = { "n", "i" } },
+                ["<c-r>"] = { { "tcd", "<cmd>SessionRestore<cr>" }, mode = { "n", "i" } },
+                ["<c-w>"] = { { "tcd" }, mode = { "n", "i" } },
+                ["<c-t>"] = {
+                  function(picker)
+                    vim.cmd "tabnew"
+                    Snacks.notify "New tab opened"
+                    picker:close()
+                    Snacks.picker.projects()
+                  end,
+                  mode = { "n", "i" },
+                },
+              },
+            },
+          },
+        }
+      end),
       dashboard.button("a", "  New file", "<cmd>ene <BAR> startinsert <CR>"),
       dashboard.button("c", "󰢻  Configuration", "<cmd>e ~/.config/nvim/init.lua<CR>"),
       dashboard.button("q", "󰩈  Quit Neovim", "<cmd>qa<CR>"),

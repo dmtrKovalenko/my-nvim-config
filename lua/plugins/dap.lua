@@ -55,12 +55,6 @@ return {
   "mfussenegger/nvim-dap",
   dependencies = {
     {
-      "nvim-telescope/telescope-dap.nvim",
-      config = function()
-        require("telescope").load_extension "dap"
-      end,
-    },
-    {
       "rcarriga/nvim-dap-ui",
       types = true,
     },
