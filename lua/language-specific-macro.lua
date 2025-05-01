@@ -33,12 +33,12 @@ local macros = {
     {
       binding = "gap",
       desc = "Amend lateest commit and force push",
-      keys = "<cmd>terminal fish --command 'git commit --amend --no-edit && git push --force-with-lease'<cr>",
+      keys = "<cmd>terminal fish --command 'git commit --amend --no-edit && git push --force-with-lease'<cr><C-w>k",
     },
     {
       binding = "ls",
       desc = "last command status",
-      keys = "<cmd>Git! --paginate<cr>",
+      keys = "<cmd>Gedit! -<cr><C-w>k",
     },
     {
       binding = "<leader>p",
