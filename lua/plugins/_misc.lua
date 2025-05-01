@@ -5,8 +5,6 @@ return {
   "lewis6991/fileline.nvim",
   --  Automatically jump to the last cursor position
   "farmergreg/vim-lastplace",
-  -- Turn off some of the feature on big buffers
-  "LunarVim/bigfile.nvim",
   -- Respects .editorconfig file
   "gpanders/editorconfig.nvim",
   -- Syntax highlighting for at&t assembly
@@ -25,20 +23,6 @@ return {
     },
   },
   { "chentoast/marks.nvim", event = "VeryLazy", opts = {} },
-  {
-    "luckasRanarison/tailwind-tools.nvim",
-    name = "tailwind-tools",
-    build = ":UpdateRemotePlugins",
-    event = "BufWinEnter",
-    dependencies = {
-      "nvim-treesitter/nvim-treesitter",
-      "nvim-telescope/telescope.nvim", -- optional
-      "neovim/nvim-lspconfig", -- optional
-    },
-    opts = {
-      custom_filetypes = "rescript",
-    },
-  },
   {
     "chrisgrieser/nvim-spider",
     keys = {
@@ -384,7 +368,7 @@ return {
       }
     end,
   },
-
+  -- Autocompletion and version display for rust projects
   {
     "saecki/crates.nvim",
     event = "BufRead Cargo.toml",
@@ -398,7 +382,7 @@ return {
     },
     dependencies = { "nvim-lua/plenary.nvim" },
   },
-
+  -- Auto close brackets
   {
     "windwp/nvim-autopairs",
     event = "InsertEnter",
@@ -413,7 +397,7 @@ return {
       npairs.add_rules { rule("|", "|", { "rust", "go", "lua" }):with_move(cond.after_regex "|") }
     end,
   },
-
+  -- Search and replace
   {
     "MagicDuck/grug-far.nvim",
     keys = {
@@ -423,19 +407,8 @@ return {
         "<cmd>GrugFar<CR>",
       },
     },
-    config = function()
-      -- optional setup call to override plugin options
-      -- alternatively you can set options with vim.g.grug_far = { ... }
-      require("grug-far").setup {
-        -- options, see Configuration section below
-        -- there are no required options atm
-        -- engine = 'ripgrep' is default, but 'astgrep' or 'astgrep-rules' can
-        -- be specified
-      }
-    end,
+    opts = {},
   },
-
-  -- Better notifications and messagess
   {
     "folke/noice.nvim",
     event = "VeryLazy",
@@ -477,18 +450,6 @@ return {
     opts = {
       preset = "modern",
     },
-  },
-  {
-    "dmtrkovalenko/project.nvim",
-    config = function()
-      require("project_nvim").setup {
-        detection_methods = { "pattern" },
-        patterns = { ".git", ".sl" },
-        after_project_selection_callback = function()
-          vim.notify "SessionRestore"
-        end,
-      }
-    end,
   },
   {
     "rmagatti/auto-session",
@@ -535,13 +496,13 @@ return {
     dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
   },
   {
-    "dmtrkovalenko/codesnap.nvim",
-    build = "make build_generator",
+    "mistricky/codesnap.nvim",
+    build = "make",
     command = "CodeSnap",
     opts = {
       save_path = "~/Pictures",
       has_breadcrumbs = false,
-      editor_font_family = "JetBrains Mono",
+      code_font_family = "JetBrains Mono",
       bg_theme = "summer",
       watermark = "neogoose",
     },

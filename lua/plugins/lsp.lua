@@ -48,8 +48,7 @@ return {
       "williamboman/mason-lspconfig.nvim",
       -- Additional lua configuration, makes nvim stuff amazing!
       "folke/neodev.nvim",
-      "ocaml-mlx/ocaml_mlx.nvim",
-      {
+      "ocaml-mlx/ocaml_mlx.nvim", {
         "pmizio/typescript-tools.nvim",
         dependencies = { "nvim-lua/plenary.nvim" },
         opts = {},
@@ -66,6 +65,20 @@ return {
             algorithm = "patience",
             ignore_whitespace = true,
           },
+        },
+      },
+      {
+        "luckasRanarison/tailwind-tools.nvim",
+        name = "tailwind-tools",
+        build = ":UpdateRemotePlugins",
+        event = "LspAttach",
+        dependencies = {
+          "nvim-treesitter/nvim-treesitter",
+          "nvim-telescope/telescope.nvim", -- optional
+          "neovim/nvim-lspconfig", -- optional
+        },
+        opts = {
+          custom_filetypes = "rescript",
         },
       },
     },
@@ -102,6 +115,7 @@ return {
         lsp_map("gr", Snacks.picker.lsp_references, "[G]oto [R]eferences")
         lsp_map("gi", Snacks.picker.lsp_implementations, "[G]oto [I]mplementations")
         lsp_map("gt", Snacks.picker.lsp_type_definitions, "[G]oto [T]ype Definitions")
+        lsp_map("<D-l>", Snacks.picker.lsp_workspace_symbols, "[S]earch [S]ymbols")
         lsp_map("<leader>ss", Snacks.picker.lsp_symbols, "[S]earch [S]ymbols")
 
         lsp_map("<leader>lr", function()

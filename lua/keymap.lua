@@ -104,6 +104,8 @@ vim.keymap.set({ "c", "i" }, "<A-Bs>", "<C-w>", { noremap = true })
 --  Pull one line down useful rempaps from the numeric line
 vim.keymap.set("n", "<C-t>", "%", { remap = true })
 
+vim.keymap.set("n", "<S-h>", "<cmd>e#<cr>", { silent = true })
+
 -- Map 'gx' to open the file or URL under cursor
 vim.keymap.set("n", "gx", function()
   local target = vim.fn.expand "<cfile>"

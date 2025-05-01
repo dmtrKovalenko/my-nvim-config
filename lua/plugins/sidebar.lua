@@ -13,6 +13,7 @@ return {
     dependencies = {
       {
         "folke/trouble.nvim",
+        event = "VeryLazy",
         keys = {
           {
             "<leader>tm",
