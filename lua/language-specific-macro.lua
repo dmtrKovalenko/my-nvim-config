@@ -43,7 +43,7 @@ local macros = {
     {
       binding = "<leader>p",
       desc = "FUS-RO-DAH",
-      keys = "<cmd>Git! push<cr>",
+      keys = "<cmd>Git! push<cr><C-w>k",
     },
   },
   rust = {
