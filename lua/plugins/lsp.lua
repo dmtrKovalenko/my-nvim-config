@@ -45,10 +45,20 @@ return {
     dependencies = {
       -- Automatically install LSPs to stdpath for neovim
       { "williamboman/mason.nvim", config = true },
-      "williamboman/mason-lspconfig.nvim",
-      -- Additional lua configuration, makes nvim stuff amazing!
-      "folke/neodev.nvim",
-      "ocaml-mlx/ocaml_mlx.nvim", {
+      "mason-org/mason-lspconfig.nvim", -- Updated repo URL
+      {
+        "folke/lazydev.nvim",
+        ft = "lua", -- only load on lua files
+        opts = {
+          library = {
+            -- See the configuration section for more details
+            -- Load luvit types when the `vim.uv` word is found
+            { path = "${3rd}/luv/library", words = { "vim%.uv" } },
+          },
+        },
+      },
+      "ocaml-mlx/ocaml_mlx.nvim",
+      {
         "pmizio/typescript-tools.nvim",
         dependencies = { "nvim-lua/plenary.nvim" },
         opts = {},
@@ -71,7 +81,7 @@ return {
         "luckasRanarison/tailwind-tools.nvim",
         name = "tailwind-tools",
         build = ":UpdateRemotePlugins",
-        event = "LspAttach",
+        event = "BufWinEnter",
         dependencies = {
           "nvim-treesitter/nvim-treesitter",
           "nvim-telescope/telescope.nvim", -- optional
@@ -92,22 +102,12 @@ return {
           vim.keymap.set("n", keys, func, { remap = true, buffer = bufnr, desc = desc, silent = true })
         end
 
-        -- if vim.bo.filetype == "rust" then
-        --   lsp_map("<D-.>", ":RustLsp codeAction<CR>", "[C]ode [A]ction")
-        --   vim.keymap.set("n", "<F4>", ":RustLsp debuggables<CR>", { silent = true, desc = "Rust: Debuggables" })
-        -- else
-        --   lsp_map("<D-.>", require("actions-preview").code_actions, "[C]ode [A]ction")
-        -- end
         lsp_map("<D-.>", require("actions-preview").code_actions, "[C]ode [A]ction")
-
         lsp_map("<D-r>", vim.lsp.buf.rename, "[R]e[n]ame")
-
         lsp_map("gD", vim.lsp.buf.definition, "[G]oto [D]eclaration")
         lsp_map("gi", vim.lsp.buf.implementation, "[G]oto [I]mplementation")
-
         lsp_map("<D-g>", "<C-]>", "[G]oto [D]efinition")
         lsp_map("<D-A-g>", vim.lsp.buf.type_definition, "Type [D]efinition")
-
         lsp_map("<D-i>", vim.lsp.buf.hover, "Hover Documentation")
         lsp_map("<D-u>", vim.lsp.buf.signature_help, "Signature Documentation")
 
@@ -125,68 +125,41 @@ return {
           vim.cmd "LspInfo"
         end, "Lsp [R]eload")
         lsp_map("<leader>lh", function()
-          local bufFitler = { bufnr }
-          vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled(filter), filter)
+          vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled(filter), { bufnr })
         end, "Lsp toggle inlay [h]ints")
       end
 
-      -- Enable the following language servers
-      local servers = {
-        clangd = {
-          filetypes = { "c", "cpp", "proto" },
-          cmd = {
-            "clangd",
-            "--background-index",
-            "--query-driver=/Users/dmtrkovalenko/.platformio/packages/toolchain-xtensa-esp32/bin/xtensa-esp32-elf-gcc",
-            "--offset-encoding=utf-16",
-          },
-        },
-        eslint = {
-          filetypes = { "javascript", "typescript", "javascriptreact", "typescriptreact" },
-        },
-        html = { filetypes = { "html", "twig", "hbs" } },
-        lua_ls = {
-          Lua = {
-            runtime = {
-              version = "LuaJIT",
-            },
-            workspace = { checkThirdParty = false },
-            telemetry = { enable = false },
-          },
-        },
-        typos_lsp = {
-          single_file_support = false,
-          init_options = { diagnosticSeverity = "WARN" },
-        },
-        bashls = {
-          settings = {
-            includeAllWorkspaceSymbols = true,
-          },
-        },
-        pylsp = {},
-        astro = {},
-        dhall_lsp_server = {},
-        marksman = {},
-        taplo = {},
-      }
-
-      -- Setup neovim lua configuration
-      require("neodev").setup()
+      -- vim.diagnostic.config { virtual_lines = true }
+      vim.diagnostic.config { virtual_text = true }
 
       -- nvim-cmp supports additional completion capabilities, so broadcast that to servers
       local capabilities = vim.lsp.protocol.make_client_capabilities()
-
       capabilities = vim.tbl_deep_extend("force", capabilities, require("blink.cmp").get_lsp_capabilities({}, false))
-      -- it then vim cmp overrides only completion part of the text document. leave all other preassigned
-
       -- optimizes cpu usage source https://github.com/neovim/neovim/issues/23291
       capabilities.workspace.didChangeWatchedFiles.dynamicRegistration = false
 
-      local signs = { Error = "󰚌 ", Warn = " ", Hint = "󱧡 ", Info = " " }
-      for type, icon in pairs(signs) do
-        local hl = "DiagnosticSign" .. type
-        vim.fn.sign_define(hl, { text = icon, texthl = hl, numhl = hl })
-      end
+      vim.diagnostic.config {
+        signs = {
+          text = {
+            [vim.diagnostic.severity.ERROR] = "󰚌 ",
+            [vim.diagnostic.severity.WARN] = " ",
+            [vim.diagnostic.severity.INFO] = " ",
+            [vim.diagnostic.severity.HINT] = "󱧡 ",
+          },
+          numhl = {
+            [vim.diagnostic.severity.ERROR] = "DiagnosticSignError",
+            [vim.diagnostic.severity.WARN] = "DiagnosticSignWarn",
+            [vim.diagnostic.severity.INFO] = "DiagnosticSignInfo",
+            [vim.diagnostic.severity.HINT] = "DiagnosticSignHint",
+          },
+          texthl = {
+            [vim.diagnostic.severity.ERROR] = "DiagnosticSignError",
+            [vim.diagnostic.severity.WARN] = "DiagnosticSignWarn",
+            [vim.diagnostic.severity.INFO] = "DiagnosticSignInfo",
+            [vim.diagnostic.severity.HINT] = "DiagnosticSignHint",
+          },
+        },
+      }
 
       local border = {
         { "╭", "FloatBorder" },
@@ -216,6 +189,92 @@ return {
         return orig_util_open_floating_preview(contents, syntax, opts, ...)
       end
 
+      vim.lsp.config("clangd", {
+        filetypes = { "c", "cpp", "proto" },
+        cmd = {
+          "clangd",
+          "--background-index",
+          "--query-driver=/Users/dmtrkovalenko/.platformio/packages/toolchain-xtensa-esp32/bin/xtensa-esp32-elf-gcc",
+          "--offset-encoding=utf-16",
+        },
+        capabilities = capabilities,
+        on_attach = on_lsp_attach,
+        handlers = handlers,
+      })
+
+      vim.lsp.config("lua_ls", {
+        settings = {
+          Lua = {
+            runtime = { version = "LuaJIT" },
+            workspace = { checkThirdParty = false },
+            telemetry = { enable = false },
+          },
+        },
+        capabilities = capabilities,
+        on_attach = on_lsp_attach,
+        handlers = handlers,
+      })
+
+      vim.lsp.config("bashls", {
+        settings = { includeAllWorkspaceSymbols = true },
+        capabilities = capabilities,
+        on_attach = on_lsp_attach,
+        handlers = handlers,
+      })
+
+      vim.lsp.config("dhall_lsp_server", {
+        capabilities = capabilities,
+        on_attach = on_lsp_attach,
+        handlers = handlers,
+      })
+
+      vim.lsp.config("marksman", {
+        capabilities = capabilities,
+        on_attach = on_lsp_attach,
+        handlers = handlers,
+      })
+
+      vim.lsp.config("taplo", {
+        capabilities = capabilities,
+        on_attach = on_lsp_attach,
+        handlers = handlers,
+      })
+
+      -- Legacy servers using traditional setup
+      -- For servers that haven't been migrated to vim.lsp.config yet
+      local lspconfig = require "lspconfig"
+
+      -- Servers mentioned in your list that need traditional setup
+      lspconfig.astro.setup {
+        capabilities = capabilities,
+        on_attach = on_lsp_attach,
+        handlers = handlers,
+      }
+
+      lspconfig.eslint.setup {
+        filetypes = { "javascript", "typescript", "javascriptreact", "typescriptreact" },
+        capabilities = capabilities,
+        on_attach = on_lsp_attach,
+        handlers = handlers,
+      }
+
+      -- Special case for single_file_support = false
+      lspconfig.typos_lsp.setup {
+        single_file_support = false,
+        init_options = { diagnosticSeverity = "WARN" },
+        capabilities = capabilities,
+        on_attach = on_lsp_attach,
+        handlers = handlers,
+      }
+
+      -- Legacy server: html
+      lspconfig.html.setup {
+        filetypes = { "html", "twig", "hbs" },
+        capabilities = capabilities,
+        on_attach = on_lsp_attach,
+        handlers = handlers,
+      }
+
       require("typescript-tools").setup {
         on_attach = on_lsp_attach,
         handlers = handlers,
@@ -241,40 +300,32 @@ return {
         dap = {},
       }
 
-      -- Ensure the servers above are installed
-      local mason_lspconfig = require "mason-lspconfig"
-
-      mason_lspconfig.setup {
-        ensure_installed = vim.tbl_keys(servers),
+      require("mason").setup()
+      require("mason-lspconfig").setup {
+        ensure_installed = {
+          "clangd",
+          "eslint",
+          "html",
+          "lua_ls",
+          "typos_lsp",
+          "bashls",
+          "pylsp",
+          "astro",
+          "dhall_lsp_server",
+          "marksman",
+          "taplo",
+        },
+        automatic_enable = true,
       }
 
-      mason_lspconfig.setup_handlers {
-        ["rust_analyzer"] = function() end,
-        function(server_name)
-          if server_name ~= "rust-analyzer" then
-            require("lspconfig")[server_name].setup {
-              capabilities = capabilities,
-              on_attach = on_lsp_attach,
-              settings = servers[server_name],
-              single_file_support = (servers[server_name] or {}).single_file_support,
-              filetypes = (servers[server_name] or {}).filetypes,
-              cmd = (servers[server_name] or {}).cmd,
-              init_options = (servers[server_name] or {}).init_options,
-            }
-          end
-        end,
-      }
-
-      -- In order to enforce using the ocaml lsp from the current switch/sandbox/esy env avoid using mason
-      -- and configure ocaml lsp manually.
-      require("lspconfig").ocamllsp.setup {
+      lspconfig.ocamllsp.setup {
         capabilities = capabilities,
         on_attach = on_lsp_attach,
         handlers = handlers,
         settings = {},
       }
 
-      require("lspconfig").relay_lsp.setup {
+      lspconfig.relay_lsp.setup {
         handlers = handlers,
         capabilities = capabilities,
         on_attach = on_lsp_attach,

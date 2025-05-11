@@ -45,6 +45,12 @@ local macros = {
       desc = "FUS-RO-DAH",
       keys = "<cmd>Git! push<cr><C-w>k",
     },
+    {
+      binding = "grim",
+      desc = "Rebase interactive",
+      keys = "<cmd>Git rebase --interactive<cr>",
+      remap = true,
+    },
   },
   rust = {
     {

@@ -35,9 +35,20 @@ return {
     local function find_recent_files()
       -- Use smart() which combines recent files, buffers and files (similar to smart_open)
       require("snacks.picker").smart {
+        multi = { "files" },
+        format = "file",
         prompt = "🍪 ",
         wrap = true,
-        find_command = { "rg", "--files", "--no-require-git" },
+        matcher = {
+          fuzzy = true,
+          filename_bonus = true,
+          history_bonus = true,
+          sort_empty = true,
+          frecency = true,
+        },
+        filter = {
+          cwd = true,
+        },
       }
     end
 

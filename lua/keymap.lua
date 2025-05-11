@@ -62,14 +62,8 @@ vim.keymap.set("n", "<D-C-Up>", "Vy`>p`<", { silent = true })
 vim.keymap.set("v", "<D-C-Down>", "y`<kp`>", { silent = true })
 vim.keymap.set("n", "<D-C-Down>", "Vy`<p`>", { silent = true })
 
--- Map default <C-w> to the cmd+alt
-vim.keymap.set("n", "<D-A-v>", "<C-w>v<C-w>w", { silent = true })
-vim.keymap.set("n", "<D-A-s>", "<C-w>s<C-w>j", { silent = true })
-vim.keymap.set("n", "<D-A-l>", "<C-w>l", { silent = true })
-vim.keymap.set("n", "<D-A-h>", "<C-w>h", { silent = true })
-vim.keymap.set("n", "<D-A-q>", "<C-w>q", { silent = true })
-vim.keymap.set("n", "<D-A-j>", "<C-w>j", { silent = true })
-vim.keymap.set("n", "<D-A-k>", "<C-w>k", { silent = true })
+vim.keymap.set("n", "<C-s>", "<cmd>rightbelow vsplit<cr>", { silent = true })
+vim.keymap.set("n", "<leader>ss", "<cmd>rightbelow split<cr>", { silent = true })
 
 vim.keymap.set("n", "J", "mzJ`z")
 vim.keymap.set("n", "<C-d>", "<C-d>zz")

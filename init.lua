@@ -89,7 +89,6 @@ vim.opt.rtp:prepend(lazypath)
 
 function _G.close_floating_wins()
   require("edgy").close()
-  require("nvterm.terminal").close_all_terms()
 end
 
 require("lazy").setup("plugins", {})
@@ -127,6 +126,7 @@ vim.filetype.add { extension = { wgsl = "wgsl" } }
 
 local function open_file_under_cursor_in_the_panel_above()
   local has_telescope, telescope = pcall(require, "telescope.builtin")
+  local has_snacks, snacks = pcall(require, "snacks.picker")
 
   local filename = vim.fn.expand "<cfile>"
   local full_path_with_suffix = vim.fn.expand "<cWORD>"
@@ -135,6 +135,12 @@ local function open_file_under_cursor_in_the_panel_above()
 
   if vim.loop.fs_stat(filename) then
     vim.api.nvim_command(string.format("e %s", full_path_with_suffix))
+  elseif has_snacks then
+    snacks.files {
+      prompt = "🪿 ",
+      pattern = full_path_with_suffix,
+      wrap = true,
+    }
   elseif has_telescope then
     telescope.find_files {
       prompt_prefix = "🪿 ",

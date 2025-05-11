@@ -13,6 +13,18 @@ return {
   "tpope/vim-sleuth",
   "github/copilot.vim",
   {
+    "dmtrkovalenko/project.nvim",
+    config = function()
+      require("project_nvim").setup {
+        detection_methods = { "pattern" },
+        patterns = { ".git", ".sl" },
+        after_project_selection_callback = function()
+          vim.notify "SessionRestore"
+        end,
+      }
+    end,
+  },
+  {
     "mbbill/undotree",
     keys = {
       {
