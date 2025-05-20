@@ -91,6 +91,24 @@ return {
           custom_filetypes = "rescript",
         },
       },
+      {
+        "rachartier/tiny-code-action.nvim",
+        dependencies = {
+          { "nvim-lua/plenary.nvim" },
+        },
+        event = "LspAttach",
+        opts = {
+          backend = "difftastic",
+          picker = {
+            "snacks",
+            opts = {
+              layout = {
+                preset = "bottom",
+              },
+            },
+          },
+        },
+      },
     },
     config = function()
       local on_lsp_attach = function(client, bufnr)
@@ -102,13 +120,24 @@ return {
           vim.keymap.set("n", keys, func, { remap = true, buffer = bufnr, desc = desc, silent = true })
         end
 
-        lsp_map("<D-.>", require("actions-preview").code_actions, "[C]ode [A]ction")
+        lsp_map("<D-.>", function()
+          if client.name == "rust-analyzer" then
+            vim.cmd.RustLsp "codeAction"
+          else
+            require("tiny-code-action").code_action()
+          end
+        end, "[C]ode [A]ction")
+        lsp_map("<D-i>", function()
+          if client.name == "rust-analyzer" then
+            vim.cmd.RustLsp { "hover", "actions" }
+          else
+            vim.lsp.buf.hover()
+          end
+        end, "Hover Documentation")
         lsp_map("<D-r>", vim.lsp.buf.rename, "[R]e[n]ame")
         lsp_map("gD", vim.lsp.buf.definition, "[G]oto [D]eclaration")
         lsp_map("gi", vim.lsp.buf.implementation, "[G]oto [I]mplementation")
         lsp_map("<D-g>", "<C-]>", "[G]oto [D]efinition")
-        lsp_map("<D-A-g>", vim.lsp.buf.type_definition, "Type [D]efinition")
-        lsp_map("<D-i>", vim.lsp.buf.hover, "Hover Documentation")
         lsp_map("<D-u>", vim.lsp.buf.signature_help, "Signature Documentation")
 
         -- Various picker for lsp related stuff
@@ -258,7 +287,6 @@ return {
         handlers = handlers,
       }
 
-      -- Special case for single_file_support = false
       lspconfig.typos_lsp.setup {
         single_file_support = false,
         init_options = { diagnosticSeverity = "WARN" },
@@ -291,6 +319,9 @@ return {
               check = {
                 allTargets = false,
               },
+              cargo = {
+                targetDir = true,
+              },
               files = {
                 excludeDirs = { "target", "node_modules", ".git", ".sl" },
               },
@@ -315,7 +346,7 @@ return {
           "marksman",
           "taplo",
         },
-        automatic_enable = true,
+        automatic_enable = false,
       }
 
       lspconfig.ocamllsp.setup {

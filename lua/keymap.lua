@@ -85,7 +85,7 @@ vim.keymap.set("i", "jj", "<Esc>", { nowait = true })
 vim.keymap.set("n", "<leader>n", "<cmd>nohlsearch<CR>", { silent = true })
 vim.keymap.set("n", "<leader><leader>", "zz", { silent = true })
 vim.keymap.set("n", "<A-s>", [[:%s/\<<C-r><C-w>\>/<C-r><C-w>/gI<Left><Left><Left>]])
-vim.keymap.set("v", "<A-r>", [[y:%s/<C-r>"/<C-r>"/gI<Left><Left><Left>]])
+vim.keymap.set("x", "<A-s>", [[y:%s/<C-r>"/<C-r>"/gI<Left><Left><Left>]])
 -- Multiword step by step repeated editing
 vim.keymap.set("n", "<C-n>", "*Ncgn")
 vim.keymap.set("x", "<C-n>", [[y/\V<C-R>=escape(@", '/\')<CR><CR>Ncgn]])

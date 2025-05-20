@@ -1,12 +1,10 @@
 {
-    "diagnostics.disable": [
-        "missing-fields",
-        "undefined-global",
-        "unused-local",
-        "inject-field",
-        "duplicate-set-field"
-    ],
-    "diagnostics.globals": [
-        "setup"
-    ]
+  "diagnostics.disable": [
+    "missing-fields",
+    "undefined-global",
+    "unused-local",
+    "inject-field",
+    "duplicate-set-field"
+  ],
+  "diagnostics.globals": ["setup"]
 }

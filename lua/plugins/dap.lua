@@ -34,7 +34,7 @@ local function setup_default_configurations()
   local lldb_configuration = {
     {
       name = "Launch",
-      type = "codelldb",
+      type = "lldb",
       request = "launch",
       program = function()
         return vim.fn.input("Path to executable: ", vim.fn.getcwd() .. "/", "file")

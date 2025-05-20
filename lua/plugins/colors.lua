@@ -110,6 +110,7 @@ return {
       vim.api.nvim_set_hl(0, "TreesitterContext", { bg = "#232429" })
       vim.api.nvim_set_hl(0, "TreesitterContextLineNumber", { bg = "#232429" })
       vim.api.nvim_set_hl(0, "TreesitterContextBottom", { bg = "#232429", underline = true })
+      vim.api.nvim_set_hl(0, "CursorLineNr", { fg = "#ffffff" })
     end,
   },
   {

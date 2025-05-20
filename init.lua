@@ -51,7 +51,7 @@ vim.o.incsearch = true
 -- Set the scolloff
 vim.o.scrolloff = 10
 -- No highlight current line as cursor
-vim.o.cursorline = false
+vim.o.cursorline = true
 
 -- Set completeopt to have a better completion experience
 vim.o.completeopt = "menuone,noselect"

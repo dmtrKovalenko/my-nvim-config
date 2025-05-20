@@ -14,9 +14,11 @@ return {
       image = {
         enabled = true,
       },
+      terminal = {},
       picker = {
         prompt = "🍪 ",
         layout = { preset = "telescope" },
+        hidden = true,
         matcher = {
           fuzzy = true,
           frecency = true,

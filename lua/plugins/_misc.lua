@@ -11,7 +11,12 @@ return {
   "HealsCodes/vim-gas",
   -- Detect tabstop and shiftwidth automatically
   "tpope/vim-sleuth",
-  "github/copilot.vim",
+  {
+    "github/copilot.vim",
+    config = function()
+      vim.g.copilot_settings = { selectedCompletionModel = "gpt-4o-copilot" }
+    end,
+  },
   {
     "dmtrkovalenko/project.nvim",
     config = function()
