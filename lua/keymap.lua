@@ -107,25 +107,37 @@ vim.keymap.set("n", "gx", function()
 end, { silent = false })
 
 vim.keymap.set("n", "gd", function()
-  local status, err = pcall(function()
-    local word = vim.fn.expand "<cword>"
-    local search_pattern = "\\<" .. word .. "\\>:"
+  local word = vim.fn.expand "<cword>"
+  local save_cursor = vim.api.nvim_win_get_cursor(0)
+  local win_id = vim.api.nvim_get_current_win()
 
-    if vim.fn.searchpos(search_pattern, "n")[1] ~= 0 then
-      vim.fn.setreg("/", search_pattern)
-      vim.cmd "normal! n"
-      vim.cmd "normal! zz"
-    elseif vim.fn.searchpos("\\<" .. word .. "\\>", "n")[1] ~= 0 then
-      local basic_pattern = "\\<" .. word .. "\\>"
-      vim.fn.setreg("/", basic_pattern)
-      vim.cmd "normal! n"
-      vim.cmd "normal! zz"
-    else
-      vim.notify(string.format("Pattern '%s' not found", word), "warn", { title = "Search failed" })
+  vim.api.nvim_win_set_cursor(win_id, { 1, 0 })
+
+  local patterns = {
+    -- Word followed by exactly one colon (to handle Type:: syntax aka rust & Haskell)
+    colon = "\\<" .. word .. "\\>\\s*:\\([^:]\\|$\\)",
+    basic = "\\<" .. word .. "\\>",
+    flexible = word,
+  }
+
+  -- Search function that handles both position finding and cursor setting
+  local function try_search(pattern)
+    local line, col = unpack(vim.fn.searchpos(pattern, "n"))
+    if line > 0 then
+      vim.api.nvim_win_set_cursor(win_id, { line, col - 1 })
+      vim.fn.setreg("/", pattern)
+      return true
     end
-  end)
+    return false
+  end
 
-  if not status then
-    vim.api.nvim_echo({ { string.format("Search failed: %s", err), "ErrorMsg" } }, false, {})
+  local found = try_search(patterns.colon) or try_search(patterns.basic) or try_search(patterns.flexible)
+
+  if found then
+    vim.opt.hlsearch = true
+    vim.cmd "normal! zz"
+  else
+    vim.api.nvim_win_set_cursor(win_id, save_cursor)
+    vim.notify(string.format("Pattern '%s' not found", word), "warn", { title = "Search Failed" })
   end
 end, { remap = true, desc = "Naive file local jump to definition attempt" })
