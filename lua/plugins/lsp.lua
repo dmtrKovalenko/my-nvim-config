@@ -120,13 +120,7 @@ return {
           vim.keymap.set("n", keys, func, { remap = true, buffer = bufnr, desc = desc, silent = true })
         end
 
-        lsp_map("<D-.>", function()
-          if client.name == "rust-analyzer" then
-            vim.cmd.RustLsp "codeAction"
-          else
-            require("tiny-code-action").code_action()
-          end
-        end, "[C]ode [A]ction")
+        lsp_map("<D-.>", require("tiny-code-action").code_action, "Code Action")
         lsp_map("<D-i>", function()
           if client.name == "rust-analyzer" then
             vim.cmd.RustLsp { "hover", "actions" }
@@ -134,9 +128,9 @@ return {
             vim.lsp.buf.hover()
           end
         end, "Hover Documentation")
-        lsp_map("<D-r>", vim.lsp.buf.rename, "[R]e[n]ame")
-        lsp_map("gD", vim.lsp.buf.definition, "[G]oto [D]eclaration")
-        lsp_map("gi", vim.lsp.buf.implementation, "[G]oto [I]mplementation")
+        lsp_map("<D-r>", vim.lsp.buf.rename, "Rename")
+        lsp_map("gD", vim.lsp.buf.definition, "Goto Declaration")
+        lsp_map("gi", vim.lsp.buf.implementation, "Goto Implementation")
         lsp_map("<D-g>", "<C-]>", "[G]oto [D]efinition")
         lsp_map("<D-u>", vim.lsp.buf.signature_help, "Signature Documentation")
 
@@ -144,7 +138,7 @@ return {
         lsp_map("gr", Snacks.picker.lsp_references, "[G]oto [R]eferences")
         lsp_map("gi", Snacks.picker.lsp_implementations, "[G]oto [I]mplementations")
         lsp_map("gt", Snacks.picker.lsp_type_definitions, "[G]oto [T]ype Definitions")
-        lsp_map("<D-l>", Snacks.picker.lsp_workspace_symbols, "[S]earch [S]ymbols")
+        lsp_map("<D-l>", Snacks.picker.lsp_workspace_symbols, "Search workspace symbols")
         lsp_map("<leader>ss", Snacks.picker.lsp_symbols, "[S]earch [S]ymbols")
 
         lsp_map("<leader>lr", function()
