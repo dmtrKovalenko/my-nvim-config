@@ -48,6 +48,11 @@ return {
           sort_empty = true,
           frecency = true,
         },
+        keys = {
+          "<leader>q",
+          Snacks.picker.qflist,
+          desc = "Add to quickfix list",
+        },
         filter = {
           cwd = true,
         },

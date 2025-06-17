@@ -163,7 +163,7 @@ return {
                 local mode_map = {
                   ["NORMAL"] = "NR",
                   ["INSERT"] = "IN",
-                  ["VISUAL"] = "VV",
+                  ["VISUAL"] = "VS",
                   ["V-LINE"] = "VL",
                   ["V-BLOCK"] = "VB",
                   ["REPLACE"] = "RP",

@@ -53,9 +53,16 @@ return {
       [[                          ▒▒▒▒▒▒▒▒                             ]],
     }
 
+    local function openProject(path)
+      return function()
+        vim.cmd("cd " .. path)
+        vim.cmd "SessionRestore"
+      end
+    end
+
     dashboard.section.buttons.val = {
-      dashboard.button("l", "󱐋 LightSource", "<cmd>e ~/dev/lightsource<CR>:SessionRestore<CR>"),
-      dashboard.button("f", "󱔮 FFrames", "<cmd>e ~/dev/fframes<CR>:SessionRestore<CR>"),
+      dashboard.button("l", "󱐋 LightSource", openProject "~/dev/lightsource"),
+      dashboard.button("f", "󱔮 FFrames", openProject "~/dev/fframes"),
       dashboard.button(
         "--------------------------------------------------",
         " ",

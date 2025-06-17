@@ -10,6 +10,28 @@ local macros = {
       binding = "<F2>",
       keys = 'ysa"{ysi{(itwJoin<Esc>l%i,className<Esc><cmd>Format<cr>',
     },
+    {
+      desc = "Remove all unused",
+      binding = "<F6>",
+      keys = "<cmd>TSToolsRemoveUnused<cr>",
+    },
+    {
+      desc = "Fix all eslint erros",
+      binding = "<F7>",
+      keys = "<cmd>EslintFixAll<cr>",
+    },
+  },
+  typescript = {
+    {
+      desc = "Remove all unused",
+      binding = "<F6>",
+      keys = "<cmd>TSToolsRemoveUnused<cr>",
+    },
+    {
+      desc = "Fix all eslint erros",
+      binding = "<F7>",
+      keys = "<cmd>EslintFixAll<cr>",
+    },
   },
   fugitive = {
     {
@@ -34,6 +56,11 @@ local macros = {
       binding = "gap",
       desc = "Amend lateest commit and force push",
       keys = "<cmd>terminal fish --command 'git commit --amend --no-edit && git push --force-with-lease'<cr><C-w>k",
+    },
+    {
+      binding = "sap",
+      desc = "Amend all staged files and and push stack using spr",
+      keys = "<cmd>terminal fish --command 'git commit --amend --no-edit && git spr update'<cr><C-w>k",
     },
     {
       binding = "ls",
