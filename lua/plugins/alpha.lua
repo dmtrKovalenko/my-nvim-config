@@ -57,6 +57,7 @@ return {
       return function()
         vim.cmd("cd " .. path)
         vim.cmd "SessionRestore"
+        vim.cmd "Outline"
       end
     end
 

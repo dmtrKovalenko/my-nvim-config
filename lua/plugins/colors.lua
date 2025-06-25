@@ -148,7 +148,7 @@ return {
       require("lualine").setup {
         options = {
           disabled_filetypes = {
-            statusline = { "alpha", "NvimTree", "trouble" },
+            statusline = { "alpha", "NvimTree", "trouble", "Outline" },
           },
           theme = get_goose_lualine_theme(),
           component_separators = "|",
@@ -163,7 +163,7 @@ return {
                 local mode_map = {
                   ["NORMAL"] = "NR",
                   ["INSERT"] = "IN",
-                  ["VISUAL"] = "VS",
+                  ["VISUAL"] = "VV",
                   ["V-LINE"] = "VL",
                   ["V-BLOCK"] = "VB",
                   ["REPLACE"] = "RP",

@@ -19,9 +19,12 @@ return {
         prompt = "🍪 ",
         layout = { preset = "telescope" },
         hidden = true,
+        file = true,
+        current = true,
         matcher = {
           fuzzy = true,
           frecency = true,
+          filename_bonus = false,
         },
       },
     }

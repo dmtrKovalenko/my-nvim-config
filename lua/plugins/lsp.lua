@@ -227,8 +227,8 @@ return {
         filetypes = { "c", "cpp", "proto" },
         cmd = {
           "clangd",
-          "--background-index",
-          "--query-driver=/Users/dmtrkovalenko/.platformio/packages/toolchain-xtensa-esp32/bin/xtensa-esp32-elf-gcc",
+          -- "--background-index",
+          -- "--query-driver=/Users/dmtrkovalenko/.platformio/packages/toolchain-xtensa-esp32/bin/xtensa-esp32-elf-gcc",
           "--offset-encoding=utf-16",
         },
         capabilities = capabilities,
@@ -274,39 +274,39 @@ return {
         handlers = handlers,
       })
 
-      -- Legacy servers using traditional setup
-      -- For servers that haven't been migrated to vim.lsp.config yet
-      local lspconfig = require "lspconfig"
-
-      -- Servers mentioned in your list that need traditional setup
-      lspconfig.astro.setup {
+      vim.lsp.config("astro", {
         capabilities = capabilities,
         on_attach = on_lsp_attach,
         handlers = handlers,
-      }
+      })
 
-      lspconfig.eslint.setup {
+      vim.lsp.config("eslint", {
         filetypes = { "javascript", "typescript", "javascriptreact", "typescriptreact" },
         capabilities = capabilities,
         on_attach = on_lsp_attach,
         handlers = handlers,
-      }
+      })
 
-      lspconfig.typos_lsp.setup {
+      vim.lsp.config("typos_lsp", {
         single_file_support = false,
         init_options = { diagnosticSeverity = "WARN" },
         capabilities = capabilities,
         on_attach = on_lsp_attach,
         handlers = handlers,
-      }
+      })
 
-      -- Legacy server: html
-      lspconfig.html.setup {
+      vim.lsp.config("html", {
         filetypes = { "html", "twig", "hbs" },
         capabilities = capabilities,
         on_attach = on_lsp_attach,
         handlers = handlers,
-      }
+      })
+
+      vim.lsp.config("pylsp", {
+        capabilities = capabilities,
+        on_attach = on_lsp_attach,
+        handlers = handlers,
+      })
 
       require("typescript-tools").setup {
         on_attach = on_lsp_attach,
@@ -350,24 +350,24 @@ return {
           "dhall_lsp_server",
           "marksman",
           "taplo",
+          "ocamllsp",
         },
-        automatic_enable = false,
       }
 
-      lspconfig.ocamllsp.setup {
+      vim.lsp.config("ocamllsp", {
         capabilities = capabilities,
         on_attach = on_lsp_attach,
         handlers = handlers,
         settings = {},
-      }
+      })
 
-      lspconfig.relay_lsp.setup {
+      vim.lsp.config("relay_lsp", {
         handlers = handlers,
         capabilities = capabilities,
         on_attach = on_lsp_attach,
         cmd = { "yarn", "relay-compiler", "lsp" },
         settings = {},
-      }
+      })
     end,
   },
 }

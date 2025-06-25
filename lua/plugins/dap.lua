@@ -73,7 +73,7 @@ return {
 
     dap.listeners.after.event_initialized["dapui_config"] = function()
       dapui.open()
-      require("edgy").close()
+      -- require("edgy").close()
     end
     dap.listeners.before.event_terminated["dapui_config"] = function()
       dapui.close()

@@ -15,14 +15,15 @@ return {
     "github/copilot.vim",
     config = function()
       vim.g.copilot_settings = { selectedCompletionModel = "gpt-4o-copilot" }
+      vim.g.copilot_integration_id = "vscode-chat"
     end,
   },
   {
     "copilotlsp-nvim/copilot-lsp",
     init = function()
-      vim.g.copilot_nes_debounce = 500
+      vim.g.copilot_nes_debounce = 100
       vim.lsp.enable "copilot_ls"
-      vim.keymap.set("n", "<tab>", function()
+      vim.keymap.set("n", "<leader>t", function()
         -- Try to jump to the start of the suggestion edit.
         -- If already at the start, then apply the pending suggestion and jump to the end of the edit.
         local _ = require("copilot-lsp.nes").walk_cursor_start_edit()
@@ -252,9 +253,6 @@ return {
       vim.keymap.set("n", "<leader>r", function()
         harpoon:list():select(4)
       end, { desc = "Harpoon #4" })
-      vim.keymap.set("n", "<leader>t", function()
-        harpoon:list():select(5)
-      end, { desc = "Harpoon #5" })
     end,
   },
 
