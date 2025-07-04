@@ -350,7 +350,6 @@ return {
           "dhall_lsp_server",
           "marksman",
           "taplo",
-          "ocamllsp",
         },
       }
 
