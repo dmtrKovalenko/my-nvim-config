@@ -56,7 +56,7 @@ return {
     local function openProject(path)
       return function()
         vim.cmd("cd " .. path)
-        vim.cmd "SessionRestore"
+        require("persistence").load()
         vim.cmd "Outline"
       end
     end
@@ -90,7 +90,7 @@ return {
                 ["<c-e>"] = { { "tcd", "picker_explorer" }, mode = { "n", "i" } },
                 ["<c-f>"] = { { "tcd", "picker_files" }, mode = { "n", "i" } },
                 ["<c-g>"] = { { "tcd", "picker_grep" }, mode = { "n", "i" } },
-                ["<c-r>"] = { { "tcd", "<cmd>SessionRestore<cr>" }, mode = { "n", "i" } },
+                ["<c-r>"] = { { "tcd", function() require("persistence").load() end }, mode = { "n", "i" } },
                 ["<c-w>"] = { { "tcd" }, mode = { "n", "i" } },
                 ["<c-t>"] = {
                   function(picker)

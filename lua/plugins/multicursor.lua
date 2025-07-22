@@ -47,16 +47,6 @@ return {
     -- Delete the main cursor.
     vim.keymap.set({ "n", "v" }, "<leader>x", mc.deleteCursor)
 
-    vim.keymap.set({ "n", "v" }, "<c-q>", function()
-      if mc.cursorsEnabled() then
-        -- Stop other cursors from moving.
-        -- This allows you to reposition the main cursor.
-        mc.disableCursors()
-      else
-        mc.addCursor()
-      end
-    end)
-
     -- clone every cursor and disable the originals
     vim.keymap.set({ "n", "v" }, "<leader><c-q>", mc.duplicateCursors)
 

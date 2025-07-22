@@ -12,6 +12,12 @@ return {
   -- Detect tabstop and shiftwidth automatically
   "tpope/vim-sleuth",
   {
+    "dmtrkovalenko/fold-imports.nvim",
+    -- dir = "~/dev/fold-imports.nvim",
+    opts = {},
+    event = "BufReadPre",
+  },
+  {
     "greggh/claude-code.nvim",
     dependencies = {
       "nvim-lua/plenary.nvim",
@@ -25,8 +31,11 @@ return {
       },
     },
     opts = {
+      command = "awsclaude",
       window = {
         split_ratio = 0.4,
+        enter_insert = false,
+        position = "rightbelow",
       },
     },
   },
@@ -44,7 +53,7 @@ return {
         detection_methods = { "pattern" },
         patterns = { ".git", ".sl" },
         after_project_selection_callback = function()
-          vim.notify "SessionRestore"
+          require("persistence").load()
         end,
       }
     end,
@@ -58,6 +67,11 @@ return {
         "<cmd>UndotreeToggle<CR>",
       },
     },
+    config = function()
+      vim.g.undotree_WindowLayout = 3 -- Right layout
+      vim.g.undotree_SplitWidth = 40 -- Width of the undotree window
+      vim.g.undotree_SetFocusWhenToggle = 1 -- Focus on the undotree window when toggled
+    end,
   },
   { "chentoast/marks.nvim", event = "VeryLazy", opts = {} },
   {
@@ -155,10 +169,10 @@ return {
           vim.keymap.set(mode, l, r, opts)
         end
 
-        gsmap("n", "[g", function()
+        gsmap("n", "[c", function()
           gitsigns.nav_hunk "prev"
         end, { desc = "[G]o to [P]revious Hunk" })
-        gsmap("n", "]g", function()
+        gsmap("n", "]", function()
           gitsigns.nav_hunk "next"
         end, { desc = "[G]it go to [N]ext Hunk" })
         gsmap("n", "<leader>gd", gitsigns.preview_hunk, { desc = "[G]it [D]iff Hunk" })
@@ -318,6 +332,11 @@ return {
     event = "VeryLazy",
     dependencies = { "MunifTanjim/nui.nvim" },
     opts = {
+      views = {
+        cmdline_popup = {
+          position = { row = 23 },
+        },
+      },
       presets = {
         lsp_doc_border = true,
       },
@@ -356,17 +375,14 @@ return {
     },
   },
   {
-    "rmagatti/auto-session",
+    "folke/persistence.nvim",
+    event = "BufReadPre",
     opts = {
-      log_level = "error",
-      suppressed_dirs = { "~/", "~/Downloads", "/" },
-      bypass_save_filetypes = { "help", "alpha", "telescope", "trouble" },
-      pre_save_cmds = { _G.close_floating_wins },
+      need = 1,
+      branch = false,
     },
     init = function()
-      vim.o.sessionoptions = "blank,buffers,curdir,folds,help,tabpages,winsize,winpos,terminal,localoptions"
-
-      vim.api.nvim_create_user_command("CloseFloats", close_floating_wins, {})
+      vim.opt.sessionoptions = { "buffers", "curdir", "tabpages", "winsize", "help", "globals", "skiprtp", "folds" }
     end,
   },
   {

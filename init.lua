@@ -4,7 +4,7 @@ vim.g.kitty_fast_forwarded_modifiers = "super"
 
 local IS_STREAMING = os.getenv "STREAM" ~= nil
 if IS_STREAMING then
-  vim.print "Subscribe to my twitter @goose_plus_plus"
+  vim.print "Subscribe to my twitter @neogoose_btw"
 end
 
 -- disable netrw at the very start of your init.lua

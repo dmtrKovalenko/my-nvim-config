@@ -5,6 +5,7 @@ return {
     -- Custom treesitter parserrs
     "rescript-lang/tree-sitter-rescript",
     "danielo515/tree-sitter-reason",
+    "rescript-lang/vim-rescript", -- do not remove required for subtitler and fframes
     "IndianBoy42/tree-sitter-just",
     {
       "nvim-treesitter/nvim-treesitter-context",

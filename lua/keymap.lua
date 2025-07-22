@@ -62,9 +62,6 @@ vim.keymap.set("n", "<D-C-Up>", "Vy`>p`<", { silent = true })
 vim.keymap.set("v", "<D-C-Down>", "y`<kp`>", { silent = true })
 vim.keymap.set("n", "<D-C-Down>", "Vy`<p`>", { silent = true })
 
-vim.keymap.set("n", "<C-s>", "<cmd>rightbelow vsplit<cr>", { silent = true })
-vim.keymap.set("n", "<leader>ss", "<cmd>rightbelow split<cr>", { silent = true })
-
 vim.keymap.set("n", "J", "mzJ`z")
 vim.keymap.set("n", "<C-d>", "<C-d>zz")
 vim.keymap.set("n", "<C-u>", "<C-u>zz")
@@ -141,3 +138,64 @@ vim.keymap.set("n", "gd", function()
     vim.notify(string.format("Pattern '%s' not found", word), "warn", { title = "Search Failed" })
   end
 end, { remap = true, desc = "Naive file local jump to definition attempt" })
+
+vim.keymap.set("n", "<C-g>", function()
+  local relative_path = vim.fn.expand "%:."
+  if relative_path ~= "" then
+    vim.fn.setreg("+", relative_path)
+    vim.notify(relative_path, 0)
+  end
+end, { silent = true, noremap = true, desc = "Show and copy relative file path" })
+
+vim.keymap.set("n", "<C-q>", function()
+  local current_win = vim.api.nvim_get_current_win()
+  local current_config = vim.api.nvim_win_get_config(current_win)
+
+  -- If current window is floating, close it
+  if current_config.relative ~= "" then
+    vim.api.nvim_win_close(current_win, false)
+    return
+  end
+
+  local normal_windows = {}
+  local has_outline = false
+
+  for _, win in ipairs(vim.api.nvim_list_wins()) do
+    local config = vim.api.nvim_win_get_config(win)
+    if config.relative == "" then -- Non-floating windows
+      table.insert(normal_windows, win)
+      local bufnr = vim.api.nvim_win_get_buf(win)
+      local filetype = vim.bo[bufnr].filetype
+      if filetype == "Outline" then
+        has_outline = true
+      end
+    end
+  end
+
+  if #normal_windows == 2 and has_outline then
+    vim.cmd "qa"
+  else
+    -- Use the original <C-w>q behavior
+    vim.cmd "quit"
+  end
+end, { silent = true, noremap = true, nowait = true, desc = "Smart quit" })
+
+vim.keymap.set("n", "<C-D-h>", "<cmd>wincmd h<CR>", { silent = true, nowait = true, desc = "Go to left window" })
+vim.keymap.set("n", "<C-D-l>", "<cmd>wincmd l<CR>", { silent = true, nowait = true, desc = "Go to right window" })
+vim.keymap.set("n", "<C-D-j>", "<cmd>wincmd j<CR>", { silent = true, nowait = true, desc = "Go to bottom window" })
+vim.keymap.set("n", "<C-D-k>", "<cmd>wincmd k<CR>", { silent = true, nowait = true, desc = "Go to top window" })
+vim.keymap.set(
+  "n",
+  "<C-D-s>",
+  "<cmd>rightbelow vsplit<cr>",
+  { silent = true, nowait = true, desc = "Split window vertically" }
+)
+vim.keymap.set(
+  "n",
+  "<C-D-v>",
+  "<cmd>rightbelow split<cr>",
+  { silent = true, nowait = true, desc = "Split window horizontally" }
+)
+vim.keymap.set("n", "<C-D-o>", "<cmd>wincmd o<CR>", { silent = true, nowait = true, desc = "Quit other windows" })
+
+vim.keymap.set("n", "<C-w>", "<Nop>", { noremap = true, silent = true })
