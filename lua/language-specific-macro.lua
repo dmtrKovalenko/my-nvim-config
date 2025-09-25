@@ -16,7 +16,7 @@ local macros = {
       keys = "<cmd>TSToolsRemoveUnused<cr>",
     },
     {
-      desc = "Fix all eslint erros",
+      desc = "Fix all eslint errors",
       binding = "<F7>",
       keys = "<cmd>EslintFixAll<cr>",
     },
@@ -28,7 +28,7 @@ local macros = {
       keys = "<cmd>TSToolsRemoveUnused<cr>",
     },
     {
-      desc = "Fix all eslint erros",
+      desc = "Fix all eslint errors",
       binding = "<F7>",
       keys = "<cmd>EslintFixAll<cr>",
     },

@@ -12,8 +12,62 @@ return {
   -- Detect tabstop and shiftwidth automatically
   "tpope/vim-sleuth",
   {
+    "lewis6991/foldsigns.nvim",
+    opts = {},
+  },
+  {
+    "nvim-telescope/telescope.nvim",
+    tag = "0.1.8",
+    dependencies = { "nvim-lua/plenary.nvim" },
+  },
+  {
+    "ibhagwan/fzf-lua",
+    -- optional for icon support
+    dependencies = { "nvim-tree/nvim-web-devicons" },
+    -- or if using mini.icons/mini.nvim
+    -- dependencies = { "echasnovski/mini.icons" },
+    opts = {},
+  },
+  {
+    "dmtrkovalenko/fff.nvim",
+     -- dir = "~/dev/fff.nvim",
+    branch = "feat/prebuild",
+    build = function()
+      -- No more need to cargo build!!!!
+      require("fff.download").download_or_build_binary()
+    end,
+    lazy = false,
+    opts = {
+      lazy_sync = true,
+      debug = {
+        enabled = true,
+        show_scores = true,
+      },
+      preview = {
+        chunk_size = 4096,
+      },
+      layout = {
+        -- prompt_position = "top",
+        -- preview_size = 0.4, -- 40% of the window width
+      },
+      logging = {
+        enabled = true,
+        log_level = "debug",
+      },
+    },
+    keys = {
+      {
+        "ff",
+        function()
+          require("fff").find_files()
+        end,
+        desc = "Find files",
+      },
+    },
+  },
+  {
     "dmtrkovalenko/fold-imports.nvim",
-    -- dir = "~/dev/fold-imports.nvim",
+    dir = "~/dev/fold-imports.nvim",
     opts = {},
     event = "BufReadPre",
   },
@@ -155,7 +209,7 @@ return {
     opts = {
       signs = {
         add = { text = "┃" },
-        chage = { text = "┃" },
+        change = { text = "┃" },
         delete = { text = "_" },
         topdelete = { text = "‾" },
         changedelete = { text = "~" },

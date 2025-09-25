@@ -95,6 +95,7 @@ return {
     lazy = false,
     priority = 1000000,
     opts = {
+      transparent = true,
       borderless_pickers = false,
       saturation = 0.95,
       cache = true,

@@ -97,7 +97,11 @@ return {
     vim.keymap.set("n", "gs", open_file_under_cursor_in_picker, { desc = "Search file name under cursor" })
 
     vim.keymap.set("n", "<D-f>", function()
-      require("snacks.picker").lines()
+      require("snacks.picker").lines {
+        layout = {
+          preset = "select",
+        },
+      }
     end, { desc = "Fuzzily search in current buffer" })
 
     vim.keymap.set("n", "<D-s-;>", require("snacks.picker").commands, { desc = "Search commands" })

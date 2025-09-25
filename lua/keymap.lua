@@ -190,6 +190,12 @@ vim.keymap.set(
   "<cmd>rightbelow vsplit<cr>",
   { silent = true, nowait = true, desc = "Split window vertically" }
 )
+
+vim.keymap.set("n", "<C-D-Up>", "<Cmd>resize +2<CR>", { silent = true, nowait = true, desc = "Taller" })
+vim.keymap.set("n", "<C-D-Down>", "<Cmd>resize -2<CR>", { silent = true, nowait = true, desc = "Shorter" })
+vim.keymap.set("n", "<C-D-Right>", "<Cmd>vertical resize +5<CR>", { silent = true, nowait = true, desc = "Wider" })
+vim.keymap.set("n", "<C-D-Left>", "<Cmd>vertical resize -5<CR>", { silent = true, nowait = true, desc = "Narrower" })
+
 vim.keymap.set(
   "n",
   "<C-D-v>",
@@ -197,5 +203,3 @@ vim.keymap.set(
   { silent = true, nowait = true, desc = "Split window horizontally" }
 )
 vim.keymap.set("n", "<C-D-o>", "<cmd>wincmd o<CR>", { silent = true, nowait = true, desc = "Quit other windows" })
-
-vim.keymap.set("n", "<C-w>", "<Nop>", { noremap = true, silent = true })

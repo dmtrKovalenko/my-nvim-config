@@ -75,35 +75,12 @@ return {
           format = "file",
           dev = { "~/dev" },
           patterns = { ".git" },
-          recent = true,
           matcher = {
-            frecency = true, -- use frecency boosting
-            sort_empty = true, -- sort even when the filter is empty
+            frecency = true,
+            sort_empty = true,
             cwd_bonus = false,
           },
           sort = { fields = { "score:desc", "idx" } },
-          win = {
-            preview = { minimal = true },
-            input = {
-              keys = {
-                -- every action will always first change the cwd of the current tabpage to the project
-                ["<c-e>"] = { { "tcd", "picker_explorer" }, mode = { "n", "i" } },
-                ["<c-f>"] = { { "tcd", "picker_files" }, mode = { "n", "i" } },
-                ["<c-g>"] = { { "tcd", "picker_grep" }, mode = { "n", "i" } },
-                ["<c-r>"] = { { "tcd", function() require("persistence").load() end }, mode = { "n", "i" } },
-                ["<c-w>"] = { { "tcd" }, mode = { "n", "i" } },
-                ["<c-t>"] = {
-                  function(picker)
-                    vim.cmd "tabnew"
-                    Snacks.notify "New tab opened"
-                    picker:close()
-                    Snacks.picker.projects()
-                  end,
-                  mode = { "n", "i" },
-                },
-              },
-            },
-          },
         }
       end),
       dashboard.button("a", "  New file", "<cmd>ene <BAR> startinsert <CR>"),

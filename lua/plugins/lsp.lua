@@ -97,23 +97,12 @@ return {
         },
         event = "LspAttach",
         opts = {
-          backend = "difftastic",
+          backend = "delta",
           picker = {
             "snacks",
             opts = {
               layout = {
-                preset = "ivy",
-                layout = {
-                  box = "vertical",
-                  position = "bottom",
-                  backdrop = false,
-                  border = "rounded",
-                  title = " {title} {live} {flags}",
-                  title_pos = "left",
-                  { win = "input", height = 1, border = "bottom" },
-                  { win = "list", border = "none" },
-                  { win = "preview", title = "{preview}", height = 0.5, border = "top" },
-                },
+                preset = "dropdown",
               },
             },
           },
@@ -302,6 +291,12 @@ return {
       })
 
       vim.lsp.config("pylsp", {
+        capabilities = capabilities,
+        on_attach = on_lsp_attach,
+        handlers = handlers,
+      })
+
+      vim.lsp.config("zigls", {
         capabilities = capabilities,
         on_attach = on_lsp_attach,
         handlers = handlers,
