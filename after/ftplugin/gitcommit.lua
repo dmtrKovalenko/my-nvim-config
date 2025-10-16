@@ -1,0 +1,2 @@
+vim.bo.commentstring = "; %s"
+
