@@ -24,13 +24,12 @@ return {
     "ibhagwan/fzf-lua",
     -- optional for icon support
     dependencies = { "nvim-tree/nvim-web-devicons" },
-    -- or if using mini.icons/mini.nvim
-    -- dependencies = { "echasnovski/mini.icons" },
+
     opts = {},
   },
   {
     "dmtrkovalenko/fff.nvim",
-     -- dir = "~/dev/fff.nvim",
+    dir = "~/dev/fff.nvim",
     branch = "feat/prebuild",
     build = function()
       -- No more need to cargo build!!!!
@@ -96,7 +95,7 @@ return {
   {
     "github/copilot.vim",
     config = function()
-      vim.g.copilot_settings = { selectedCompletionModel = "gpt-4o-copilot" }
+      vim.g.copilot_settings = { selectedCompletionModel = "gpt-41-copilot" }
       vim.g.copilot_integration_id = "vscode-chat"
     end,
   },

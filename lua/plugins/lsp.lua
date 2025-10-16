@@ -40,12 +40,9 @@ return {
   },
   {
     -- LSP Configuration & Plugins
-    "neovim/nvim-lspconfig",
+    "williamboman/mason.nvim",
     lazy = false,
     dependencies = {
-      -- Automatically install LSPs to stdpath for neovim
-      { "williamboman/mason.nvim", config = true },
-      "mason-org/mason-lspconfig.nvim", -- Updated repo URL
       {
         "folke/lazydev.nvim",
         ft = "lua", -- only load on lua files
@@ -60,7 +57,7 @@ return {
       "ocaml-mlx/ocaml_mlx.nvim",
       {
         "pmizio/typescript-tools.nvim",
-        dependencies = { "nvim-lua/plenary.nvim" },
+        dependencies = { "nvim-lua/plenary.nvim", "neovim/nvim-lspconfig" },
         opts = {},
       },
       {
@@ -84,7 +81,6 @@ return {
         event = "BufWinEnter",
         dependencies = {
           "nvim-treesitter/nvim-treesitter",
-          "neovim/nvim-lspconfig", -- optional
         },
         opts = {
           custom_filetypes = "rescript",
@@ -211,17 +207,20 @@ return {
         return orig_util_open_floating_preview(contents, syntax, opts, ...)
       end
 
-      vim.lsp.config("clangd", {
-        filetypes = { "c", "cpp", "proto" },
-        cmd = {
-          "clangd",
-          -- "--background-index",
-          -- "--query-driver=/Users/dmtrkovalenko/.platformio/packages/toolchain-xtensa-esp32/bin/xtensa-esp32-elf-gcc",
-          "--offset-encoding=utf-16",
-        },
+      -- Set up global defaults first
+      vim.lsp.config('*', {
         capabilities = capabilities,
         on_attach = on_lsp_attach,
         handlers = handlers,
+        -- root_markers = { '.git' },
+      })
+
+      -- Servers with custom command or settings need vim.lsp.config()
+      vim.lsp.config("clangd", {
+        cmd = {
+          "clangd",
+          "--offset-encoding=utf-16",
+        },
       })
 
       vim.lsp.config("lua_ls", {
@@ -232,75 +231,151 @@ return {
             telemetry = { enable = false },
           },
         },
-        capabilities = capabilities,
-        on_attach = on_lsp_attach,
-        handlers = handlers,
       })
 
       vim.lsp.config("bashls", {
         settings = { includeAllWorkspaceSymbols = true },
-        capabilities = capabilities,
-        on_attach = on_lsp_attach,
-        handlers = handlers,
-      })
-
-      vim.lsp.config("dhall_lsp_server", {
-        capabilities = capabilities,
-        on_attach = on_lsp_attach,
-        handlers = handlers,
-      })
-
-      vim.lsp.config("marksman", {
-        capabilities = capabilities,
-        on_attach = on_lsp_attach,
-        handlers = handlers,
-      })
-
-      vim.lsp.config("taplo", {
-        capabilities = capabilities,
-        on_attach = on_lsp_attach,
-        handlers = handlers,
-      })
-
-      vim.lsp.config("astro", {
-        capabilities = capabilities,
-        on_attach = on_lsp_attach,
-        handlers = handlers,
-      })
-
-      vim.lsp.config("eslint", {
-        filetypes = { "javascript", "typescript", "javascriptreact", "typescriptreact" },
-        capabilities = capabilities,
-        on_attach = on_lsp_attach,
-        handlers = handlers,
       })
 
       vim.lsp.config("typos_lsp", {
         single_file_support = false,
         init_options = { diagnosticSeverity = "WARN" },
-        capabilities = capabilities,
-        on_attach = on_lsp_attach,
-        handlers = handlers,
       })
 
-      vim.lsp.config("html", {
-        filetypes = { "html", "twig", "hbs" },
-        capabilities = capabilities,
-        on_attach = on_lsp_attach,
-        handlers = handlers,
+      -- Relay LSP configuration with smart binary detection
+      vim.lsp.config("relay_lsp", {
+        cmd = function(dispatchers, root_dir)
+          -- Try different ways to find and run relay-compiler
+          local cmd = nil
+
+          -- Helper function to find workspace root
+          local function find_workspace_root(start_dir)
+            local current = start_dir
+            local root = nil
+
+            while current and current ~= "/" do
+              -- Look for yarn.lock, package-lock.json, or pnpm-lock.yaml
+              if vim.fn.filereadable(vim.fs.joinpath(current, "yarn.lock")) == 1 or
+                 vim.fn.filereadable(vim.fs.joinpath(current, "package-lock.json")) == 1 or
+                 vim.fn.filereadable(vim.fs.joinpath(current, "pnpm-lock.yaml")) == 1 then
+                root = current
+                break
+              end
+              current = vim.fn.fnamemodify(current, ":h")
+            end
+
+            return root
+          end
+
+          -- 1. Try local node_modules/.bin/relay-compiler
+          local local_bin = vim.fs.joinpath(root_dir, "node_modules", ".bin", "relay-compiler")
+          if vim.fn.executable(local_bin) == 1 then
+            cmd = { local_bin, "lsp" }
+          else
+            -- 2. Try workspace root node_modules/.bin/relay-compiler (for yarn workspaces)
+            local workspace_root = find_workspace_root(root_dir)
+            if workspace_root then
+              local workspace_bin = vim.fs.joinpath(workspace_root, "node_modules", ".bin", "relay-compiler")
+              if vim.fn.executable(workspace_bin) == 1 then
+                cmd = { workspace_bin, "lsp" }
+              end
+            end
+          end
+
+          -- 3. Try global relay-compiler
+          if not cmd and vim.fn.executable("relay-compiler") == 1 then
+            cmd = { "relay-compiler", "lsp" }
+          end
+
+          -- 4. Try yarn relay-compiler (if yarn.lock exists in workspace)
+          if not cmd then
+            local workspace_root = find_workspace_root(root_dir)
+            if workspace_root and vim.fn.filereadable(vim.fs.joinpath(workspace_root, "yarn.lock")) == 1
+               and vim.fn.executable("yarn") == 1 then
+              cmd = { "yarn", "relay-compiler", "lsp" }
+            end
+          end
+
+          -- 5. Try npx relay-compiler as fallback
+          if not cmd and vim.fn.executable("npx") == 1 then
+            cmd = { "npx", "relay-compiler", "lsp" }
+          end
+
+          if not cmd then
+            vim.notify("relay-compiler not found. Install it with: npm install -g relay-compiler", vim.log.levels.ERROR)
+            return nil
+          end
+
+          return cmd
+        end,
+        filetypes = {
+          "javascript",
+          "javascriptreact",
+          "javascript.jsx",
+          "typescript",
+          "typescriptreact",
+          "typescript.tsx"
+        },
+        root_dir = function(fname)
+          -- Look for relay config files first (most specific)
+          local relay_root = vim.fs.root(fname, {
+            "relay.config.js",
+            "relay.config.json",
+            "relay.config.cjs",
+            "relay.config.ts"
+          })
+          if relay_root then
+            return relay_root
+          end
+
+          -- Fallback to package.json
+          return vim.fs.root(fname, { "package.json" })
+        end,
+        default_config = {
+          auto_start_compiler = false,
+          path_to_config = nil
+        },
+        on_new_config = function(config, root_dir)
+          local relay_config_path = nil
+
+          -- Look for relay config files
+          for _, name in ipairs({ "relay.config.js", "relay.config.json", "relay.config.cjs" }) do
+            local config_file = vim.fs.joinpath(root_dir, name)
+            if vim.fn.filereadable(config_file) == 1 then
+              relay_config_path = config_file
+              break
+            end
+          end
+
+          if relay_config_path then
+            config.settings = config.settings or {}
+            config.settings.relay = config.settings.relay or {}
+            config.settings.relay.pathToConfig = relay_config_path
+          end
+        end,
+        handlers = vim.tbl_extend("force", handlers, {
+          ["window/showStatus"] = function(_, result, ctx, _)
+            if result then
+              local client = vim.lsp.get_client_by_id(ctx.client_id)
+              if client then
+                vim.notify(string.format("[%s] %s", client.name, result.message or ""), vim.log.levels.INFO)
+              end
+            end
+          end
+        })
       })
 
-      vim.lsp.config("pylsp", {
-        capabilities = capabilities,
-        on_attach = on_lsp_attach,
-        handlers = handlers,
-      })
-
-      vim.lsp.config("zigls", {
-        capabilities = capabilities,
-        on_attach = on_lsp_attach,
-        handlers = handlers,
-      })
+      -- Servers that work with defaults can use vim.lsp.enable()
+      vim.lsp.enable('dhall_lsp_server')
+      vim.lsp.enable('marksman')
+      vim.lsp.enable('taplo')
+      vim.lsp.enable('astro')
+      vim.lsp.enable('eslint')
+      vim.lsp.enable('html')
+      vim.lsp.enable('pylsp')
+      vim.lsp.enable('zls')
+      vim.lsp.enable('ocamllsp')
+      vim.lsp.enable('relay_lsp')
 
       require("typescript-tools").setup {
         on_attach = on_lsp_attach,
@@ -331,36 +406,6 @@ return {
       }
 
       require("mason").setup()
-      require("mason-lspconfig").setup {
-        ensure_installed = {
-          "clangd",
-          "eslint",
-          "html",
-          "lua_ls",
-          "typos_lsp",
-          "bashls",
-          "pylsp",
-          "astro",
-          "dhall_lsp_server",
-          "marksman",
-          "taplo",
-        },
-      }
-
-      vim.lsp.config("ocamllsp", {
-        capabilities = capabilities,
-        on_attach = on_lsp_attach,
-        handlers = handlers,
-        settings = {},
-      })
-
-      vim.lsp.config("relay_lsp", {
-        handlers = handlers,
-        capabilities = capabilities,
-        on_attach = on_lsp_attach,
-        cmd = { "yarn", "relay-compiler", "lsp" },
-        settings = {},
-      })
     end,
   },
 }

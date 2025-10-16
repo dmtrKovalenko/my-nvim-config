@@ -79,7 +79,6 @@ return {
     vim.keymap.set("n", "<D-m>", require("snacks.picker").diagnostics, { desc = "Diagnostics" })
     vim.keymap.set("n", "<leader>b", require("snacks.picker").buffers, { desc = "Buffers" })
     vim.keymap.set("n", "<leader>gb", require("snacks.picker").git_branches, { desc = "Git branches" })
-    vim.keymap.set("n", "<leader>sg", require("snacks.picker").git_files, { desc = "Search by git files" })
     vim.keymap.set("n", "<leader>sw", require("snacks.picker").grep_word, { desc = "Search word" })
 
     local function open_file_under_cursor_in_picker()
