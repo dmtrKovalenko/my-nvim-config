@@ -10,8 +10,6 @@
 
 (arrow) @punctuation.delimiter
 
-(subject) @function @spell
-
 (subject
   (subject_prefix) @function @nospell)
 
