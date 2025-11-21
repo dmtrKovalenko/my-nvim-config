@@ -32,8 +32,15 @@ return {
         }
       end
 
+      local function format_and_save()
+        vim.cmd "stopinsert"
+        vim.api.nvim_feedkeys(vim.api.nvim_replace_termcodes("<Esc>", true, false, true), "n", true)
+        format()
+        vim.cmd "write"
+      end
+
       vim.keymap.set({ "n", "i" }, "<F12>", format, { desc = "Format", silent = true })
-      vim.keymap.set({ "n", "i" }, "<C-f>", format, { desc = "Format", silent = true })
+      vim.keymap.set({ "n", "i" }, "<C-f>", format_and_save, { desc = "Format", silent = true })
 
       vim.api.nvim_create_user_command("Format", format, { desc = "Format current buffer with LSP" })
     end,
@@ -55,11 +62,7 @@ return {
         },
       },
       "ocaml-mlx/ocaml_mlx.nvim",
-      {
-        "pmizio/typescript-tools.nvim",
-        dependencies = { "nvim-lua/plenary.nvim", "neovim/nvim-lspconfig" },
-        opts = {},
-      },
+      "neovim/nvim-lspconfig",
       {
         "mrcjkb/rustaceanvim",
         lazy = false,
@@ -115,7 +118,9 @@ return {
           vim.keymap.set("n", keys, func, { remap = true, buffer = bufnr, desc = desc, silent = true })
         end
 
-        lsp_map("<D-.>", require("tiny-code-action").code_action, "Code Action")
+        lsp_map("<D-.>", function()
+          require("tiny-code-action").code_action {}
+        end, "Code Action")
         lsp_map("<D-i>", function()
           if client.name == "rust-analyzer" then
             vim.cmd.RustLsp { "hover", "actions" }
@@ -132,7 +137,7 @@ return {
         -- Various picker for lsp related stuff
         lsp_map("gr", Snacks.picker.lsp_references, "[G]oto [R]eferences")
         lsp_map("gi", Snacks.picker.lsp_implementations, "[G]oto [I]mplementations")
-        lsp_map("gt", Snacks.picker.lsp_type_definitions, "[G]oto [T]ype Definitions")
+        lsp_map("<A-t>", Snacks.picker.lsp_type_definitions, "[G]oto [T]ype Definitions")
         lsp_map("<D-l>", Snacks.picker.lsp_workspace_symbols, "Search workspace symbols")
         lsp_map("<leader>ss", Snacks.picker.lsp_symbols, "[S]earch [S]ymbols")
 
@@ -208,11 +213,11 @@ return {
       end
 
       -- Set up global defaults first
-      vim.lsp.config('*', {
+      vim.lsp.config("*", {
         capabilities = capabilities,
         on_attach = on_lsp_attach,
         handlers = handlers,
-        -- root_markers = { '.git' },
+        root_markers = { ".git" },
       })
 
       -- Servers with custom command or settings need vim.lsp.config()
@@ -242,145 +247,21 @@ return {
         init_options = { diagnosticSeverity = "WARN" },
       })
 
-      -- Relay LSP configuration with smart binary detection
-      vim.lsp.config("relay_lsp", {
-        cmd = function(dispatchers, root_dir)
-          -- Try different ways to find and run relay-compiler
-          local cmd = nil
-
-          -- Helper function to find workspace root
-          local function find_workspace_root(start_dir)
-            local current = start_dir
-            local root = nil
-
-            while current and current ~= "/" do
-              -- Look for yarn.lock, package-lock.json, or pnpm-lock.yaml
-              if vim.fn.filereadable(vim.fs.joinpath(current, "yarn.lock")) == 1 or
-                 vim.fn.filereadable(vim.fs.joinpath(current, "package-lock.json")) == 1 or
-                 vim.fn.filereadable(vim.fs.joinpath(current, "pnpm-lock.yaml")) == 1 then
-                root = current
-                break
-              end
-              current = vim.fn.fnamemodify(current, ":h")
-            end
-
-            return root
-          end
-
-          -- 1. Try local node_modules/.bin/relay-compiler
-          local local_bin = vim.fs.joinpath(root_dir, "node_modules", ".bin", "relay-compiler")
-          if vim.fn.executable(local_bin) == 1 then
-            cmd = { local_bin, "lsp" }
-          else
-            -- 2. Try workspace root node_modules/.bin/relay-compiler (for yarn workspaces)
-            local workspace_root = find_workspace_root(root_dir)
-            if workspace_root then
-              local workspace_bin = vim.fs.joinpath(workspace_root, "node_modules", ".bin", "relay-compiler")
-              if vim.fn.executable(workspace_bin) == 1 then
-                cmd = { workspace_bin, "lsp" }
-              end
-            end
-          end
-
-          -- 3. Try global relay-compiler
-          if not cmd and vim.fn.executable("relay-compiler") == 1 then
-            cmd = { "relay-compiler", "lsp" }
-          end
-
-          -- 4. Try yarn relay-compiler (if yarn.lock exists in workspace)
-          if not cmd then
-            local workspace_root = find_workspace_root(root_dir)
-            if workspace_root and vim.fn.filereadable(vim.fs.joinpath(workspace_root, "yarn.lock")) == 1
-               and vim.fn.executable("yarn") == 1 then
-              cmd = { "yarn", "relay-compiler", "lsp" }
-            end
-          end
-
-          -- 5. Try npx relay-compiler as fallback
-          if not cmd and vim.fn.executable("npx") == 1 then
-            cmd = { "npx", "relay-compiler", "lsp" }
-          end
-
-          if not cmd then
-            vim.notify("relay-compiler not found. Install it with: npm install -g relay-compiler", vim.log.levels.ERROR)
-            return nil
-          end
-
-          return cmd
-        end,
-        filetypes = {
-          "javascript",
-          "javascriptreact",
-          "javascript.jsx",
-          "typescript",
-          "typescriptreact",
-          "typescript.tsx"
-        },
-        root_dir = function(fname)
-          -- Look for relay config files first (most specific)
-          local relay_root = vim.fs.root(fname, {
-            "relay.config.js",
-            "relay.config.json",
-            "relay.config.cjs",
-            "relay.config.ts"
-          })
-          if relay_root then
-            return relay_root
-          end
-
-          -- Fallback to package.json
-          return vim.fs.root(fname, { "package.json" })
-        end,
-        default_config = {
-          auto_start_compiler = false,
-          path_to_config = nil
-        },
-        on_new_config = function(config, root_dir)
-          local relay_config_path = nil
-
-          -- Look for relay config files
-          for _, name in ipairs({ "relay.config.js", "relay.config.json", "relay.config.cjs" }) do
-            local config_file = vim.fs.joinpath(root_dir, name)
-            if vim.fn.filereadable(config_file) == 1 then
-              relay_config_path = config_file
-              break
-            end
-          end
-
-          if relay_config_path then
-            config.settings = config.settings or {}
-            config.settings.relay = config.settings.relay or {}
-            config.settings.relay.pathToConfig = relay_config_path
-          end
-        end,
-        handlers = vim.tbl_extend("force", handlers, {
-          ["window/showStatus"] = function(_, result, ctx, _)
-            if result then
-              local client = vim.lsp.get_client_by_id(ctx.client_id)
-              if client then
-                vim.notify(string.format("[%s] %s", client.name, result.message or ""), vim.log.levels.INFO)
-              end
-            end
-          end
-        })
+      vim.lsp.config("ts_ls", {
+        on_attach = on_lsp_attach,
       })
 
-      -- Servers that work with defaults can use vim.lsp.enable()
-      vim.lsp.enable('dhall_lsp_server')
-      vim.lsp.enable('marksman')
-      vim.lsp.enable('taplo')
-      vim.lsp.enable('astro')
-      vim.lsp.enable('eslint')
-      vim.lsp.enable('html')
-      vim.lsp.enable('pylsp')
-      vim.lsp.enable('zls')
-      vim.lsp.enable('ocamllsp')
-      vim.lsp.enable('relay_lsp')
-
-      require("typescript-tools").setup {
-        on_attach = on_lsp_attach,
-        handlers = handlers,
-      }
+      vim.lsp.enable "dhall_lsp_server"
+      vim.lsp.enable "marksman"
+      vim.lsp.enable "taplo"
+      vim.lsp.enable "astro"
+      vim.lsp.enable "eslint"
+      vim.lsp.enable "html"
+      vim.lsp.enable "pylsp"
+      vim.lsp.enable "zls"
+      vim.lsp.enable "ocamllsp"
+      vim.lsp.enable "ts_ls"
+      vim.lsp.enable "lua_ls"
 
       vim.g.rustaceanvim = {
         -- LSP configuration

@@ -30,7 +30,7 @@ return {
   {
     "dmtrkovalenko/fff.nvim",
     dir = "~/dev/fff.nvim",
-    branch = "feat/prebuild",
+    -- branch = "feat/prebuild",
     build = function()
       -- No more need to cargo build!!!!
       require("fff.download").download_or_build_binary()
@@ -66,7 +66,7 @@ return {
   },
   {
     "dmtrkovalenko/fold-imports.nvim",
-    dir = "~/dev/fold-imports.nvim",
+    -- dir = "~/dev/fold-imports.nvim",
     opts = {},
     event = "BufReadPre",
   },
@@ -222,12 +222,12 @@ return {
           vim.keymap.set(mode, l, r, opts)
         end
 
-        gsmap("n", "[c", function()
+        gsmap("n", "[<Home>", function()
           gitsigns.nav_hunk "prev"
-        end, { desc = "[G]o to [P]revious Hunk" })
-        gsmap("n", "]", function()
+        end, { remap = true, desc = "[G]o to [P]revious Hunk" })
+        gsmap("n", "]<End>", function()
           gitsigns.nav_hunk "next"
-        end, { desc = "[G]it go to [N]ext Hunk" })
+        end, { remap = true, desc = "[G]it go to [N]ext Hunk" })
         gsmap("n", "<leader>gd", gitsigns.preview_hunk, { desc = "[G]it [D]iff Hunk" })
         gsmap("n", "<leader>gr", gitsigns.reset_hunk, { desc = "[G]it [R]eset hunk" })
         gsmap("n", "<leader>gu", gitsigns.undo_stage_hunk, { desc = "[G]it [U]nstage hunk" })

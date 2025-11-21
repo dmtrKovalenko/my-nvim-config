@@ -1,8 +1,6 @@
 return {
   {
     "hedyhli/outline.nvim",
-    dev = true,
-    dir = "~/dev/outline.nvim",
     lazy = true,
     cmd = { "Outline", "OutlineOpen" },
     keys = {

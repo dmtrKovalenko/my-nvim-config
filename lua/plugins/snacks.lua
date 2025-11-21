@@ -107,7 +107,9 @@ return {
     vim.keymap.set("n", "<leader>sh", require("snacks.picker").help, { desc = "Search help" })
 
     vim.keymap.set({ "n", "x" }, "<leader>gg", function()
-      require("snacks.gitbrowse").open()
+      require("snacks.gitbrowse").open {
+        branch = "main",
+      }
     end, { desc = "Open git link in the browser", silent = true })
   end,
 }

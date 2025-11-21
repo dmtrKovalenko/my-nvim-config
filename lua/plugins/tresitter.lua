@@ -1,7 +1,9 @@
 return {
   "nvim-treesitter/nvim-treesitter",
   dependencies = {
-    "nvim-treesitter/nvim-treesitter-textobjects",
+    {
+      "nvim-treesitter/nvim-treesitter-textobjects",
+    },
     -- Custom treesitter parserrs
     "rescript-lang/tree-sitter-rescript",
     "danielo515/tree-sitter-reason",

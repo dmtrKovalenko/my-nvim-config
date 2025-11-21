@@ -23,7 +23,23 @@ vim.o.tags = "./tags;"
 -- Enale mouse mode
 vim.o.mouse = "a"
 vim.o.foldmethod = "manual"
+
 vim.o.autochdir = true
+
+if os.getenv('SSH_CONNECTION') ~=nill then
+  vim.g.clipboard = {
+    name = 'OSC 52',
+    copy = {
+      ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
+      ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
+    },
+    paste = {
+      ['+'] = require('vim.ui.clipboard.osc52').paste('+'),
+      ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
+    },
+  }
+end
+
 -- Sync clipboard between OS and Neovim.
 vim.o.clipboard = "unnamedplus"
 vim.o.showmode = false
@@ -124,37 +140,11 @@ vim.api.nvim_create_autocmd("TermOpen", {
 
 vim.filetype.add { extension = { wgsl = "wgsl" } }
 
-local function open_file_under_cursor_in_the_panel_above()
-  local has_telescope, telescope = pcall(require, "telescope.builtin")
-  local has_snacks, snacks = pcall(require, "snacks.picker")
-
-  local filename = vim.fn.expand "<cfile>"
-  local full_path_with_suffix = vim.fn.expand "<cWORD>"
-
-  vim.api.nvim_command "wincmd k"
-
-  if vim.loop.fs_stat(filename) then
-    vim.api.nvim_command(string.format("e %s", full_path_with_suffix))
-  elseif has_snacks then
-    snacks.files {
-      prompt = "🪿 ",
-      pattern = full_path_with_suffix,
-      wrap = true,
-    }
-  elseif has_telescope then
-    telescope.find_files {
-      prompt_prefix = "🪿 ",
-      default_text = full_path_with_suffix,
-      wrap_results = true,
-      find_command = { "rg", "--files", "--no-require-git" },
-    }
-  else
-    error(string.format("File %s does not exist", filename))
-  end
-end
-
--- Opens file under cursor in the panel above
-vim.keymap.set("n", "gf", open_file_under_cursor_in_the_panel_above, { silent = true })
+vim.keymap.set("n", "gf", function()
+  require("fff").open_file_under_cursor(function()
+    vim.api.nvim_command "wincmd k"
+  end)
+end, { silent = true })
 
 -- Set of commands that should be executed on startup
 vim.cmd [[command! -nargs=1 Browse silent lua vim.fn.system('open ' .. vim.fn.s3c4048hellescape(<q-args>, 1))]]

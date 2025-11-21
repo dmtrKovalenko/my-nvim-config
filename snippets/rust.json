@@ -1,27 +1,27 @@
 {
   "Derive debug": {
     "prefix": "drdb",
-    "body": [
-      "#[derive(Debug$1)]"
-    ]
+    "body": ["#[derive(Debug$1)]"]
   },
   "Derive clone & debug": {
     "prefix": "drcdb",
-    "body": [
-      "#[derive(Debug, Clone$1)]"
-    ]
+    "body": ["#[derive(Debug, Clone$1)]"]
   },
   "Collect to Vec": {
     "prefix": ".colv",
-    "body": [
-      ".collect::<Vec<_>>()$2"
-    ]
+    "body": [".collect::<Vec<_>>()$2"]
+  },
+  "Collect to Result {
+    "prefix": ".colv",
+    "body": [".collect::<Result<_>>()$2"]
+  },
+  "Collect to Result<Vec>": {
+    "prefix": ".colrv",
+    "body": [".collect::<Result<Vec<_>>>()$2"]
   },
   "Collect to Hashmap": {
     "prefix": ".colh",
-    "body": [
-      ".collect::<HashMap<_>>()$2"
-    ]
+    "body": [".collect::<HashMap<_>>()$2"]
   },
   "tonicmethod": {
     "prefix": "tonicmethod",

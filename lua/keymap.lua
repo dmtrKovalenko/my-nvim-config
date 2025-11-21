@@ -29,7 +29,7 @@ vim.keymap.set("v", "<backspace>", '"_d', { noremap = true })
 vim.keymap.set("n", "<D-s>", "w<CR>", { silent = true })
 -- Open git
 vim.keymap.set("n", "<A-g>", "<cmd>Git<CR>", { silent = true })
-vim.keymap.set("n", "<D-S-g>", "<cmd>Git<CR>", { silent = true })
+vim.keymap.set("n", "<D-S-g>", "<cmd>above Git<CR>", { silent = true })
 
 -- Move to next occurrence using native search
 vim.keymap.set("n", "<D-n>", "*", { silent = true })
@@ -184,22 +184,30 @@ vim.keymap.set("n", "<C-D-h>", "<cmd>wincmd h<CR>", { silent = true, nowait = tr
 vim.keymap.set("n", "<C-D-l>", "<cmd>wincmd l<CR>", { silent = true, nowait = true, desc = "Go to right window" })
 vim.keymap.set("n", "<C-D-j>", "<cmd>wincmd j<CR>", { silent = true, nowait = true, desc = "Go to bottom window" })
 vim.keymap.set("n", "<C-D-k>", "<cmd>wincmd k<CR>", { silent = true, nowait = true, desc = "Go to top window" })
-vim.keymap.set(
-  "n",
-  "<C-D-s>",
-  "<cmd>rightbelow vsplit<cr>",
-  { silent = true, nowait = true, desc = "Split window vertically" }
-)
 
 vim.keymap.set("n", "<C-D-Up>", "<Cmd>resize +2<CR>", { silent = true, nowait = true, desc = "Taller" })
 vim.keymap.set("n", "<C-D-Down>", "<Cmd>resize -2<CR>", { silent = true, nowait = true, desc = "Shorter" })
 vim.keymap.set("n", "<C-D-Right>", "<Cmd>vertical resize +5<CR>", { silent = true, nowait = true, desc = "Wider" })
 vim.keymap.set("n", "<C-D-Left>", "<Cmd>vertical resize -5<CR>", { silent = true, nowait = true, desc = "Narrower" })
+vim.keymap.set("n", "<C-D-o>", "<cmd>wincmd o<CR>", { silent = true, nowait = true, desc = "Quit other windows" })
 
 vim.keymap.set(
   "n",
   "<C-D-v>",
+  "<cmd>rightbelow vsplit<cr>",
+  { silent = true, nowait = true, desc = "Split window vertically" }
+)
+
+vim.keymap.set(
+  "n",
+  "<C-D-s>",
   "<cmd>rightbelow split<cr>",
   { silent = true, nowait = true, desc = "Split window horizontally" }
 )
-vim.keymap.set("n", "<C-D-o>", "<cmd>wincmd o<CR>", { silent = true, nowait = true, desc = "Quit other windows" })
+
+vim.keymap.set("x", "$", function()
+  vim.notify "Learn new move you lazy bitch"
+end, { silent = true })
+vim.keymap.set("x", "0", function()
+  vim.notify "Learn new move you lazy bitch"
+end, { silent = true })
