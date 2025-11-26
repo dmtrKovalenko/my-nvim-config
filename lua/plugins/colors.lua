@@ -1,4 +1,4 @@
-local theme = "cyberdream"
+local theme = os.getenv "NEOVIM_THEME" or "cyberdream"
 
 local function get_goose_lualine_theme()
   if theme == "catppuccin" then

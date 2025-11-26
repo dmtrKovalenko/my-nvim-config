@@ -40,9 +40,10 @@ vim.g.loaded_netrw = 1
 vim.g.loaded_netrwPlugin = 1
 
 local is_kitty = vim.env.KITTY_KITTEN == "true"
+local ssh_prefix = require("ssh_helper").ssh_prefix
 
 vim.opt.title = true
-vim.opt.titlestring = '%{winnr("$")}xfish %{fnamemodify(getcwd(), ":~:.")}'
+vim.opt.titlestring = ssh_prefix .. '%{winnr("$")}xfish %{fnamemodify(getcwd(), ":~:.")}'
 
 local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
@@ -128,7 +129,7 @@ vim.api.nvim_set_keymap("n", "<C-w>s", "<cmd>split<CR><C-w>w:terminal<CR>", { si
 vim.keymap.set({ "n", "t" }, "<A-D-s>", "<C-\\><C-n>:split<CR><C-w>w:terminal<CR>", { silent = true })
 
 function Lightsource_setup()
-  vim.opt.titlestring = "󱐋 LightSource"
+  vim.opt.titlestring = ssh_prefix .. "󱐋 LightSource"
   vim.cmd "vsplit | terminal fish -C 'just fe-dev'"
   vim.cmd "28 split | terminal fish -C 'btop --preset 2'"
   vim.cmd "wincmd h"

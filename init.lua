@@ -87,7 +87,8 @@ function GetCurrentIconFile()
   local icon = require("nvim-web-devicons").get_icon(filename)
   return icon or ""
 end
-vim.o.titlestring = '%{fnamemodify(getcwd(), ":t")} %{v:lua.GetCurrentIconFile()} %{expand("%:t")}'
+local ssh_prefix = require("ssh_helper").ssh_prefix
+vim.o.titlestring = ssh_prefix .. '%{fnamemodify(getcwd(), ":t")} %{v:lua.GetCurrentIconFile()} %{expand("%:t")}'
 
 local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
 if not vim.loop.fs_stat(lazypath) then
