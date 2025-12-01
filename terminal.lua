@@ -46,7 +46,7 @@ vim.opt.title = true
 vim.opt.titlestring = ssh_prefix .. '%{winnr("$")}xfish %{fnamemodify(getcwd(), ":~:.")}'
 
 local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
-if not vim.loop.fs_stat(lazypath) then
+if not vim.uv.fs_stat(lazypath) then
   vim.fn.system {
     "git",
     "clone",
@@ -157,3 +157,20 @@ if not is_kitty then
   -- Finally start the terminal mode whenever new neovim started with this config
   vim.cmd "terminal"
 end
+
+if os.getenv "SSH_CONNECTION" ~= nill then
+  vim.g.clipboard = {
+    name = "OSC 52",
+    copy = {
+      ["+"] = require("vim.ui.clipboard.osc52").copy "+",
+      ["*"] = require("vim.ui.clipboard.osc52").copy "*",
+    },
+    paste = {
+      ["+"] = require("vim.ui.clipboard.osc52").paste "+",
+      ["*"] = require("vim.ui.clipboard.osc52").paste "*",
+    },
+  }
+end
+
+-- Sync clipboard between OS and Neovim.
+vim.o.clipboard = "unnamedplus"

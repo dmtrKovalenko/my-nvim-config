@@ -42,6 +42,9 @@ vim.keymap.set("n", "<A-BS>", "db", { noremap = true })
 -- Select whole buffer
 vim.keymap.set("n", "<D-a>", "ggVG", {})
 
+-- Force reload the buffer
+vim.keymap.set("n", "<leader>e", "<cmd>e!<cr>", {})
+
 -- Comment out lines
 vim.keymap.set("n", "<D-_>", "gcc", {})
 vim.keymap.set("v", "<D-_>", "gc", {})

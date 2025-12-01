@@ -20,7 +20,7 @@ vim.o.shiftwidth = 4
 vim.o.tabstop = 4
 
 vim.o.tags = "./tags;"
--- Enale mouse mode
+-- Enable mouse mode
 vim.o.mouse = "a"
 vim.o.foldmethod = "manual"
 
@@ -63,7 +63,7 @@ vim.o.timeoutlen = 250
 -- Improve default search behavior
 vim.o.incsearch = true
 
--- Set the scolloff
+-- Set the scrolloff
 vim.o.scrolloff = 10
 -- No highlight current line as cursor
 vim.o.cursorline = true
@@ -91,7 +91,7 @@ local ssh_prefix = require("ssh_helper").ssh_prefix
 vim.o.titlestring = ssh_prefix .. '%{fnamemodify(getcwd(), ":t")} %{v:lua.GetCurrentIconFile()} %{expand("%:t")}'
 
 local lazypath = vim.fn.stdpath "data" .. "/lazy/lazy.nvim"
-if not vim.loop.fs_stat(lazypath) then
+if not vim.uv.fs_stat(lazypath) then
   vim.fn.system {
     "git",
     "clone",
@@ -148,7 +148,7 @@ vim.keymap.set("n", "gf", function()
 end, { silent = true })
 
 -- Set of commands that should be executed on startup
-vim.cmd [[command! -nargs=1 Browse silent lua vim.fn.system('open ' .. vim.fn.s3c4048hellescape(<q-args>, 1))]]
+vim.cmd [[command! -nargs=1 Browse silent lua vim.fn.system('open ' .. vim.fn.shellescape(<q-args>, 1))]]
 vim.cmd [[highlight DiagnosticUnderlineError cterm=undercurl gui=undercurl guisp=#f87171]]
 
 local function smart_delete(key)
