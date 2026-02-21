@@ -18,7 +18,7 @@ return {
   },
   build = ":TSUpdate",
   config = function()
-    require("nvim-treesitter.configs").setup {
+    require("nvim-treesitter").setup {
       ensure_installed = {
         "c",
         "cpp",
@@ -36,7 +36,7 @@ return {
         "ocaml",
       },
 
-      auto_install = true,
+      auto_install = false,
       highlight = {
         enable = true,
         use_languagetree = true,
@@ -102,27 +102,5 @@ return {
     }
 
     require("nvim-treesitter.install").compilers = { "gcc", "clang" }
-    local parser_config = require("nvim-treesitter.parsers").get_parser_configs()
-
-    parser_config.just = {
-      install_info = {
-        url = "https://github.com/IndianBoy42/tree-sitter-just", -- local path or git repo
-        files = { "src/parser.c", "src/scanner.cc" },
-        branch = "main",
-        use_makefile = true, -- this may be necessary on MacOS (try if you see compiler errors)
-      },
-      maintainers = { "@IndianBoy42" },
-    }
-
-    parser_config.rescript = {
-      install_info = {
-        url = "https://github.com/rescript-lang/tree-sitter-rescript",
-        branch = "main",
-        files = { "src/parser.c", "src/scanner.c" },
-        generate_requires_npm = false,
-        requires_generate_from_grammar = true,
-        use_makefile = true, -- macOS specific instruction
-      },
-    }
   end,
 }

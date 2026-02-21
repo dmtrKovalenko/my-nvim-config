@@ -26,16 +26,16 @@ vim.o.foldmethod = "manual"
 
 vim.o.autochdir = true
 
-if os.getenv('SSH_CONNECTION') ~=nill then
+if os.getenv "SSH_CONNECTION" ~= nill then
   vim.g.clipboard = {
-    name = 'OSC 52',
+    name = "OSC 52",
     copy = {
-      ['+'] = require('vim.ui.clipboard.osc52').copy('+'),
-      ['*'] = require('vim.ui.clipboard.osc52').copy('*'),
+      ["+"] = require("vim.ui.clipboard.osc52").copy "+",
+      ["*"] = require("vim.ui.clipboard.osc52").copy "*",
     },
     paste = {
-      ['+'] = require('vim.ui.clipboard.osc52').paste('+'),
-      ['*'] = require('vim.ui.clipboard.osc52').paste('*'),
+      ["+"] = require("vim.ui.clipboard.osc52").paste "+",
+      ["*"] = require("vim.ui.clipboard.osc52").paste "*",
     },
   }
 end
@@ -140,7 +140,6 @@ vim.api.nvim_create_autocmd("TermOpen", {
 })
 
 vim.filetype.add { extension = { wgsl = "wgsl" } }
-
 vim.keymap.set("n", "gf", function()
   require("fff").open_file_under_cursor(function()
     vim.api.nvim_command "wincmd k"

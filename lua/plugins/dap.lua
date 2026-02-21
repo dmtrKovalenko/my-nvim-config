@@ -49,6 +49,7 @@ local function setup_default_configurations()
   dap.configurations.cpp = lldb_configuration
   dap.configurations.rust = lldb_configuration
   dap.configurations.asm = lldb_configuration
+  dap.configurations.zig = lldb_configuration
 end
 
 return {

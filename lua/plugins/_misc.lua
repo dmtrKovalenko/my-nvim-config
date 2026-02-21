@@ -29,11 +29,11 @@ return {
   },
   {
     "dmtrkovalenko/fff.nvim",
-    dir = "~/dev/fff.nvim",
+    -- dir = "~/dev/fff.nvim",
     -- branch = "feat/prebuild",
     build = function()
       -- No more need to cargo build!!!!
-      require("fff.download").download_or_build_binary()
+      require("fff.download").download_binary()
     end,
     lazy = false,
     opts = {
@@ -46,7 +46,7 @@ return {
         chunk_size = 4096,
       },
       layout = {
-        -- prompt_position = "top",
+        prompt_position = "top",
         -- preview_size = 0.4, -- 40% of the window width
       },
       logging = {
@@ -59,6 +59,24 @@ return {
         "ff",
         function()
           require("fff").find_files()
+        end,
+        desc = "Find files",
+      },
+      {
+        "fg",
+        function()
+          require("fff").live_grep()
+        end,
+        desc = "Find files",
+      },
+      {
+        "fz",
+        function()
+          require("fff").live_grep {
+            grep = {
+              modes = { "fuzzy", "plain" },
+            },
+          }
         end,
         desc = "Find files",
       },
@@ -310,7 +328,7 @@ return {
         harpoon.ui:toggle_quick_menu(harpoon:list())
       end, { noremap = true, desc = "Harpoon view" })
 
-      vim.keymap.set("n", "<leader>a", function()
+      vim.keymap.set("n", "<leader>m", function()
         harpoon:list():add()
       end, { noremap = true, desc = "Harpoon this path" })
 
@@ -471,6 +489,7 @@ return {
   {
     "mistricky/codesnap.nvim",
     build = "make",
+    enabled = false,
     command = "CodeSnap",
     opts = {
       save_path = "~/Pictures",
@@ -479,5 +498,32 @@ return {
       bg_theme = "summer",
       watermark = "neogoose",
     },
+  },
+  {
+    "NickvanDyke/opencode.nvim",
+    dir = "~/dev/opencode.nvim",
+    config = function()
+      ---@type opencode.Opts
+      vim.g.opencode_opts = {
+        provider = {
+          cmd = "awslogin && opencode --port",
+          enabled = "terminal",
+          terminal = {},
+        },
+      }
+
+      vim.o.autoread = true
+
+      vim.keymap.set({ "n", "x" }, "<leader>a", function()
+        require("opencode").ask("@this: ", { submit = true })
+      end, { desc = "Ask opencode" })
+      vim.keymap.set({ "n" }, "<leader>o", function()
+        require("opencode").toggle()
+      end, { desc = "Toggle opencode" })
+
+      -- Remap increment/decrement since we used <C-a> and <C-x>
+      vim.keymap.set("n", "+", "<C-a>", { desc = "Increment", noremap = true })
+      vim.keymap.set("n", "-", "<C-x>", { desc = "Decrement", noremap = true })
+    end,
   },
 }
