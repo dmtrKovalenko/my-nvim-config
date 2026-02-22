@@ -90,15 +90,13 @@ return {
         },
       },
       {
-        "luckasRanarison/tailwind-tools.nvim",
-        name = "tailwind-tools",
-        build = ":UpdateRemotePlugins",
-        event = "BufWinEnter",
-        dependencies = {
-          "nvim-treesitter/nvim-treesitter",
-        },
+        "brenoprata10/nvim-highlight-colors",
+        event = { "BufReadPre", "BufNewFile" },
         opts = {
-          custom_filetypes = "rescript",
+          render = "virtual",
+          virtual_symbol = "■",
+          enable_named_colors = false,
+          enable_tailwind = true,
         },
       },
       {
@@ -263,6 +261,32 @@ return {
         on_attach = on_lsp_attach,
       })
 
+      vim.lsp.config("tailwindcss", {
+        settings = {
+          tailwindCSS = {
+            experimental = {
+              classRegex = {
+                { "cva\\(([^)]*)\\)", "[\"'`]([^\"'`]*).*?[\"'`]" },
+                { "cx\\(([^)]*)\\)", "(?:'|\"|`)([^']*)(?:'|\"|`)" },
+              },
+            },
+          },
+        },
+        filetypes = {
+          "html",
+          "css",
+          "scss",
+          "javascript",
+          "javascriptreact",
+          "typescript",
+          "typescriptreact",
+          "vue",
+          "svelte",
+          "astro",
+          "rescript",
+        },
+      })
+
       vim.lsp.enable "dhall_lsp_server"
       vim.lsp.enable "marksman"
       vim.lsp.enable "taplo"
@@ -274,6 +298,7 @@ return {
       vim.lsp.enable "ocamllsp"
       vim.lsp.enable "ts_ls"
       vim.lsp.enable "lua_ls"
+      vim.lsp.enable "tailwindcss"
 
       vim.g.rustaceanvim = {
         -- LSP configuration
