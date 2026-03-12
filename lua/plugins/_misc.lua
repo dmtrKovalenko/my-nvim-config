@@ -29,7 +29,7 @@ return {
   },
   {
     "dmtrkovalenko/fff.nvim",
-    -- dir = "~/dev/fff.nvim",
+    dir = "~/dev/fff.nvim",
     -- branch = "feat/prebuild",
     build = function()
       -- No more need to cargo build!!!!
@@ -39,7 +39,7 @@ return {
     opts = {
       lazy_sync = true,
       debug = {
-        enabled = true,
+        -- enabled = true,
         show_scores = true,
       },
       preview = {
@@ -372,20 +372,20 @@ return {
     dependencies = { "nvim-lua/plenary.nvim" },
   },
   -- Auto close brackets
-  {
-    "windwp/nvim-autopairs",
-    event = "InsertEnter",
-    opts = {
-      enable_check_bracket_line = false,
-    },
-    init = function()
-      local npairs = require "nvim-autopairs"
-      local rule = require "nvim-autopairs.rule"
-      local cond = require "nvim-autopairs.conds"
-
-      npairs.add_rules { rule("|", "|", { "rust", "go", "lua" }):with_move(cond.after_regex "|") }
-    end,
-  },
+  -- {
+  --   "windwp/nvim-autopairs",
+  --   event = "InsertEnter",
+  --   opts = {
+  --     enable_check_bracket_line = false,
+  --   },
+  --   init = function()
+  --     local npairs = require "nvim-autopairs"
+  --     local rule = require "nvim-autopairs.rule"
+  --     local cond = require "nvim-autopairs.conds"
+  --
+  --     npairs.add_rules { rule("|", "|", { "rust", "go", "lua" }):with_move(cond.after_regex "|") }
+  --   end,
+  -- },
   -- Search and replace
   {
     "MagicDuck/grug-far.nvim",
@@ -486,29 +486,36 @@ return {
     opts = {},
     dependencies = { "nvim-treesitter/nvim-treesitter", "nvim-tree/nvim-web-devicons" },
   },
-  {
-    "mistricky/codesnap.nvim",
-    build = "make",
-    enabled = false,
-    command = "CodeSnap",
-    opts = {
-      save_path = "~/Pictures",
-      has_breadcrumbs = false,
-      code_font_family = "JetBrains Mono",
-      bg_theme = "summer",
-      watermark = "neogoose",
-    },
-  },
+  -- {
+  --   "mistricky/codesnap.nvim",
+  --   build = "make",
+  --   command = "CodeSnap",
+  --   opts = {
+  --     save_path = "~/Pictures",
+  --     has_breadcrumbs = false,
+  --     code_font_family = "JetBrains Mono",
+  --     bg_theme = "summer",
+  --     watermark = "neogoose",
+  --   },
+  -- },
   {
     "NickvanDyke/opencode.nvim",
-    dir = "~/dev/opencode.nvim",
+    version = "*",
     config = function()
+      local cmd = "awslogin && opencode --port"
+
       ---@type opencode.Opts
       vim.g.opencode_opts = {
-        provider = {
-          cmd = "awslogin && opencode --port",
-          enabled = "terminal",
-          terminal = {},
+        server = {
+          start = function()
+            require("opencode.terminal").start(cmd)
+          end,
+          stop = function()
+            require("opencode.terminal").stop()
+          end,
+          toggle = function()
+            require("opencode.terminal").toggle(cmd)
+          end,
         },
       }
 
@@ -517,13 +524,16 @@ return {
       vim.keymap.set({ "n", "x" }, "<leader>a", function()
         require("opencode").ask("@this: ", { submit = true })
       end, { desc = "Ask opencode" })
-      vim.keymap.set({ "n" }, "<leader>o", function()
+      vim.keymap.set({ "n", "x" }, "<leader>x", function()
+        require("opencode").select()
+      end, { desc = "Execute opencode action" })
+      vim.keymap.set("n", "<leader>o", function()
         require("opencode").toggle()
       end, { desc = "Toggle opencode" })
-
-      -- Remap increment/decrement since we used <C-a> and <C-x>
-      vim.keymap.set("n", "+", "<C-a>", { desc = "Increment", noremap = true })
-      vim.keymap.set("n", "-", "<C-x>", { desc = "Decrement", noremap = true })
     end,
+  },
+  {
+    "esmuellert/codediff.nvim",
+    cmd = "CodeDiff",
   },
 }

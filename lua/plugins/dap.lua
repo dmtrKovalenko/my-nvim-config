@@ -102,7 +102,7 @@ return {
 
     dap.adapters.lldb = {
       type = "executable",
-      command = "/Users/neogoose/.local/share/nvim/mason/bin/codelldb",
+      command = os.getenv("HOME") .. "/.local/share/nvim/mason/bin/codelldb",
       name = "codelldb",
     }
 

@@ -78,6 +78,65 @@ return {
       {
         "mrcjkb/rustaceanvim",
         lazy = false,
+        init = function()
+          vim.g.rustaceanvim = {
+            server = {
+              on_attach = function(client, bufnr)
+                local lsp_map = function(keys, func, desc)
+                  if desc then
+                    desc = "LSP: " .. desc
+                  end
+                  vim.keymap.set("n", keys, func, { remap = true, buffer = bufnr, desc = desc, silent = true })
+                end
+
+                lsp_map("<D-.>", function()
+                  require("tiny-code-action").code_action {}
+                end, "Code Action")
+                lsp_map("<D-i>", function()
+                  vim.cmd.RustLsp { "hover", "actions" }
+                end, "Hover Documentation")
+                lsp_map("<D-r>", vim.lsp.buf.rename, "Rename")
+                lsp_map("gD", vim.lsp.buf.definition, "Goto Declaration")
+                lsp_map("gi", vim.lsp.buf.implementation, "Goto Implementation")
+                lsp_map("<D-g>", "<C-]>", "[G]oto [D]efinition")
+                lsp_map("<D-u>", vim.lsp.buf.signature_help, "Signature Documentation")
+
+                if Snacks and Snacks.picker then
+                  lsp_map("gr", Snacks.picker.lsp_references, "[G]oto [R]eferences")
+                  lsp_map("gi", Snacks.picker.lsp_implementations, "[G]oto [I]mplementations")
+                  lsp_map("<A-t>", Snacks.picker.lsp_type_definitions, "[G]oto [T]ype Definitions")
+                  lsp_map("<D-l>", Snacks.picker.lsp_workspace_symbols, "Search workspace symbols")
+                  lsp_map("<leader>ss", Snacks.picker.lsp_symbols, "[S]earch [S]ymbols")
+                end
+
+                lsp_map("<leader>lr", function()
+                  vim.cmd "LspRestart"
+                end, "Lsp [R]eload")
+                lsp_map("<leader>li", function()
+                  vim.cmd "LspInfo"
+                end, "Lsp [I]nfo")
+                lsp_map("<leader>lh", function()
+                  vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled(), { bufnr })
+                end, "Lsp toggle inlay [h]ints")
+              end,
+              logfile = "/tmp/rustaceanvim.log",
+              default_settings = {
+                ["rust-analyzer"] = {
+                  check = {
+                    allTargets = false,
+                  },
+                  cargo = {
+                    targetDir = true,
+                  },
+                  files = {
+                    excludeDirs = { "target", "node_modules", ".git", ".sl" },
+                  },
+                },
+              },
+            },
+            dap = {},
+          }
+        end,
       },
       {
         "aznhe21/actions-preview.nvim",
@@ -145,11 +204,13 @@ return {
         lsp_map("<D-u>", vim.lsp.buf.signature_help, "Signature Documentation")
 
         -- Various picker for lsp related stuff
-        lsp_map("gr", Snacks.picker.lsp_references, "[G]oto [R]eferences")
-        lsp_map("gi", Snacks.picker.lsp_implementations, "[G]oto [I]mplementations")
-        lsp_map("<A-t>", Snacks.picker.lsp_type_definitions, "[G]oto [T]ype Definitions")
-        lsp_map("<D-l>", Snacks.picker.lsp_workspace_symbols, "Search workspace symbols")
-        lsp_map("<leader>ss", Snacks.picker.lsp_symbols, "[S]earch [S]ymbols")
+        if Snacks and Snacks.picker then
+          lsp_map("gr", Snacks.picker.lsp_references, "[G]oto [R]eferences")
+          lsp_map("gi", Snacks.picker.lsp_implementations, "[G]oto [I]mplementations")
+          lsp_map("<A-t>", Snacks.picker.lsp_type_definitions, "[G]oto [T]ype Definitions")
+          lsp_map("<D-l>", Snacks.picker.lsp_workspace_symbols, "Search workspace symbols")
+          lsp_map("<leader>ss", Snacks.picker.lsp_symbols, "[S]earch [S]ymbols")
+        end
 
         lsp_map("<leader>lr", function()
           vim.cmd "LspRestart"
@@ -299,29 +360,6 @@ return {
       vim.lsp.enable "ts_ls"
       vim.lsp.enable "lua_ls"
       vim.lsp.enable "tailwindcss"
-
-      vim.g.rustaceanvim = {
-        -- LSP configuration
-        server = {
-          on_attach = on_lsp_attach,
-          logfile = "/tmp/rustaceanvim.log",
-          default_settings = {
-            -- rust-analyzer language server configuration
-            ["rust-analyzer"] = {
-              check = {
-                allTargets = false,
-              },
-              cargo = {
-                targetDir = true,
-              },
-              files = {
-                excludeDirs = { "target", "node_modules", ".git", ".sl" },
-              },
-            },
-          },
-        },
-        dap = {},
-      }
 
       require("mason").setup()
     end,
