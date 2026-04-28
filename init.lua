@@ -25,6 +25,7 @@ vim.o.mouse = "a"
 vim.o.foldmethod = "manual"
 
 vim.o.autochdir = true
+vim.o.exrc = true
 
 if os.getenv "SSH_CONNECTION" ~= nill then
   vim.g.clipboard = {

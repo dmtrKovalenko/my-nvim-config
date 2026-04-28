@@ -123,10 +123,10 @@ return {
               default_settings = {
                 ["rust-analyzer"] = {
                   check = {
-                    allTargets = false,
+                    overrideCommand = {},
                   },
                   cargo = {
-                    targetDir = true,
+                    buildScripts = { enable = false },
                   },
                   files = {
                     excludeDirs = { "target", "node_modules", ".git", ".sl" },

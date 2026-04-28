@@ -27,6 +27,7 @@ return {
 
     opts = {},
   },
+  { "pablopunk/pi.nvim" },
   {
     "dmtrkovalenko/fff.nvim",
     dir = "~/dev/fff.nvim",
@@ -38,6 +39,9 @@ return {
     lazy = false,
     opts = {
       lazy_sync = true,
+      grep = {
+        trim_whitespace = true,
+      },
       debug = {
         -- enabled = true,
         show_scores = true,
@@ -68,6 +72,20 @@ return {
           require("fff").live_grep()
         end,
         desc = "Find files",
+      },
+      {
+        "fw",
+        function()
+          require("fff").live_grep { query = vim.fn.expand "<cword>" }
+        end,
+        desc = "Search for <cword>",
+      },
+      {
+        "fW",
+        function()
+          require("fff").live_grep { query = vim.fn.expand "<cWORD>" }
+        end,
+        desc = "Search for <cWORD>",
       },
       {
         "fz",
@@ -102,20 +120,13 @@ return {
       },
     },
     opts = {
-      command = "awsclaude",
+      command = "claude --model us.anthropic.claude-opus-4-7 --dangerously-skip-permissions --effort max",
       window = {
         split_ratio = 0.4,
         enter_insert = false,
         position = "rightbelow",
       },
     },
-  },
-  {
-    "github/copilot.vim",
-    config = function()
-      vim.g.copilot_settings = { selectedCompletionModel = "gpt-41-copilot" }
-      vim.g.copilot_integration_id = "vscode-chat"
-    end,
   },
   {
     "dmtrkovalenko/project.nvim",
@@ -502,7 +513,7 @@ return {
     "NickvanDyke/opencode.nvim",
     version = "*",
     config = function()
-      local cmd = "awslogin && opencode --port"
+      local cmd = "opencode --port"
 
       ---@type opencode.Opts
       vim.g.opencode_opts = {
