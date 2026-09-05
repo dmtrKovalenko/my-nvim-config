@@ -28,9 +28,11 @@ return {
     opts = {},
   },
   { "pablopunk/pi.nvim" },
+  -- { "akinsho/git-conflict.nvim", version = "*", config = true },
   {
     "dmtrkovalenko/fff.nvim",
     dir = "~/dev/fff.nvim",
+    -- version = "0.9.4",
     -- branch = "feat/prebuild",
     build = function()
       -- No more need to cargo build!!!!
@@ -38,7 +40,8 @@ return {
     end,
     lazy = false,
     opts = {
-      lazy_sync = true,
+      lazy_sync = false,
+      wrap_around = true,
       grep = {
         trim_whitespace = true,
       },
@@ -76,14 +79,20 @@ return {
       {
         "fw",
         function()
-          require("fff").live_grep { query = vim.fn.expand "<cword>" }
+          require("fff").live_grep_under_cursor()
         end,
-        desc = "Search for <cword>",
+        mode = { "n", "x" },
+        desc = "Search current word / selection",
       },
       {
         "fW",
         function()
-          require("fff").live_grep { query = vim.fn.expand "<cWORD>" }
+          require("fff").live_grep {
+            grep = {
+              modes = { "regex" },
+            },
+            query = [[\b]] .. vim.fn.expand "<cWORD>" .. [[\b]],
+          }
         end,
         desc = "Search for <cWORD>",
       },
@@ -187,7 +196,6 @@ return {
       end)
     end,
   },
-  { "akinsho/git-conflict.nvim", version = "*", config = true },
   {
     "akinsho/toggleterm.nvim",
     keys = {
@@ -383,20 +391,20 @@ return {
     dependencies = { "nvim-lua/plenary.nvim" },
   },
   -- Auto close brackets
-  -- {
-  --   "windwp/nvim-autopairs",
-  --   event = "InsertEnter",
-  --   opts = {
-  --     enable_check_bracket_line = false,
-  --   },
-  --   init = function()
-  --     local npairs = require "nvim-autopairs"
-  --     local rule = require "nvim-autopairs.rule"
-  --     local cond = require "nvim-autopairs.conds"
-  --
-  --     npairs.add_rules { rule("|", "|", { "rust", "go", "lua" }):with_move(cond.after_regex "|") }
-  --   end,
-  -- },
+  {
+    "windwp/nvim-autopairs",
+    event = "InsertEnter",
+    opts = {
+      enable_check_bracket_line = false,
+    },
+    init = function()
+      local npairs = require "nvim-autopairs"
+      local rule = require "nvim-autopairs.rule"
+      local cond = require "nvim-autopairs.conds"
+
+      npairs.add_rules { rule("|", "|", { "rust", "go", "lua" }):with_move(cond.after_regex "|") }
+    end,
+  },
   -- Search and replace
   {
     "MagicDuck/grug-far.nvim",
@@ -510,7 +518,7 @@ return {
   --   },
   -- },
   {
-    "NickvanDyke/opencode.nvim",
+    "dmtrKovalenko/opencode.nvim",
     version = "*",
     config = function()
       local cmd = "opencode --port"
@@ -533,7 +541,7 @@ return {
       vim.o.autoread = true
 
       vim.keymap.set({ "n", "x" }, "<leader>a", function()
-        require("opencode").ask("@this: ", { submit = true })
+        require("opencode").ask "@this: "
       end, { desc = "Ask opencode" })
       vim.keymap.set({ "n", "x" }, "<leader>x", function()
         require("opencode").select()

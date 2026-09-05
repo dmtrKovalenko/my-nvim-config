@@ -297,6 +297,20 @@ return {
           "clangd",
           "--offset-encoding=utf-16",
         },
+        on_attach = function(client, bufnr)
+          -- clangd's lspconfig default ships its own on_attach (source/header
+          -- commands) which would otherwise shadow our global keymap setup.
+          on_lsp_attach(client, bufnr)
+          vim.api.nvim_buf_create_user_command(bufnr, "LspClangdSwitchSourceHeader", function()
+            local params = vim.lsp.util.make_text_document_params(bufnr)
+            client:request("textDocument/switchSourceHeader", params, function(err, result)
+              if err or not result then
+                return
+              end
+              vim.cmd.edit(vim.uri_to_fname(result))
+            end, bufnr)
+          end, { desc = "Switch between source/header" })
+        end,
       })
 
       vim.lsp.config("lua_ls", {
@@ -348,6 +362,7 @@ return {
         },
       })
 
+      vim.lsp.enable "clangd"
       vim.lsp.enable "dhall_lsp_server"
       vim.lsp.enable "marksman"
       vim.lsp.enable "taplo"
